@@ -66,7 +66,7 @@ export default class extends Controller {
   }
 
   defaultButtons() {
-    return ["bold", "italic", "strike", "divider", "link", "divider", "heading"]
+    return ["bold", "italic", "underline", "strike", "divider", "highlight", "link", "divider", "heading"]
   }
 
   buttonConfig(name) {
@@ -79,9 +79,17 @@ export default class extends Controller {
         title: "Italic (Cmd+I)",
         icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="4" x2="10" y2="4"/><line x1="14" y1="20" x2="5" y2="20"/><line x1="15" y1="4" x2="9" y2="20"/></svg>'
       },
+      underline: {
+        title: "Underline (Cmd+U)",
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4v6a6 6 0 0 0 6 6 6 6 0 0 0 6-6V4"/><line x1="4" y1="20" x2="20" y2="20"/></svg>'
+      },
       strike: {
         title: "Strikethrough",
         icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4H9a3 3 0 0 0-2.83 4"/><path d="M14 12a4 4 0 0 1 0 8H6"/><line x1="4" y1="12" x2="20" y2="12"/></svg>'
+      },
+      highlight: {
+        title: "Highlight",
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 11-6 6v3h9l3-3"/><path d="m22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4"/></svg>'
       },
       link: {
         title: "Link (Cmd+K)",
@@ -106,6 +114,10 @@ export default class extends Controller {
       codeBlock: {
         title: "Code Block",
         icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>'
+      },
+      youtube: {
+        title: "YouTube Video",
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/><path d="m10 15 5-3-5-3z"/></svg>'
       }
     }
 
@@ -123,8 +135,14 @@ export default class extends Controller {
       case "italic":
         this.editorController.toggleItalic()
         break
+      case "underline":
+        this.editorController.toggleUnderline()
+        break
       case "strike":
         this.editorController.toggleStrike()
+        break
+      case "highlight":
+        this.editorController.toggleHighlight()
         break
       case "link":
         this.promptForLink()
@@ -144,9 +162,19 @@ export default class extends Controller {
       case "codeBlock":
         this.editorController.toggleCodeBlock()
         break
+      case "youtube":
+        this.promptForYoutubeUrl()
+        break
     }
 
     this.updateActiveStates()
+  }
+
+  promptForYoutubeUrl() {
+    const url = prompt("Enter YouTube URL:", "https://www.youtube.com/watch?v=")
+    if (url && url !== "https://www.youtube.com/watch?v=") {
+      this.editorController.insertYoutubeVideo(url)
+    }
   }
 
   promptForLink() {

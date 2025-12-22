@@ -13,6 +13,14 @@ import TaskItem from "@tiptap/extension-task-item"
 import Mention from "@tiptap/extension-mention"
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight"
 import { common, createLowlight } from "lowlight"
+// Additional extensions for enhanced editing
+import Typography from "@tiptap/extension-typography"
+import Highlight from "@tiptap/extension-highlight"
+import Underline from "@tiptap/extension-underline"
+import Subscript from "@tiptap/extension-subscript"
+import Superscript from "@tiptap/extension-superscript"
+import Youtube from "@tiptap/extension-youtube"
+import CharacterCount from "@tiptap/extension-character-count"
 
 /**
  * Inkpen Editor Controller
@@ -22,12 +30,15 @@ import { common, createLowlight } from "lowlight"
  *
  * Supports extensions:
  * - StarterKit (bold, italic, strike, heading, lists, blockquote, code, etc.)
- * - Link
- * - Image
+ * - Link, Image
  * - Table (with rows, cells, headers)
  * - TaskList (checkboxes)
  * - Mention (@mentions)
  * - CodeBlockLowlight (syntax highlighting)
+ * - Typography (smart quotes, markdown shortcuts)
+ * - Highlight, Underline, Subscript, Superscript
+ * - YouTube (video embeds)
+ * - CharacterCount
  */
 export default class extends Controller {
   static targets = ["input", "content", "toolbar"]
@@ -200,6 +211,61 @@ export default class extends Controller {
           HTMLAttributes: {
             class: "inkpen-code-block"
           }
+        })
+      )
+    }
+
+    // Typography (smart quotes, markdown shortcuts like ## for headings)
+    if (enabledExtensions.includes("typography")) {
+      extensions.push(Typography)
+    }
+
+    // Highlight mark (text highlighting)
+    if (enabledExtensions.includes("highlight")) {
+      extensions.push(
+        Highlight.configure({
+          multicolor: true,
+          HTMLAttributes: {
+            class: "inkpen-highlight"
+          }
+        })
+      )
+    }
+
+    // Underline mark
+    if (enabledExtensions.includes("underline")) {
+      extensions.push(Underline)
+    }
+
+    // Subscript/Superscript marks
+    if (enabledExtensions.includes("subscript")) {
+      extensions.push(Subscript)
+    }
+    if (enabledExtensions.includes("superscript")) {
+      extensions.push(Superscript)
+    }
+
+    // YouTube video embeds
+    if (enabledExtensions.includes("youtube")) {
+      const youtubeConfig = config.youtube || {}
+      extensions.push(
+        Youtube.configure({
+          inline: false,
+          width: youtubeConfig.width || 640,
+          height: youtubeConfig.height || 360,
+          HTMLAttributes: {
+            class: "inkpen-youtube"
+          }
+        })
+      )
+    }
+
+    // Character count
+    if (enabledExtensions.includes("character_count")) {
+      const charConfig = config.character_count || {}
+      extensions.push(
+        CharacterCount.configure({
+          limit: charConfig.limit || null
         })
       )
     }
@@ -479,6 +545,45 @@ export default class extends Controller {
   // TaskList commands
   toggleTaskList() {
     this.editor?.chain().focus().toggleTaskList().run()
+  }
+
+  // Highlight commands
+  toggleHighlight(color = null) {
+    if (color) {
+      this.editor?.chain().focus().toggleHighlight({ color }).run()
+    } else {
+      this.editor?.chain().focus().toggleHighlight().run()
+    }
+  }
+
+  // Underline command
+  toggleUnderline() {
+    this.editor?.chain().focus().toggleUnderline().run()
+  }
+
+  // Subscript/Superscript commands
+  toggleSubscript() {
+    this.editor?.chain().focus().toggleSubscript().run()
+  }
+
+  toggleSuperscript() {
+    this.editor?.chain().focus().toggleSuperscript().run()
+  }
+
+  // YouTube embed command
+  insertYoutubeVideo(url) {
+    if (url) {
+      this.editor?.chain().focus().setYoutubeVideo({ src: url }).run()
+    }
+  }
+
+  // Character count methods
+  getCharacterCount() {
+    return this.editor?.storage.characterCount?.characters() || 0
+  }
+
+  getWordCount() {
+    return this.editor?.storage.characterCount?.words() || 0
   }
 
   // Check if format is active

@@ -39,9 +39,18 @@ module Inkpen
       image
       table
       slash_commands
-      mentions
+      mention
       hashtags
       placeholder
+      typography
+      highlight
+      underline
+      subscript
+      superscript
+      youtube
+      character_count
+      code_block_syntax
+      task_list
     ].freeze
 
     def initialize

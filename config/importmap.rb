@@ -78,6 +78,21 @@ pin "@tiptap/suggestion", to: "https://ga.jspm.io/npm:@tiptap/suggestion@2.10.3/
 # Syntax highlighting for code blocks
 pin "@tiptap/extension-code-block-lowlight", to: "https://ga.jspm.io/npm:@tiptap/extension-code-block-lowlight@2.10.3/dist/index.js"
 
+# Typography extension (markdown shortcuts, smart quotes)
+pin "@tiptap/extension-typography", to: "https://ga.jspm.io/npm:@tiptap/extension-typography@2.10.3/dist/index.js"
+
+# Text formatting marks
+pin "@tiptap/extension-highlight", to: "https://ga.jspm.io/npm:@tiptap/extension-highlight@2.10.3/dist/index.js"
+pin "@tiptap/extension-underline", to: "https://ga.jspm.io/npm:@tiptap/extension-underline@2.10.3/dist/index.js"
+pin "@tiptap/extension-subscript", to: "https://ga.jspm.io/npm:@tiptap/extension-subscript@2.10.3/dist/index.js"
+pin "@tiptap/extension-superscript", to: "https://ga.jspm.io/npm:@tiptap/extension-superscript@2.10.3/dist/index.js"
+
+# YouTube video embeds
+pin "@tiptap/extension-youtube", to: "https://ga.jspm.io/npm:@tiptap/extension-youtube@2.10.3/dist/index.js"
+
+# Character count
+pin "@tiptap/extension-character-count", to: "https://ga.jspm.io/npm:@tiptap/extension-character-count@2.10.3/dist/index.js"
+
 # Lowlight with bundled dependencies (esm.sh handles ESM-only packages better)
 pin "lowlight", to: "https://esm.sh/lowlight@3?bundle"
 
