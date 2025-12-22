@@ -13,6 +13,7 @@ require_relative "inkpen/extensions/mention"
 require_relative "inkpen/extensions/code_block_syntax"
 require_relative "inkpen/extensions/table"
 require_relative "inkpen/extensions/task_list"
+require_relative "inkpen/extensions/slash_commands"
 
 module Inkpen
   class Error < StandardError; end
