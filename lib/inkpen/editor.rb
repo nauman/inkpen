@@ -30,14 +30,17 @@ module Inkpen
     end
 
     # Generate data attributes for Stimulus controller
+    # Uses nested :data key for proper Rails tag.attributes handling
     def data_attributes
       {
-        controller: "inkpen--editor",
-        "inkpen--editor-extensions-value" => extensions.to_json,
-        "inkpen--editor-toolbar-value" => toolbar.to_s,
-        "inkpen--editor-placeholder-value" => placeholder,
-        "inkpen--editor-autosave-value" => autosave.to_s,
-        "inkpen--editor-autosave-interval-value" => autosave_interval.to_s
+        data: {
+          controller: "inkpen--editor",
+          "inkpen--editor-extensions-value" => extensions.to_json,
+          "inkpen--editor-toolbar-value" => toolbar.to_s,
+          "inkpen--editor-placeholder-value" => placeholder,
+          "inkpen--editor-autosave-value" => autosave.to_s,
+          "inkpen--editor-autosave-interval-value" => autosave_interval.to_s
+        }
       }
     end
 

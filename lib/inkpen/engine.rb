@@ -18,9 +18,9 @@ module Inkpen
       end
     end
 
-    initializer "inkpen.helpers" do
-      ActiveSupport.on_load(:action_view) do
-        include Inkpen::EditorHelper
+    initializer "inkpen.helpers" do |app|
+      app.config.to_prepare do
+        ActionView::Base.include Inkpen::EditorHelper
       end
     end
 
