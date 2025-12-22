@@ -3,18 +3,38 @@ import { Editor } from "@tiptap/core"
 import StarterKit from "@tiptap/starter-kit"
 import Link from "@tiptap/extension-link"
 import Placeholder from "@tiptap/extension-placeholder"
+import Image from "@tiptap/extension-image"
+import Table from "@tiptap/extension-table"
+import TableRow from "@tiptap/extension-table-row"
+import TableCell from "@tiptap/extension-table-cell"
+import TableHeader from "@tiptap/extension-table-header"
+import TaskList from "@tiptap/extension-task-list"
+import TaskItem from "@tiptap/extension-task-item"
+import Mention from "@tiptap/extension-mention"
+import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight"
+import { common, createLowlight } from "lowlight"
 
 /**
  * Inkpen Editor Controller
  *
  * Main Stimulus controller for the TipTap editor.
  * Handles initialization, content sync, and editor lifecycle.
+ *
+ * Supports extensions:
+ * - StarterKit (bold, italic, strike, heading, lists, blockquote, code, etc.)
+ * - Link
+ * - Image
+ * - Table (with rows, cells, headers)
+ * - TaskList (checkboxes)
+ * - Mention (@mentions)
+ * - CodeBlockLowlight (syntax highlighting)
  */
 export default class extends Controller {
   static targets = ["input", "content", "toolbar"]
 
   static values = {
     extensions: { type: Array, default: [] },
+    extensionConfig: { type: Object, default: {} },
     toolbar: { type: String, default: "floating" },
     placeholder: { type: String, default: "Start writing..." },
     autosave: { type: Boolean, default: false },
@@ -79,19 +99,27 @@ export default class extends Controller {
   }
 
   buildExtensions() {
+    const config = this.extensionConfigValue
+    const enabledExtensions = this.extensionsValue
+
+    // Base StarterKit - disable codeBlock if we're using CodeBlockLowlight
+    const starterKitConfig = {
+      heading: { levels: [1, 2, 3, 4] }
+    }
+
+    if (enabledExtensions.includes("code_block_syntax")) {
+      starterKitConfig.codeBlock = false
+    }
+
     const extensions = [
-      StarterKit.configure({
-        heading: {
-          levels: [1, 2, 3, 4]
-        }
-      }),
+      StarterKit.configure(starterKitConfig),
       Placeholder.configure({
         placeholder: this.placeholderValue
       })
     ]
 
-    // Add link extension if enabled
-    if (this.extensionsValue.includes("link")) {
+    // Link extension
+    if (enabledExtensions.includes("link")) {
       extensions.push(
         Link.configure({
           openOnClick: false,
@@ -103,7 +131,219 @@ export default class extends Controller {
       )
     }
 
+    // Image extension
+    if (enabledExtensions.includes("image")) {
+      extensions.push(
+        Image.configure({
+          inline: false,
+          allowBase64: true
+        })
+      )
+    }
+
+    // Table extension
+    if (enabledExtensions.includes("table")) {
+      const tableConfig = config.table || {}
+      extensions.push(
+        Table.configure({
+          resizable: tableConfig.resizable !== false,
+          HTMLAttributes: {
+            class: "inkpen-table"
+          }
+        }),
+        TableRow,
+        TableHeader,
+        TableCell
+      )
+    }
+
+    // TaskList extension (checkboxes)
+    if (enabledExtensions.includes("task_list")) {
+      const taskConfig = config.task_list || {}
+      extensions.push(
+        TaskList.configure({
+          HTMLAttributes: {
+            class: taskConfig.listClass || "inkpen-task-list"
+          }
+        }),
+        TaskItem.configure({
+          nested: taskConfig.nested !== false,
+          HTMLAttributes: {
+            class: taskConfig.itemClass || "inkpen-task-item"
+          }
+        })
+      )
+    }
+
+    // Mention extension
+    if (enabledExtensions.includes("mention")) {
+      const mentionConfig = config.mention || {}
+      extensions.push(
+        Mention.configure({
+          HTMLAttributes: {
+            class: mentionConfig.HTMLAttributes?.class || "inkpen-mention"
+          },
+          suggestion: this.buildMentionSuggestion(mentionConfig)
+        })
+      )
+    }
+
+    // CodeBlockLowlight (syntax highlighting)
+    if (enabledExtensions.includes("code_block_syntax")) {
+      const codeConfig = config.code_block_syntax || {}
+      const lowlight = createLowlight(common)
+
+      extensions.push(
+        CodeBlockLowlight.configure({
+          lowlight,
+          defaultLanguage: codeConfig.defaultLanguage || null,
+          HTMLAttributes: {
+            class: "inkpen-code-block"
+          }
+        })
+      )
+    }
+
     return extensions
+  }
+
+  /**
+   * Build mention suggestion configuration
+   * Handles both static items and async search
+   */
+  buildMentionSuggestion(config) {
+    const items = config.items || []
+    const searchUrl = config.searchUrl
+
+    return {
+      char: config.trigger || "@",
+      items: async ({ query }) => {
+        // If search URL provided, fetch from server
+        if (searchUrl) {
+          try {
+            const response = await fetch(`${searchUrl}?query=${encodeURIComponent(query)}`)
+            if (response.ok) {
+              return await response.json()
+            }
+          } catch (error) {
+            console.error("Mention search failed:", error)
+          }
+          return []
+        }
+
+        // Otherwise filter static items
+        return items
+          .filter(item =>
+            item.label.toLowerCase().includes(query.toLowerCase())
+          )
+          .slice(0, 5)
+      },
+      render: () => {
+        let component
+        let popup
+
+        return {
+          onStart: props => {
+            component = this.createMentionPopup(props, config)
+            popup = component.element
+            document.body.appendChild(popup)
+            this.updateMentionPopupPosition(popup, props.clientRect)
+          },
+          onUpdate: props => {
+            this.updateMentionItems(component, props.items, props.command)
+            this.updateMentionPopupPosition(popup, props.clientRect)
+          },
+          onKeyDown: props => {
+            if (props.event.key === "Escape") {
+              popup?.remove()
+              return true
+            }
+            return component?.onKeyDown?.(props.event) || false
+          },
+          onExit: () => {
+            popup?.remove()
+          }
+        }
+      }
+    }
+  }
+
+  createMentionPopup(props, config) {
+    const popup = document.createElement("div")
+    popup.className = config.suggestionClass || "inkpen-mention-suggestions"
+    popup.setAttribute("role", "listbox")
+
+    const component = {
+      element: popup,
+      selectedIndex: 0,
+      items: props.items,
+      command: props.command,
+      onKeyDown: (event) => {
+        if (event.key === "ArrowUp") {
+          component.selectedIndex = Math.max(0, component.selectedIndex - 1)
+          this.updateMentionSelection(popup, component.selectedIndex)
+          return true
+        }
+        if (event.key === "ArrowDown") {
+          component.selectedIndex = Math.min(component.items.length - 1, component.selectedIndex + 1)
+          this.updateMentionSelection(popup, component.selectedIndex)
+          return true
+        }
+        if (event.key === "Enter") {
+          const item = component.items[component.selectedIndex]
+          if (item) {
+            component.command(item)
+          }
+          return true
+        }
+        return false
+      }
+    }
+
+    this.updateMentionItems(component, props.items, props.command)
+    return component
+  }
+
+  updateMentionItems(component, items, command) {
+    component.items = items
+    component.command = command
+    component.selectedIndex = 0
+
+    const popup = component.element
+    popup.innerHTML = ""
+
+    if (items.length === 0) {
+      popup.innerHTML = '<div class="inkpen-mention-empty">No results</div>'
+      return
+    }
+
+    items.forEach((item, index) => {
+      const button = document.createElement("button")
+      button.className = `inkpen-mention-item ${index === 0 ? "is-selected" : ""}`
+      button.setAttribute("role", "option")
+      button.textContent = item.label
+      button.addEventListener("click", () => command(item))
+      popup.appendChild(button)
+    })
+  }
+
+  updateMentionSelection(popup, selectedIndex) {
+    const items = popup.querySelectorAll(".inkpen-mention-item")
+    items.forEach((item, index) => {
+      item.classList.toggle("is-selected", index === selectedIndex)
+    })
+  }
+
+  updateMentionPopupPosition(popup, clientRect) {
+    if (!clientRect) return
+
+    const rect = clientRect()
+    if (!rect) return
+
+    popup.style.position = "fixed"
+    popup.style.left = `${rect.left}px`
+    popup.style.top = `${rect.bottom + 8}px`
+    popup.style.zIndex = "9999"
   }
 
   syncContent(editor) {
@@ -193,6 +433,52 @@ export default class extends Controller {
 
   insertHorizontalRule() {
     this.editor?.chain().focus().setHorizontalRule().run()
+  }
+
+  // Table commands
+  insertTable(rows = 3, cols = 3, withHeaderRow = true) {
+    this.editor?.chain().focus().insertTable({ rows, cols, withHeaderRow }).run()
+  }
+
+  addTableRowBefore() {
+    this.editor?.chain().focus().addRowBefore().run()
+  }
+
+  addTableRowAfter() {
+    this.editor?.chain().focus().addRowAfter().run()
+  }
+
+  deleteTableRow() {
+    this.editor?.chain().focus().deleteRow().run()
+  }
+
+  addTableColumnBefore() {
+    this.editor?.chain().focus().addColumnBefore().run()
+  }
+
+  addTableColumnAfter() {
+    this.editor?.chain().focus().addColumnAfter().run()
+  }
+
+  deleteTableColumn() {
+    this.editor?.chain().focus().deleteColumn().run()
+  }
+
+  deleteTable() {
+    this.editor?.chain().focus().deleteTable().run()
+  }
+
+  mergeCells() {
+    this.editor?.chain().focus().mergeCells().run()
+  }
+
+  splitCell() {
+    this.editor?.chain().focus().splitCell().run()
+  }
+
+  // TaskList commands
+  toggleTaskList() {
+    this.editor?.chain().focus().toggleTaskList().run()
   }
 
   // Check if format is active

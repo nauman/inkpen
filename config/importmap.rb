@@ -67,6 +67,33 @@ pin "@tiptap/extension-table-cell", to: "https://ga.jspm.io/npm:@tiptap/extensio
 pin "@tiptap/extension-table-header", to: "https://ga.jspm.io/npm:@tiptap/extension-table-header@2.10.3/dist/index.js"
 pin "@tiptap/extension-image", to: "https://ga.jspm.io/npm:@tiptap/extension-image@2.10.3/dist/index.js"
 
-# Inkpen controllers
+# Task List extension
+pin "@tiptap/extension-task-list", to: "https://ga.jspm.io/npm:@tiptap/extension-task-list@2.10.3/dist/index.js"
+pin "@tiptap/extension-task-item", to: "https://ga.jspm.io/npm:@tiptap/extension-task-item@2.10.3/dist/index.js"
+
+# Mention extension
+pin "@tiptap/extension-mention", to: "https://ga.jspm.io/npm:@tiptap/extension-mention@2.10.3/dist/index.js"
+pin "@tiptap/suggestion", to: "https://ga.jspm.io/npm:@tiptap/suggestion@2.10.3/dist/index.js"
+
+# Syntax highlighting for code blocks
+pin "@tiptap/extension-code-block-lowlight", to: "https://ga.jspm.io/npm:@tiptap/extension-code-block-lowlight@2.10.3/dist/index.js"
+
+# Lowlight with bundled dependencies (esm.sh handles ESM-only packages better)
+pin "lowlight", to: "https://esm.sh/lowlight@3?bundle"
+
+# Highlight.js core and common languages for syntax highlighting
+pin "highlight.js/lib/core", to: "https://esm.sh/highlight.js@11.9.0/lib/core"
+pin "highlight.js/lib/languages/javascript", to: "https://esm.sh/highlight.js@11.9.0/lib/languages/javascript"
+pin "highlight.js/lib/languages/typescript", to: "https://esm.sh/highlight.js@11.9.0/lib/languages/typescript"
+pin "highlight.js/lib/languages/ruby", to: "https://esm.sh/highlight.js@11.9.0/lib/languages/ruby"
+pin "highlight.js/lib/languages/python", to: "https://esm.sh/highlight.js@11.9.0/lib/languages/python"
+pin "highlight.js/lib/languages/css", to: "https://esm.sh/highlight.js@11.9.0/lib/languages/css"
+pin "highlight.js/lib/languages/xml", to: "https://esm.sh/highlight.js@11.9.0/lib/languages/xml"
+pin "highlight.js/lib/languages/json", to: "https://esm.sh/highlight.js@11.9.0/lib/languages/json"
+pin "highlight.js/lib/languages/bash", to: "https://esm.sh/highlight.js@11.9.0/lib/languages/bash"
+pin "highlight.js/lib/languages/sql", to: "https://esm.sh/highlight.js@11.9.0/lib/languages/sql"
+pin "highlight.js/lib/languages/markdown", to: "https://esm.sh/highlight.js@11.9.0/lib/languages/markdown"
+
+# Inkpen controllers and extensions
 pin "inkpen", to: "inkpen/index.js"
 pin_all_from File.expand_path("../app/assets/javascripts/inkpen", __dir__), under: "inkpen"

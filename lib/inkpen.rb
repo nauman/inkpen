@@ -6,6 +6,14 @@ require_relative "inkpen/configuration"
 require_relative "inkpen/editor"
 require_relative "inkpen/toolbar"
 
+# Extensions
+require_relative "inkpen/extensions/base"
+require_relative "inkpen/extensions/forced_document"
+require_relative "inkpen/extensions/mention"
+require_relative "inkpen/extensions/code_block_syntax"
+require_relative "inkpen/extensions/table"
+require_relative "inkpen/extensions/task_list"
+
 module Inkpen
   class Error < StandardError; end
 

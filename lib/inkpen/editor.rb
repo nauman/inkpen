@@ -8,19 +8,23 @@ module Inkpen
   #     name: "post[body]",
   #     value: @post.body,
   #     toolbar: :floating,
-  #     extensions: [:mentions, :hashtags]
+  #     extensions: [:mentions, :hashtags],
+  #     extension_config: {
+  #       mention: { searchUrl: "/editor/mentions.json" }
+  #     }
   #   )
   #
   class Editor
-    attr_reader :name, :value, :toolbar, :extensions, :placeholder,
-                :autosave, :autosave_interval, :min_height, :max_height,
-                :html_attributes
+    attr_reader :name, :value, :toolbar, :extensions, :extension_config,
+                :placeholder, :autosave, :autosave_interval, :min_height,
+                :max_height, :html_attributes
 
     def initialize(name:, value: nil, **options)
       @name = name
       @value = value
       @toolbar = options.fetch(:toolbar, Inkpen.configuration.toolbar)
       @extensions = options.fetch(:extensions, Inkpen.configuration.extensions)
+      @extension_config = options.fetch(:extension_config, {})
       @placeholder = options.fetch(:placeholder, Inkpen.configuration.placeholder)
       @autosave = options.fetch(:autosave, Inkpen.configuration.autosave)
       @autosave_interval = options.fetch(:autosave_interval, Inkpen.configuration.autosave_interval)
@@ -32,16 +36,18 @@ module Inkpen
     # Generate data attributes for Stimulus controller
     # Uses nested :data key for proper Rails tag.attributes handling
     def data_attributes
-      {
+      attrs = {
         data: {
           controller: "inkpen--editor",
           "inkpen--editor-extensions-value" => extensions.to_json,
+          "inkpen--editor-extension-config-value" => extension_config.to_json,
           "inkpen--editor-toolbar-value" => toolbar.to_s,
           "inkpen--editor-placeholder-value" => placeholder,
           "inkpen--editor-autosave-value" => autosave.to_s,
           "inkpen--editor-autosave-interval-value" => autosave_interval.to_s
         }
       }
+      attrs
     end
 
     # Generate inline styles
