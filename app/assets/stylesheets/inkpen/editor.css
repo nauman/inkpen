@@ -1,0 +1,225 @@
+/* Inkpen Editor Styles
+ * ========================================================================== */
+
+/* CSS Custom Properties (override these in your app) */
+:root {
+  --inkpen-font-family: inherit;
+  --inkpen-font-size: 1rem;
+  --inkpen-line-height: 1.6;
+  --inkpen-color-text: #1a1a1a;
+  --inkpen-color-text-muted: #6b7280;
+  --inkpen-color-background: #ffffff;
+  --inkpen-color-border: #e5e7eb;
+  --inkpen-color-primary: #3b82f6;
+  --inkpen-color-selection: rgba(59, 130, 246, 0.2);
+  --inkpen-radius: 0.375rem;
+  --inkpen-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --inkpen-toolbar-bg: #ffffff;
+  --inkpen-toolbar-border: #e5e7eb;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --inkpen-color-text: #f3f4f6;
+    --inkpen-color-text-muted: #9ca3af;
+    --inkpen-color-background: #1f2937;
+    --inkpen-color-border: #374151;
+    --inkpen-toolbar-bg: #1f2937;
+    --inkpen-toolbar-border: #374151;
+  }
+}
+
+/* Editor Container */
+.inkpen-editor {
+  position: relative;
+  font-family: var(--inkpen-font-family);
+  font-size: var(--inkpen-font-size);
+  line-height: var(--inkpen-line-height);
+  color: var(--inkpen-color-text);
+  background: var(--inkpen-color-background);
+}
+
+/* Content Area */
+.inkpen-editor__content {
+  outline: none;
+  min-height: 200px;
+  padding: 1rem;
+}
+
+.inkpen-editor__content:empty::before {
+  content: attr(data-placeholder);
+  color: var(--inkpen-color-text-muted);
+  pointer-events: none;
+}
+
+/* Focus state */
+.inkpen-editor__content:focus {
+  outline: none;
+}
+
+/* Floating Toolbar */
+.inkpen-toolbar--floating {
+  position: absolute;
+  z-index: 50;
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.375rem;
+  background: var(--inkpen-toolbar-bg);
+  border: 1px solid var(--inkpen-toolbar-border);
+  border-radius: var(--inkpen-radius);
+  box-shadow: var(--inkpen-shadow);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 150ms, visibility 150ms;
+}
+
+.inkpen-toolbar--floating.is-visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Toolbar Buttons */
+.inkpen-toolbar__button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: var(--inkpen-radius);
+  color: var(--inkpen-color-text);
+  cursor: pointer;
+  transition: background-color 150ms;
+}
+
+.inkpen-toolbar__button:hover {
+  background: var(--inkpen-color-selection);
+}
+
+.inkpen-toolbar__button.is-active {
+  background: var(--inkpen-color-primary);
+  color: white;
+}
+
+.inkpen-toolbar__button svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.inkpen-toolbar__divider {
+  width: 1px;
+  height: 1.5rem;
+  background: var(--inkpen-color-border);
+  margin: 0 0.25rem;
+}
+
+/* ==========================================================================
+   Content Styles (inside editor)
+   ========================================================================== */
+
+.inkpen-editor__content {
+  /* Headings */
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    line-height: 1.3;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  h1 { font-size: 2rem; }
+  h2 { font-size: 1.5rem; }
+  h3 { font-size: 1.25rem; }
+  h4 { font-size: 1rem; }
+
+  /* Paragraphs */
+  p {
+    margin-bottom: 1rem;
+  }
+
+  /* Lists */
+  ul, ol {
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+  }
+
+  li {
+    margin-bottom: 0.25rem;
+  }
+
+  /* Blockquote */
+  blockquote {
+    border-left: 3px solid var(--inkpen-color-border);
+    margin: 1rem 0;
+    padding: 0.5rem 1rem;
+    font-style: italic;
+    color: var(--inkpen-color-text-muted);
+  }
+
+  /* Code */
+  code {
+    background: var(--inkpen-color-selection);
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+    font-size: 0.875em;
+  }
+
+  pre {
+    background: var(--inkpen-color-border);
+    padding: 1rem;
+    border-radius: var(--inkpen-radius);
+    overflow-x: auto;
+    margin: 1rem 0;
+
+    code {
+      background: none;
+      padding: 0;
+    }
+  }
+
+  /* Links */
+  a {
+    color: var(--inkpen-color-primary);
+    text-decoration: underline;
+  }
+
+  /* Horizontal Rule */
+  hr {
+    border: none;
+    border-top: 1px solid var(--inkpen-color-border);
+    margin: 2rem 0;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+  }
+
+  th, td {
+    border: 1px solid var(--inkpen-color-border);
+    padding: 0.5rem 1rem;
+    text-align: left;
+  }
+
+  th {
+    background: var(--inkpen-color-selection);
+    font-weight: 600;
+  }
+
+  /* Images */
+  img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--inkpen-radius);
+  }
+
+  /* Selection */
+  ::selection {
+    background: var(--inkpen-color-selection);
+  }
+}

@@ -1,0 +1,30 @@
+<%# Inkpen Editor Partial %>
+<%# Renders a TipTap-based rich text editor with Stimulus controller %>
+
+<div class="inkpen-editor"
+     <%= tag.attributes(editor.data_attributes) %>
+     <%= tag.attributes(editor.html_attributes) %>
+     style="<%= editor.style_attributes %>">
+
+  <%# Hidden input for form submission %>
+  <input type="hidden"
+         name="<%= editor.input_name %>"
+         id="<%= editor.input_id %>"
+         value="<%= editor.value %>"
+         data-inkpen--editor-target="input">
+
+  <%# Editor content area - TipTap mounts here %>
+  <div class="inkpen-editor__content"
+       data-inkpen--editor-target="content"
+       data-placeholder="<%= editor.placeholder %>">
+  </div>
+
+  <%# Floating toolbar container (rendered by JS when style is :floating) %>
+  <% if editor.toolbar == :floating %>
+    <div class="inkpen-toolbar inkpen-toolbar--floating"
+         data-inkpen--editor-target="toolbar"
+         role="toolbar"
+         aria-label="Text formatting">
+    </div>
+  <% end %>
+</div>
