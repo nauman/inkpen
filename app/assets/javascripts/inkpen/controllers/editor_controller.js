@@ -1,5 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 import { Editor } from "@tiptap/core"
+import { DOMSerializer } from "@tiptap/pm/model"
+import Document from "@tiptap/extension-document"
 import StarterKit from "@tiptap/starter-kit"
 import Link from "@tiptap/extension-link"
 import Placeholder from "@tiptap/extension-placeholder"
@@ -122,12 +124,55 @@ export default class extends Controller {
       starterKitConfig.codeBlock = false
     }
 
+    // If forced_document is enabled, we need to use a custom Document
+    // and disable the default document in StarterKit
+    if (enabledExtensions.includes("forced_document")) {
+      starterKitConfig.document = false
+    }
+
     const extensions = [
-      StarterKit.configure(starterKitConfig),
-      Placeholder.configure({
-        placeholder: this.placeholderValue
-      })
+      StarterKit.configure(starterKitConfig)
     ]
+
+    // Forced Document Structure (title + optional subtitle)
+    if (enabledExtensions.includes("forced_document")) {
+      const docConfig = config.forced_document || {}
+      const contentExpression = docConfig.contentExpression || "heading block*"
+
+      // Create custom Document with forced structure
+      const CustomDocument = Document.extend({
+        content: contentExpression
+      })
+
+      extensions.unshift(CustomDocument)
+
+      // Store config for placeholder use
+      this.forcedDocConfig = docConfig
+    }
+
+    // Placeholder extension with support for forced document structure
+    extensions.push(
+      Placeholder.configure({
+        placeholder: ({ node, pos }) => {
+          // If forced_document is enabled, show specific placeholders
+          if (this.forcedDocConfig && node.type.name === "heading") {
+            const docConfig = this.forcedDocConfig
+
+            // First heading (title)
+            if (pos === 0) {
+              return docConfig.titlePlaceholder || "Untitled"
+            }
+
+            // Second heading (subtitle) - if enabled and this is position after first heading
+            if (docConfig.subtitle && node.attrs.level === (docConfig.subtitleLevel || 2)) {
+              return docConfig.subtitlePlaceholder || "Add a subtitle..."
+            }
+          }
+
+          return this.placeholderValue
+        }
+      })
+    )
 
     // Link extension
     if (enabledExtensions.includes("link")) {
@@ -589,6 +634,136 @@ export default class extends Controller {
   // Check if format is active
   isActive(name, attributes = {}) {
     return this.editor?.isActive(name, attributes) || false
+  }
+
+  // Forced Document helpers
+
+  /**
+   * Get the title text from the first heading.
+   * Only works when forced_document extension is enabled.
+   * @returns {string} The title text
+   */
+  getTitle() {
+    if (!this.editor || !this.forcedDocConfig) return ""
+
+    const doc = this.editor.state.doc
+    const firstChild = doc.firstChild
+
+    if (firstChild && firstChild.type.name === "heading") {
+      return firstChild.textContent || ""
+    }
+    return ""
+  }
+
+  /**
+   * Get the subtitle text from the second heading.
+   * Only works when forced_document with subtitle is enabled.
+   * @returns {string} The subtitle text
+   */
+  getSubtitle() {
+    if (!this.editor || !this.forcedDocConfig || !this.forcedDocConfig.subtitle) return ""
+
+    const doc = this.editor.state.doc
+    const subtitleLevel = this.forcedDocConfig.subtitleLevel || 2
+
+    // Look for second heading with matching level
+    let found = false
+    let subtitle = ""
+
+    doc.forEach((node, offset, index) => {
+      if (found) return
+      if (index === 1 && node.type.name === "heading" && node.attrs.level === subtitleLevel) {
+        subtitle = node.textContent || ""
+        found = true
+      }
+    })
+
+    return subtitle
+  }
+
+  /**
+   * Set the title text in the first heading.
+   * @param {string} title The title text to set
+   */
+  setTitle(title) {
+    if (!this.editor) return
+
+    const { state, view } = this.editor
+    const firstChild = state.doc.firstChild
+
+    if (firstChild && firstChild.type.name === "heading") {
+      const tr = state.tr.replaceWith(
+        1, // Start of first heading content
+        1 + firstChild.content.size, // End of first heading content
+        state.schema.text(title)
+      )
+      view.dispatch(tr)
+    }
+  }
+
+  /**
+   * Set the subtitle text in the second heading.
+   * @param {string} subtitle The subtitle text to set
+   */
+  setSubtitle(subtitle) {
+    if (!this.editor || !this.forcedDocConfig || !this.forcedDocConfig.subtitle) return
+
+    const { state, view } = this.editor
+    const doc = state.doc
+    const subtitleLevel = this.forcedDocConfig.subtitleLevel || 2
+
+    // Find the second heading position
+    let subtitlePos = null
+    let subtitleNode = null
+
+    doc.forEach((node, pos, index) => {
+      if (subtitlePos !== null) return
+      if (index === 1 && node.type.name === "heading" && node.attrs.level === subtitleLevel) {
+        subtitlePos = pos
+        subtitleNode = node
+      }
+    })
+
+    if (subtitlePos !== null && subtitleNode) {
+      const tr = state.tr.replaceWith(
+        subtitlePos + 1, // Start of subtitle content
+        subtitlePos + 1 + subtitleNode.content.size, // End of subtitle content
+        state.schema.text(subtitle)
+      )
+      view.dispatch(tr)
+    }
+  }
+
+  /**
+   * Get body content (everything after title/subtitle).
+   * @returns {string} HTML content of the body
+   */
+  getBody() {
+    if (!this.editor) return ""
+
+    const doc = this.editor.state.doc
+    const hasSubtitle = this.forcedDocConfig?.subtitle
+
+    // Skip first node (title) and optionally second (subtitle)
+    const startIndex = hasSubtitle ? 2 : 1
+    const bodyNodes = []
+
+    doc.forEach((node, offset, index) => {
+      if (index >= startIndex) {
+        bodyNodes.push(node)
+      }
+    })
+
+    if (bodyNodes.length === 0) return ""
+
+    // Create a temporary document fragment and serialize
+    const fragment = this.editor.state.schema.nodes.doc.create(null, bodyNodes)
+    const serializer = DOMSerializer.fromSchema(this.editor.state.schema)
+    const dom = serializer.serializeFragment(fragment.content)
+    const div = document.createElement("div")
+    div.appendChild(dom)
+
+    return div.innerHTML
   }
 
   // Helper to dispatch custom events
