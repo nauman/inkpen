@@ -778,7 +778,12 @@ export default class extends Controller {
 
   dispatchChangeEvent() {
     this.dispatchEvent("change", {
-      content: this.inputTarget.value
+      content: this.inputTarget.value,
+      title: this.getTitle(),
+      subtitle: this.getSubtitle(),
+      body: this.getBody(),
+      wordCount: this.getWordCount(),
+      characterCount: this.getCharacterCount()
     })
   }
 }
