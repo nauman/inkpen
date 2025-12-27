@@ -3,38 +3,52 @@ import { Controller } from "@hotwired/stimulus"
 /**
  * Inkpen Toolbar Controller
  *
- * Handles the floating selection toolbar.
- * Shows/hides based on text selection and provides formatting buttons.
+ * Handles toolbar button clicks for the floating selection toolbar.
+ * Visibility and positioning are handled by TipTap's BubbleMenu extension.
  */
 export default class extends Controller {
   static targets = ["button"]
 
   static values = {
-    style: { type: String, default: "floating" },
-    buttons: { type: Array, default: [] },
-    position: { type: String, default: "top" }
+    buttons: { type: Array, default: [] }
   }
 
   connect() {
     this.editorController = null
-    this.isVisible = false
 
-    // Find parent editor controller
+    // Find parent editor controller (with retry for timing)
     this.findEditorController()
-
-    // Listen for selection changes
-    document.addEventListener("selectionchange", this.handleSelectionChange.bind(this))
+    if (!this.editorController) {
+      this.retryFindEditor()
+    }
 
     // Build toolbar buttons
     this.buildToolbar()
   }
 
   disconnect() {
-    document.removeEventListener("selectionchange", this.handleSelectionChange.bind(this))
+    if (this.retryTimer) {
+      clearTimeout(this.retryTimer)
+    }
+  }
+
+  retryFindEditor() {
+    let attempts = 0
+    const maxAttempts = 10
+
+    const tryFind = () => {
+      attempts++
+      this.findEditorController()
+
+      if (!this.editorController && attempts < maxAttempts) {
+        this.retryTimer = setTimeout(tryFind, 100)
+      }
+    }
+
+    this.retryTimer = setTimeout(tryFind, 50)
   }
 
   findEditorController() {
-    // Find the inkpen--editor controller in parent
     const editorElement = this.element.closest("[data-controller*='inkpen--editor']")
     if (editorElement) {
       this.editorController = this.application.getControllerForElementAndIdentifier(
@@ -66,7 +80,7 @@ export default class extends Controller {
   }
 
   defaultButtons() {
-    return ["bold", "italic", "underline", "strike", "divider", "highlight", "link", "divider", "heading"]
+    return ["bold", "italic", "underline", "strike", "divider", "code", "codeBlock", "highlight", "link", "divider", "heading"]
   }
 
   buttonConfig(name) {
@@ -86,6 +100,10 @@ export default class extends Controller {
       strike: {
         title: "Strikethrough",
         icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4H9a3 3 0 0 0-2.83 4"/><path d="M14 12a4 4 0 0 1 0 8H6"/><line x1="4" y1="12" x2="20" y2="12"/></svg>'
+      },
+      code: {
+        title: "Inline Code",
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg>'
       },
       highlight: {
         title: "Highlight",
@@ -126,6 +144,9 @@ export default class extends Controller {
 
   executeCommand(event) {
     const command = event.currentTarget.dataset.command
+    if (!this.editorController) {
+      this.findEditorController()
+    }
     if (!this.editorController) return
 
     switch (command) {
@@ -162,6 +183,9 @@ export default class extends Controller {
       case "codeBlock":
         this.editorController.toggleCodeBlock()
         break
+      case "code":
+        this.editorController.toggleCode()
+        break
       case "youtube":
         this.promptForYoutubeUrl()
         break
@@ -184,62 +208,6 @@ export default class extends Controller {
     }
   }
 
-  handleSelectionChange() {
-    // Debounce selection handling
-    clearTimeout(this.selectionTimeout)
-    this.selectionTimeout = setTimeout(() => {
-      this.updateVisibility()
-      this.updateActiveStates()
-    }, 100)
-  }
-
-  updateVisibility() {
-    if (this.styleValue !== "floating") return
-
-    const selection = window.getSelection()
-    const hasSelection = selection && !selection.isCollapsed && selection.toString().trim()
-
-    if (hasSelection && this.isSelectionInEditor(selection)) {
-      this.show()
-      this.positionToolbar(selection)
-    } else {
-      this.hide()
-    }
-  }
-
-  isSelectionInEditor(selection) {
-    const editorElement = this.element.closest("[data-controller*='inkpen--editor']")
-    if (!editorElement) return false
-
-    const contentElement = editorElement.querySelector("[data-inkpen--editor-target='content']")
-    if (!contentElement) return false
-
-    const range = selection.getRangeAt(0)
-    return contentElement.contains(range.commonAncestorContainer)
-  }
-
-  positionToolbar(selection) {
-    const range = selection.getRangeAt(0)
-    const rect = range.getBoundingClientRect()
-    const toolbarRect = this.element.getBoundingClientRect()
-
-    let top = rect.top + window.scrollY - toolbarRect.height - 10
-    let left = rect.left + window.scrollX + (rect.width / 2) - (toolbarRect.width / 2)
-
-    // Keep within viewport
-    const padding = 10
-    if (left < padding) left = padding
-    if (left + toolbarRect.width > window.innerWidth - padding) {
-      left = window.innerWidth - toolbarRect.width - padding
-    }
-    if (top < padding) {
-      top = rect.bottom + window.scrollY + 10
-    }
-
-    this.element.style.top = `${top}px`
-    this.element.style.left = `${left}px`
-  }
-
   updateActiveStates() {
     if (!this.editorController) return
 
@@ -255,23 +223,16 @@ export default class extends Controller {
       bold: "bold",
       italic: "italic",
       strike: "strike",
+      underline: "underline",
       link: "link",
       heading: "heading",
       bulletList: "bulletList",
       orderedList: "orderedList",
       blockquote: "blockquote",
-      codeBlock: "codeBlock"
+      codeBlock: "codeBlock",
+      code: "code",
+      highlight: "highlight"
     }
     return mapping[command] || command
-  }
-
-  show() {
-    this.element.classList.add("is-visible")
-    this.isVisible = true
-  }
-
-  hide() {
-    this.element.classList.remove("is-visible")
-    this.isVisible = false
   }
 }

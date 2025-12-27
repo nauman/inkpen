@@ -19,10 +19,12 @@
        data-placeholder="<%= editor.placeholder %>">
   </div>
 
-  <%# Floating toolbar container (rendered by JS when style is :floating) %>
+  <%# Floating toolbar container %>
   <% if editor.toolbar == :floating %>
     <div class="inkpen-toolbar inkpen-toolbar--floating"
+         data-controller="inkpen--toolbar"
          data-inkpen--editor-target="toolbar"
+         data-inkpen--toolbar-style-value="floating"
          role="toolbar"
          aria-label="Text formatting">
     </div>

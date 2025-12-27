@@ -23,6 +23,7 @@ import Subscript from "@tiptap/extension-subscript"
 import Superscript from "@tiptap/extension-superscript"
 import Youtube from "@tiptap/extension-youtube"
 import CharacterCount from "@tiptap/extension-character-count"
+import BubbleMenu from "@tiptap/extension-bubble-menu"
 
 /**
  * Inkpen Editor Controller
@@ -134,6 +135,42 @@ export default class extends Controller {
       StarterKit.configure(starterKitConfig)
     ]
 
+    // BubbleMenu (floating toolbar on text selection) - TipTap's native extension
+    if (this.hasToolbarTarget && this.toolbarValue === "floating") {
+      const toolbarEl = this.toolbarTarget
+      extensions.push(
+        BubbleMenu.configure({
+          element: toolbarEl,
+          tippyOptions: {
+            duration: 100,
+            placement: "top-start",
+            offset: [0, 10],
+            appendTo: () => document.body,
+            zIndex: 9999,
+            // Get position directly from selection coordinates
+            getReferenceClientRect: () => {
+              const { view, state } = this.editor
+              const { from, to } = state.selection
+              const start = view.coordsAtPos(from)
+              const end = view.coordsAtPos(to)
+              return {
+                top: Math.min(start.top, end.top),
+                bottom: Math.max(start.bottom, end.bottom),
+                left: Math.min(start.left, end.left),
+                right: Math.max(start.right, end.right),
+                width: Math.abs(end.left - start.left),
+                height: Math.abs(end.bottom - start.top),
+              }
+            },
+          },
+          shouldShow: ({ editor, state }) => {
+            // Only show when there's a text selection (not just cursor)
+            return !state.selection.empty && editor.isEditable
+          }
+        })
+      )
+    }
+
     // Forced Document Structure (title + optional subtitle)
     if (enabledExtensions.includes("forced_document")) {
       const docConfig = config.forced_document || {}
@@ -153,23 +190,43 @@ export default class extends Controller {
     // Placeholder extension with support for forced document structure
     extensions.push(
       Placeholder.configure({
-        placeholder: ({ node, pos }) => {
+        includeChildren: true,
+        placeholder: ({ node, pos, editor }) => {
           // If forced_document is enabled, show specific placeholders
           if (this.forcedDocConfig && node.type.name === "heading") {
             const docConfig = this.forcedDocConfig
+            const titleLevel = docConfig.titleLevel || 1
+            const subtitleLevel = docConfig.subtitleLevel || 2
 
-            // First heading (title)
-            if (pos === 0) {
+            // First heading (title) - position 0 and matching title level
+            if (pos === 0 && node.attrs.level === titleLevel) {
               return docConfig.titlePlaceholder || "Untitled"
             }
 
-            // Second heading (subtitle) - if enabled and this is position after first heading
-            if (docConfig.subtitle && node.attrs.level === (docConfig.subtitleLevel || 2)) {
-              return docConfig.subtitlePlaceholder || "Add a subtitle..."
+            // Second heading (subtitle) - after title, matching subtitle level
+            if (docConfig.subtitle && node.attrs.level === subtitleLevel) {
+              // Check if this is the second node in the document
+              const doc = editor.state.doc
+              let isSecondHeading = false
+              let nodeIndex = 0
+              doc.forEach((n, offset) => {
+                if (offset === pos) {
+                  isSecondHeading = nodeIndex === 1
+                }
+                nodeIndex++
+              })
+              if (isSecondHeading) {
+                return docConfig.subtitlePlaceholder || "Add a subtitle..."
+              }
             }
           }
 
-          return this.placeholderValue
+          // Default placeholder for paragraphs
+          if (node.type.name === "paragraph") {
+            return this.placeholderValue || "Start writing..."
+          }
+
+          return ""
         }
       })
     )
@@ -458,8 +515,15 @@ export default class extends Controller {
   }
 
   syncContent(editor) {
-    const html = editor.getHTML()
-    this.inputTarget.value = html
+    // If forced_document is enabled, only store body content (not title/subtitle)
+    // Title and subtitle are stored in separate hidden fields
+    if (this.forcedDocConfig) {
+      const body = this.getBody()
+      this.inputTarget.value = body
+    } else {
+      const html = editor.getHTML()
+      this.inputTarget.value = html
+    }
   }
 
   handleSelectionChange(editor) {
@@ -532,6 +596,10 @@ export default class extends Controller {
 
   toggleCodeBlock() {
     this.editor?.chain().focus().toggleCodeBlock().run()
+  }
+
+  toggleCode() {
+    this.editor?.chain().focus().toggleCode().run()
   }
 
   setLink(url) {

@@ -1,0 +1,314 @@
+/**
+ * Inkpen Sticky Toolbar Styles
+ *
+ * Fixed-position toolbar for block/media/widget insertion.
+ * Supports horizontal (bottom) and vertical (left/right) layouts.
+ *
+ * CSS Variables for theming:
+ * --inkpen-toolbar-bg: Background color
+ * --inkpen-border: Border color
+ * --inkpen-text: Text/icon color
+ * --inkpen-text-muted: Muted text color
+ * --inkpen-hover-bg: Hover background
+ * --inkpen-primary: Primary accent color
+ * --inkpen-primary-light: Light primary for icon backgrounds
+ */
+
+/* Base sticky toolbar */
+.inkpen-sticky-toolbar {
+  position: fixed;
+  z-index: 100;
+  display: flex;
+  background: var(--inkpen-toolbar-bg, #fff);
+  border: 1px solid var(--inkpen-border, #e5e7eb);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 4px;
+}
+
+/* Position: Bottom (centered) */
+.inkpen-sticky-toolbar[data-position="bottom"] {
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  flex-direction: row;
+}
+
+/* Position: Left (middle, vertical) */
+.inkpen-sticky-toolbar[data-position="left"] {
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  flex-direction: column;
+}
+
+/* Position: Right (middle, vertical) */
+.inkpen-sticky-toolbar[data-position="right"] {
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  flex-direction: column;
+}
+
+/* Button container */
+.inkpen-sticky-toolbar__buttons {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.inkpen-sticky-toolbar--vertical .inkpen-sticky-toolbar__buttons {
+  flex-direction: column;
+}
+
+/* Toolbar buttons */
+.inkpen-sticky-toolbar__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--inkpen-text, #374151);
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.inkpen-sticky-toolbar__btn:hover {
+  background: var(--inkpen-hover-bg, #f3f4f6);
+  color: var(--inkpen-primary, #4f46e5);
+}
+
+.inkpen-sticky-toolbar__btn:active {
+  transform: scale(0.95);
+}
+
+.inkpen-sticky-toolbar__btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Divider */
+.inkpen-sticky-toolbar__divider {
+  width: 1px;
+  height: 20px;
+  background: var(--inkpen-border, #e5e7eb);
+  margin: 0 4px;
+}
+
+.inkpen-sticky-toolbar--vertical .inkpen-sticky-toolbar__divider {
+  width: 20px;
+  height: 1px;
+  margin: 4px 0;
+}
+
+/* ============================================
+   Widget Modal
+   ============================================ */
+
+.inkpen-widget-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.inkpen-widget-modal.hidden {
+  display: none;
+}
+
+.inkpen-widget-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  animation: inkpen-fade-in 0.15s ease-out;
+}
+
+.inkpen-widget-modal__content {
+  position: relative;
+  background: var(--inkpen-toolbar-bg, #fff);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  max-width: 400px;
+  width: 90%;
+  max-height: 80vh;
+  overflow: hidden;
+  animation: inkpen-slide-up 0.2s ease-out;
+}
+
+.inkpen-widget-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--inkpen-border, #e5e7eb);
+}
+
+.inkpen-widget-modal__header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--inkpen-text, #374151);
+}
+
+.inkpen-widget-modal__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--inkpen-text-muted, #6b7280);
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.inkpen-widget-modal__close:hover {
+  background: var(--inkpen-hover-bg, #f3f4f6);
+  color: var(--inkpen-text, #374151);
+}
+
+.inkpen-widget-modal__close svg {
+  width: 16px;
+  height: 16px;
+}
+
+.inkpen-widget-modal__list {
+  padding: 8px;
+  overflow-y: auto;
+  max-height: calc(80vh - 60px);
+}
+
+/* Widget option button */
+.inkpen-widget-modal__option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.15s;
+}
+
+.inkpen-widget-modal__option:hover {
+  background: var(--inkpen-hover-bg, #f3f4f6);
+}
+
+.inkpen-widget-modal__option-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  background: var(--inkpen-primary-light, #eef2ff);
+  border-radius: 8px;
+  color: var(--inkpen-primary, #4f46e5);
+}
+
+.inkpen-widget-modal__option-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.inkpen-widget-modal__option-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.inkpen-widget-modal__option-label {
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--inkpen-text, #374151);
+}
+
+.inkpen-widget-modal__option-desc {
+  font-size: 13px;
+  color: var(--inkpen-text-muted, #6b7280);
+}
+
+/* ============================================
+   Animations
+   ============================================ */
+
+@keyframes inkpen-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes inkpen-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   Dark mode support
+   ============================================ */
+
+.dark .inkpen-sticky-toolbar,
+.dark .inkpen-widget-modal__content {
+  --inkpen-toolbar-bg: #1f2937;
+  --inkpen-border: #374151;
+  --inkpen-text: #f3f4f6;
+  --inkpen-text-muted: #9ca3af;
+  --inkpen-hover-bg: #374151;
+  --inkpen-primary: #818cf8;
+  --inkpen-primary-light: #312e81;
+}
+
+/* ============================================
+   Responsive adjustments
+   ============================================ */
+
+@media (max-width: 640px) {
+  .inkpen-sticky-toolbar[data-position="left"],
+  .inkpen-sticky-toolbar[data-position="right"] {
+    /* On mobile, force to bottom position */
+    left: 50%;
+    right: auto;
+    top: auto;
+    bottom: 16px;
+    transform: translateX(-50%);
+    flex-direction: row;
+  }
+
+  .inkpen-sticky-toolbar[data-position="left"] .inkpen-sticky-toolbar__buttons,
+  .inkpen-sticky-toolbar[data-position="right"] .inkpen-sticky-toolbar__buttons {
+    flex-direction: row;
+  }
+
+  .inkpen-sticky-toolbar[data-position="left"] .inkpen-sticky-toolbar__divider,
+  .inkpen-sticky-toolbar[data-position="right"] .inkpen-sticky-toolbar__divider {
+    width: 1px;
+    height: 20px;
+    margin: 0 4px;
+  }
+
+  .inkpen-widget-modal__content {
+    max-width: 95%;
+    margin: 0 10px;
+  }
+}

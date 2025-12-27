@@ -38,6 +38,16 @@
 - [x] @Mentions with search API
 - [x] Floating selection toolbar
 
+#### Sticky Toolbar (NEW)
+- [x] Fixed-position toolbar for block/media/widget insertion
+- [x] Positions: bottom (horizontal), left/right (vertical)
+- [x] Block buttons: Table, Code Block, Blockquote, Task List, Divider
+- [x] Media buttons: Image, YouTube, Embed
+- [x] Widget picker modal with event-driven integration
+- [x] Per-instance configuration via Ruby PORO
+- [x] Dark mode support
+- [x] Responsive (mobile adapts to bottom position)
+
 ---
 
 ## Phase 1: Document Excellence (v0.3.0)
@@ -166,6 +176,8 @@
 | Tables | ✅ | ✅ | ✅ | ✅ |
 | Code Blocks | ✅ | ✅ | ✅ | ✅ |
 | Embeds | ✅ | ✅ | ✅ | ✅ |
+| Sticky Toolbar | ✅ | ❌ | ✅ | ❌ |
+| Widget Picker | ✅ | ❌ | ✅ | ✅ |
 
 Legend: ✅ Implemented | 🔄 In Progress | ❌ Not Available
 

@@ -15,7 +15,7 @@ module Inkpen
   #   )
   #
   class Editor
-    attr_reader :name, :value, :toolbar, :extensions, :extension_config,
+    attr_reader :name, :value, :toolbar, :sticky_toolbar, :extensions, :extension_config,
                 :placeholder, :autosave, :autosave_interval, :min_height,
                 :max_height, :html_attributes
 
@@ -23,6 +23,7 @@ module Inkpen
       @name = name
       @value = value
       @toolbar = options.fetch(:toolbar, Inkpen.configuration.toolbar)
+      @sticky_toolbar = options.fetch(:sticky_toolbar, nil)
       @extensions = options.fetch(:extensions, Inkpen.configuration.extensions)
       @extension_config = options.fetch(:extension_config, {})
       @placeholder = options.fetch(:placeholder, Inkpen.configuration.placeholder)
@@ -36,9 +37,12 @@ module Inkpen
     # Generate data attributes for Stimulus controller
     # Uses nested :data key for proper Rails tag.attributes handling
     def data_attributes
+      controllers = ["inkpen--editor"]
+      controllers << "inkpen--sticky-toolbar" if sticky_toolbar&.enabled?
+
       attrs = {
         data: {
-          controller: "inkpen--editor",
+          controller: controllers.join(" "),
           "inkpen--editor-extensions-value" => extensions.to_json,
           "inkpen--editor-extension-config-value" => extension_config.to_json,
           "inkpen--editor-toolbar-value" => toolbar.to_s,
@@ -47,6 +51,12 @@ module Inkpen
           "inkpen--editor-autosave-interval-value" => autosave_interval.to_s
         }
       }
+
+      # Merge sticky toolbar data attributes if enabled
+      if sticky_toolbar&.enabled?
+        attrs[:data].merge!(sticky_toolbar.data_attributes)
+      end
+
       attrs
     end
 

@@ -84,6 +84,63 @@ Inkpen::Toolbar::PRESET_STANDARD  # Formatting + common blocks
 Inkpen::Toolbar::PRESET_FULL      # All available buttons
 ```
 
+### Sticky Toolbar
+
+The sticky toolbar provides a fixed-position toolbar for inserting blocks, media, and widgets. It supports horizontal (bottom) and vertical (left/right) positions.
+
+```ruby
+# Enable sticky toolbar with default settings
+editor = Inkpen::Editor.new(
+  name: "post[body]",
+  value: @post.body,
+  sticky_toolbar: Inkpen::StickyToolbar.new(
+    position: :bottom,  # :bottom, :left, :right
+    buttons: [:table, :code_block, :image, :youtube, :widget],
+    widget_types: %w[form gallery poll]
+  )
+)
+```
+
+**Available buttons:**
+
+| Button | Description |
+|--------|-------------|
+| `table` | Insert a table |
+| `code_block` | Insert code block |
+| `blockquote` | Insert quote block |
+| `horizontal_rule` | Insert divider line |
+| `task_list` | Insert task list |
+| `image` | Insert image (triggers `inkpen:request-image` event) |
+| `youtube` | Insert YouTube video |
+| `embed` | Insert embed (triggers `inkpen:request-embed` event) |
+| `widget` | Open widget picker modal |
+| `divider` | Visual separator |
+
+**Presets:**
+
+```ruby
+Inkpen::StickyToolbar::PRESET_BLOCKS  # table, code_block, blockquote, etc.
+Inkpen::StickyToolbar::PRESET_MEDIA   # image, youtube, embed
+Inkpen::StickyToolbar::PRESET_FULL    # All buttons
+```
+
+**Handling widget events:**
+
+```javascript
+// In your application.js or page-specific controller
+document.addEventListener("inkpen:insert-widget", (event) => {
+  const { type, controller } = event.detail
+  // type is "form", "gallery", or "poll"
+  // Show your widget picker UI
+})
+
+document.addEventListener("inkpen:request-image", (event) => {
+  const { controller } = event.detail
+  // Show image upload modal
+  // Then call: controller.insertImage(url, altText)
+})
+```
+
 ## Extensions
 
 Inkpen uses a modular extension system. Each extension is a PORO that configures TipTap extensions.
@@ -253,7 +310,8 @@ inkpen/
 │   ├── inkpen/
 │   │   ├── configuration.rb         # Global config PORO
 │   │   ├── editor.rb                # Editor instance PORO
-│   │   ├── toolbar.rb               # Toolbar config PORO
+│   │   ├── toolbar.rb               # Floating toolbar config PORO
+│   │   ├── sticky_toolbar.rb        # Sticky toolbar config PORO
 │   │   ├── engine.rb                # Rails engine
 │   │   ├── version.rb
 │   │   └── extensions/
@@ -265,8 +323,17 @@ inkpen/
 │   │       └── task_list.rb         # Task/checkbox lists
 ├── app/
 │   └── assets/
-│       └── javascripts/
-│           └── inkpen/              # Stimulus controllers
+│       ├── javascripts/
+│       │   └── inkpen/
+│       │       ├── controllers/
+│       │       │   ├── editor_controller.js       # Main TipTap editor
+│       │       │   ├── toolbar_controller.js      # Floating toolbar
+│       │       │   └── sticky_toolbar_controller.js # Sticky toolbar
+│       │       └── index.js         # Entry point
+│       └── stylesheets/
+│           └── inkpen/
+│               ├── editor.css       # Editor styles
+│               └── sticky_toolbar.css # Sticky toolbar styles
 ├── config/
 │   └── importmap.rb                 # TipTap/PM dependencies
 └── README.md
@@ -297,6 +364,18 @@ inkpen/
 | `floating?` | Is floating toolbar? |
 | `fixed?` | Is fixed toolbar? |
 | `hidden?` | Is toolbar hidden? |
+
+### Inkpen::StickyToolbar
+
+| Method | Description |
+|--------|-------------|
+| `position` | Position (`:bottom`, `:left`, `:right`) |
+| `buttons` | Array of button symbols |
+| `widget_types` | Array of widget type strings |
+| `enabled?` | Is sticky toolbar enabled? |
+| `vertical?` | Is vertical layout (left/right)? |
+| `horizontal?` | Is horizontal layout (bottom)? |
+| `data_attributes` | Hash of Stimulus data attributes |
 
 ### Inkpen::Extensions::Base
 

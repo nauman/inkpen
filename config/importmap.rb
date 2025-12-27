@@ -93,6 +93,16 @@ pin "@tiptap/extension-youtube", to: "https://ga.jspm.io/npm:@tiptap/extension-y
 # Character count
 pin "@tiptap/extension-character-count", to: "https://ga.jspm.io/npm:@tiptap/extension-character-count@2.10.3/dist/index.js"
 
+# BubbleMenu (floating toolbar on text selection)
+pin "@tiptap/extension-bubble-menu", to: "https://ga.jspm.io/npm:@tiptap/extension-bubble-menu@2.10.3/dist/index.js"
+
+# FloatingMenu (toolbar on empty lines)
+pin "@tiptap/extension-floating-menu", to: "https://ga.jspm.io/npm:@tiptap/extension-floating-menu@2.10.3/dist/index.js"
+
+# Tippy.js - required by BubbleMenu for positioning
+pin "tippy.js", to: "https://cdn.jsdelivr.net/npm/tippy.js@6.3.7/dist/tippy.esm.js"
+pin "@popperjs/core", to: "https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/esm/popper.js"
+
 # Lowlight with bundled dependencies (esm.sh handles ESM-only packages better)
 pin "lowlight", to: "https://esm.sh/lowlight@3?bundle"
 
