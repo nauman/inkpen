@@ -2,7 +2,7 @@
 
 **Vision:** A Rails-native rich text editor that can replace Dropbox Paper, Notion, and Atlassian Confluence for document editing and collaboration.
 
-## Current Status: v0.2.0 (Beta)
+## Current Status: v0.2.1 (Beta)
 
 ### Completed Features
 
@@ -11,6 +11,8 @@
 - [x] Rails integration (forms, Turbo, Stimulus)
 - [x] PORO-based architecture
 - [x] Importmap compatible (no Node.js build)
+- [x] Simple markdown mode (no forced document structure)
+- [x] Forced document mode (title + optional subtitle + body)
 
 #### Text Formatting
 - [x] Bold, Italic, Strike, Underline
@@ -36,9 +38,9 @@
 
 #### Social Features
 - [x] @Mentions with search API
-- [x] Floating selection toolbar
+- [x] Floating selection toolbar (BubbleMenu)
 
-#### Sticky Toolbar (NEW)
+#### Sticky Toolbar
 - [x] Fixed-position toolbar for block/media/widget insertion
 - [x] Positions: bottom (horizontal), left/right (vertical)
 - [x] Block buttons: Table, Code Block, Blockquote, Task List, Divider
@@ -47,6 +49,11 @@
 - [x] Per-instance configuration via Ruby PORO
 - [x] Dark mode support
 - [x] Responsive (mobile adapts to bottom position)
+
+#### Toolbar Resilience
+- [x] BubbleMenu/Tippy.js integration (handles DOM moves)
+- [x] Editor reference persistence across reconnections
+- [x] Mouse event handling to preserve text selection
 
 ---
 
