@@ -202,7 +202,6 @@ export default class extends Controller {
         this.editorController.toggleItalic()
         break
       case "underline":
-        console.log("[Inkpen Toolbar] Underline clicked, editorController:", !!this.editorController)
         this.editorController.toggleUnderline()
         break
       case "strike":

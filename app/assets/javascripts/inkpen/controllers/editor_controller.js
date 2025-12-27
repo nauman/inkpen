@@ -116,9 +116,6 @@ export default class extends Controller {
     const config = this.extensionConfigValue
     const enabledExtensions = this.extensionsValue
 
-    console.log("[Inkpen] Building extensions with:", enabledExtensions)
-    console.log("[Inkpen] Has underline?", enabledExtensions.includes("underline"))
-
     // Base StarterKit - disable codeBlock if we're using CodeBlockLowlight
     const starterKitConfig = {
       heading: { levels: [1, 2, 3, 4] }
@@ -322,7 +319,6 @@ export default class extends Controller {
 
     // Underline mark
     if (enabledExtensions.includes("underline")) {
-      console.log("[Inkpen] Adding Underline extension")
       extensions.push(Underline)
     }
 
@@ -658,8 +654,6 @@ export default class extends Controller {
 
   // Underline command
   toggleUnderline() {
-    console.log("[Inkpen] toggleUnderline called, editor:", !!this.editor)
-    console.log("[Inkpen] Can run toggleUnderline:", this.editor?.can().toggleUnderline())
     this.editor?.chain().focus().toggleUnderline().run()
   }
 
