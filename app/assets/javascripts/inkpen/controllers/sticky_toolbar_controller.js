@@ -95,8 +95,9 @@ export default class extends Controller {
   bindToolbarEvents() {
     if (!this.toolbarElement) return
 
-    // Button click handlers
+    // Button click handlers with mousedown prevention to preserve editor selection
     this.toolbarElement.querySelectorAll("[data-command]").forEach(btn => {
+      btn.addEventListener("mousedown", (e) => e.preventDefault())
       btn.addEventListener("click", (e) => this.executeCommand(e))
     })
 

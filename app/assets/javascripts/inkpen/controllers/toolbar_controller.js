@@ -5,8 +5,16 @@ import { Controller } from "@hotwired/stimulus"
  *
  * Handles toolbar button clicks for the floating selection toolbar.
  * Visibility and positioning are handled by TipTap's BubbleMenu extension.
+ *
+ * Important: BubbleMenu uses Tippy.js which moves the toolbar element to the
+ * document body. This triggers Stimulus to disconnect and reconnect the
+ * controller. We store the editor element reference on first connect (before
+ * the move) so we can still find it after reconnection.
  */
 export default class extends Controller {
+  // Class-level storage for editor element references (persists across reconnects)
+  static editorElements = new WeakMap()
+
   static targets = ["button"]
 
   static values = {
@@ -15,6 +23,15 @@ export default class extends Controller {
 
   connect() {
     this.editorController = null
+
+    // Store editor element reference before BubbleMenu moves us to body
+    // We use a WeakMap keyed by this element to persist across reconnects
+    if (!this.constructor.editorElements.has(this.element)) {
+      const editorElement = this.element.closest("[data-controller*='inkpen--editor']")
+      if (editorElement) {
+        this.constructor.editorElements.set(this.element, editorElement)
+      }
+    }
 
     // Find parent editor controller (with retry for timing)
     this.findEditorController()
@@ -30,6 +47,7 @@ export default class extends Controller {
     if (this.retryTimer) {
       clearTimeout(this.retryTimer)
     }
+    // Don't clear the WeakMap entry - we need it for reconnect after BubbleMenu moves us
   }
 
   retryFindEditor() {
@@ -49,7 +67,17 @@ export default class extends Controller {
   }
 
   findEditorController() {
-    const editorElement = this.element.closest("[data-controller*='inkpen--editor']")
+    // First, try the stored reference (needed after BubbleMenu moves us to body)
+    let editorElement = this.constructor.editorElements.get(this.element)
+
+    // Fallback: try closest (works if we haven't been moved yet)
+    if (!editorElement) {
+      editorElement = this.element.closest("[data-controller*='inkpen--editor']")
+      if (editorElement) {
+        this.constructor.editorElements.set(this.element, editorElement)
+      }
+    }
+
     if (editorElement) {
       this.editorController = this.application.getControllerForElementAndIdentifier(
         editorElement,
@@ -67,16 +95,25 @@ export default class extends Controller {
       }
 
       const config = this.buttonConfig(btn)
+      // Use mousedown to prevent focus loss + click to execute command
       return `
         <button type="button"
                 class="inkpen-toolbar__button"
-                data-action="click->inkpen--toolbar#executeCommand"
+                data-action="mousedown->inkpen--toolbar#preventFocusLoss click->inkpen--toolbar#executeCommand"
                 data-command="${btn}"
                 title="${config.title}">
           ${config.icon}
         </button>
       `
     }).join("")
+  }
+
+  /**
+   * Prevent focus from moving to the button when clicked.
+   * This preserves the editor's text selection so formatting commands work correctly.
+   */
+  preventFocusLoss(event) {
+    event.preventDefault()
   }
 
   defaultButtons() {
