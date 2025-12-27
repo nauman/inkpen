@@ -136,8 +136,10 @@ export default class extends Controller {
     ]
 
     // BubbleMenu (floating toolbar on text selection) - TipTap's native extension
+    console.log("[Inkpen] BubbleMenu check:", { hasToolbarTarget: this.hasToolbarTarget, toolbarValue: this.toolbarValue })
     if (this.hasToolbarTarget && this.toolbarValue === "floating") {
       const toolbarEl = this.toolbarTarget
+      console.log("[Inkpen] Configuring BubbleMenu with element:", toolbarEl)
       extensions.push(
         BubbleMenu.configure({
           element: toolbarEl,
@@ -147,28 +149,18 @@ export default class extends Controller {
             offset: [0, 10],
             appendTo: () => document.body,
             zIndex: 9999,
-            // Get position directly from selection coordinates
-            getReferenceClientRect: () => {
-              const { view, state } = this.editor
-              const { from, to } = state.selection
-              const start = view.coordsAtPos(from)
-              const end = view.coordsAtPos(to)
-              return {
-                top: Math.min(start.top, end.top),
-                bottom: Math.max(start.bottom, end.bottom),
-                left: Math.min(start.left, end.left),
-                right: Math.max(start.right, end.right),
-                width: Math.abs(end.left - start.left),
-                height: Math.abs(end.bottom - start.top),
-              }
-            },
+            onShow: () => console.log("[Inkpen] BubbleMenu showing"),
+            onHide: () => console.log("[Inkpen] BubbleMenu hiding"),
           },
           shouldShow: ({ editor, state }) => {
-            // Only show when there's a text selection (not just cursor)
-            return !state.selection.empty && editor.isEditable
+            const show = !state.selection.empty && editor.isEditable
+            console.log("[Inkpen] BubbleMenu shouldShow:", show, { empty: state.selection.empty, editable: editor.isEditable })
+            return show
           }
         })
       )
+    } else {
+      console.log("[Inkpen] BubbleMenu NOT configured - missing toolbar target or not floating")
     }
 
     // Forced Document Structure (title + optional subtitle)
