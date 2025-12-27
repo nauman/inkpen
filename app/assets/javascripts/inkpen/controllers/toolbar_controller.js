@@ -8,13 +8,10 @@ import { Controller } from "@hotwired/stimulus"
  *
  * Important: BubbleMenu uses Tippy.js which moves the toolbar element to the
  * document body. This triggers Stimulus to disconnect and reconnect the
- * controller. We store the editor element reference on first connect (before
- * the move) so we can still find it after reconnection.
+ * controller. We store the editor element ID on the DOM element itself
+ * so we can find it after reconnection.
  */
 export default class extends Controller {
-  // Class-level storage for editor element references (persists across reconnects)
-  static editorElements = new WeakMap()
-
   static targets = ["button"]
 
   static values = {
@@ -24,12 +21,16 @@ export default class extends Controller {
   connect() {
     this.editorController = null
 
-    // Store editor element reference before BubbleMenu moves us to body
-    // We use a WeakMap keyed by this element to persist across reconnects
-    if (!this.constructor.editorElements.has(this.element)) {
+    // Store editor element ID on the DOM element before BubbleMenu moves us to body
+    // Using a data attribute persists across Stimulus disconnect/reconnect cycles
+    if (!this.element.dataset.inkpenEditorId) {
       const editorElement = this.element.closest("[data-controller*='inkpen--editor']")
       if (editorElement) {
-        this.constructor.editorElements.set(this.element, editorElement)
+        // Generate a unique ID if the editor doesn't have one
+        if (!editorElement.id) {
+          editorElement.id = `inkpen-editor-${Date.now()}`
+        }
+        this.element.dataset.inkpenEditorId = editorElement.id
       }
     }
 
@@ -47,7 +48,6 @@ export default class extends Controller {
     if (this.retryTimer) {
       clearTimeout(this.retryTimer)
     }
-    // Don't clear the WeakMap entry - we need it for reconnect after BubbleMenu moves us
   }
 
   retryFindEditor() {
@@ -67,14 +67,22 @@ export default class extends Controller {
   }
 
   findEditorController() {
-    // First, try the stored reference (needed after BubbleMenu moves us to body)
-    let editorElement = this.constructor.editorElements.get(this.element)
+    let editorElement = null
+
+    // First, try using the stored editor ID (needed after BubbleMenu moves us to body)
+    const editorId = this.element.dataset.inkpenEditorId
+    if (editorId) {
+      editorElement = document.getElementById(editorId)
+    }
 
     // Fallback: try closest (works if we haven't been moved yet)
     if (!editorElement) {
       editorElement = this.element.closest("[data-controller*='inkpen--editor']")
       if (editorElement) {
-        this.constructor.editorElements.set(this.element, editorElement)
+        if (!editorElement.id) {
+          editorElement.id = `inkpen-editor-${Date.now()}`
+        }
+        this.element.dataset.inkpenEditorId = editorElement.id
       }
     }
 
