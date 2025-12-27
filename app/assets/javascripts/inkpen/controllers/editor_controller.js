@@ -136,31 +136,22 @@ export default class extends Controller {
     ]
 
     // BubbleMenu (floating toolbar on text selection) - TipTap's native extension
-    console.log("[Inkpen] BubbleMenu check:", { hasToolbarTarget: this.hasToolbarTarget, toolbarValue: this.toolbarValue })
     if (this.hasToolbarTarget && this.toolbarValue === "floating") {
       const toolbarEl = this.toolbarTarget
-      console.log("[Inkpen] Configuring BubbleMenu with element:", toolbarEl)
       extensions.push(
         BubbleMenu.configure({
           element: toolbarEl,
           tippyOptions: {
             duration: 100,
-            placement: "top-start",
-            offset: [0, 10],
-            appendTo: () => document.body,
+            placement: "top",
             zIndex: 9999,
-            onShow: () => console.log("[Inkpen] BubbleMenu showing"),
-            onHide: () => console.log("[Inkpen] BubbleMenu hiding"),
           },
           shouldShow: ({ editor, state }) => {
-            const show = !state.selection.empty && editor.isEditable
-            console.log("[Inkpen] BubbleMenu shouldShow:", show, { empty: state.selection.empty, editable: editor.isEditable })
-            return show
+            // Only show when there's a text selection (not just cursor)
+            return !state.selection.empty && editor.isEditable
           }
         })
       )
-    } else {
-      console.log("[Inkpen] BubbleMenu NOT configured - missing toolbar target or not floating")
     }
 
     // Forced Document Structure (title + optional subtitle)
@@ -328,6 +319,7 @@ export default class extends Controller {
 
     // Underline mark
     if (enabledExtensions.includes("underline")) {
+      console.log("[Inkpen] Adding Underline extension")
       extensions.push(Underline)
     }
 
@@ -663,6 +655,8 @@ export default class extends Controller {
 
   // Underline command
   toggleUnderline() {
+    console.log("[Inkpen] toggleUnderline called, editor:", !!this.editor)
+    console.log("[Inkpen] Can run toggleUnderline:", this.editor?.can().toggleUnderline())
     this.editor?.chain().focus().toggleUnderline().run()
   }
 
