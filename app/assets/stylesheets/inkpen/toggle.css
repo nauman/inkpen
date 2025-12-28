@@ -1,0 +1,260 @@
+/**
+ * Toggle Block Styles for Inkpen Editor
+ *
+ * Collapsible/expandable blocks with smooth animations.
+ *
+ * @since 0.3.3
+ */
+
+/* ==========================================================================
+   CSS Custom Properties
+   ========================================================================== */
+
+:root {
+  --inkpen-toggle-border: #e5e7eb;
+  --inkpen-toggle-bg: transparent;
+  --inkpen-toggle-bg-hover: #f9fafb;
+  --inkpen-toggle-indicator: #6b7280;
+  --inkpen-toggle-indicator-hover: #374151;
+  --inkpen-toggle-summary-font: inherit;
+  --inkpen-toggle-radius: 6px;
+  --inkpen-toggle-padding: 0.75rem 1rem;
+  --inkpen-toggle-content-padding: 0 1rem 1rem 2.25rem;
+}
+
+/* Dark mode */
+[data-theme="dark"],
+.dark {
+  --inkpen-toggle-border: #374151;
+  --inkpen-toggle-bg: transparent;
+  --inkpen-toggle-bg-hover: #1f2937;
+  --inkpen-toggle-indicator: #9ca3af;
+  --inkpen-toggle-indicator-hover: #d1d5db;
+}
+
+/* ==========================================================================
+   Toggle Block Container
+   ========================================================================== */
+
+.inkpen-toggle {
+  position: relative;
+  margin: 0.75rem 0;
+  border: 1px solid var(--inkpen-toggle-border);
+  border-radius: var(--inkpen-toggle-radius);
+  background: var(--inkpen-toggle-bg);
+}
+
+.inkpen-toggle:hover {
+  background: var(--inkpen-toggle-bg-hover);
+}
+
+/* Remove default marker */
+.inkpen-toggle::-webkit-details-marker,
+.inkpen-toggle::marker {
+  display: none;
+}
+
+/* ==========================================================================
+   Toggle Indicator (Arrow)
+   ========================================================================== */
+
+.inkpen-toggle__indicator {
+  position: absolute;
+  top: 0.875rem;
+  left: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  color: var(--inkpen-toggle-indicator);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: transform 150ms ease, color 150ms ease, background 150ms ease;
+  z-index: 1;
+}
+
+.inkpen-toggle__indicator:hover {
+  color: var(--inkpen-toggle-indicator-hover);
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.inkpen-toggle__indicator svg {
+  transition: transform 150ms ease;
+}
+
+/* Rotate arrow when open */
+.inkpen-toggle[open] .inkpen-toggle__indicator svg {
+  transform: rotate(90deg);
+}
+
+/* Dark mode hover */
+[data-theme="dark"] .inkpen-toggle__indicator:hover,
+.dark .inkpen-toggle__indicator:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ==========================================================================
+   Toggle Summary (Header)
+   ========================================================================== */
+
+.inkpen-toggle__summary {
+  display: block;
+  padding: var(--inkpen-toggle-padding);
+  padding-left: 2.25rem;
+  font-weight: 500;
+  cursor: text;
+  outline: none;
+  min-height: 1.5em;
+}
+
+/* Remove default summary styling */
+.inkpen-toggle__summary::-webkit-details-marker {
+  display: none;
+}
+
+.inkpen-toggle__summary::marker {
+  display: none;
+}
+
+/* Placeholder for empty summary */
+.inkpen-toggle__summary:empty::before {
+  content: "Toggle heading...";
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+[data-theme="dark"] .inkpen-toggle__summary:empty::before,
+.dark .inkpen-toggle__summary:empty::before {
+  color: #6b7280;
+}
+
+/* ==========================================================================
+   Toggle Content
+   ========================================================================== */
+
+.inkpen-toggle__content {
+  padding: var(--inkpen-toggle-content-padding);
+}
+
+/* Hide content when collapsed */
+.inkpen-toggle:not([open]) .inkpen-toggle__content > *:not(.inkpen-toggle__summary) {
+  display: none;
+}
+
+/* Content blocks spacing */
+.inkpen-toggle__content > * + * {
+  margin-top: 0.75rem;
+}
+
+/* First paragraph after summary */
+.inkpen-toggle__content > .inkpen-toggle__summary + * {
+  margin-top: 0;
+}
+
+/* ==========================================================================
+   Nested Toggles
+   ========================================================================== */
+
+.inkpen-toggle .inkpen-toggle {
+  margin: 0.5rem 0;
+}
+
+/* ==========================================================================
+   Focus States
+   ========================================================================== */
+
+.inkpen-toggle:focus-within {
+  border-color: var(--inkpen-color-primary, #3b82f6);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+/* ==========================================================================
+   Animations
+   ========================================================================== */
+
+/* Content reveal animation */
+.inkpen-toggle[open] .inkpen-toggle__content > *:not(.inkpen-toggle__summary) {
+  animation: inkpen-toggle-reveal 150ms ease-out;
+}
+
+@keyframes inkpen-toggle-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================================================
+   Mobile Optimizations
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .inkpen-toggle__indicator {
+    width: 24px;
+    height: 24px;
+    top: 0.75rem;
+  }
+
+  .inkpen-toggle__summary {
+    padding: 0.875rem 1rem 0.875rem 2.5rem;
+  }
+
+  .inkpen-toggle__content {
+    padding: 0 1rem 1rem 2.5rem;
+  }
+}
+
+/* Touch-friendly: larger tap targets */
+@media (pointer: coarse) {
+  .inkpen-toggle__indicator {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+/* ==========================================================================
+   Reduced Motion
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .inkpen-toggle__indicator svg,
+  .inkpen-toggle__indicator {
+    transition: none;
+  }
+
+  .inkpen-toggle[open] .inkpen-toggle__content > *:not(.inkpen-toggle__summary) {
+    animation: none;
+  }
+}
+
+/* ==========================================================================
+   Print Styles
+   ========================================================================== */
+
+@media print {
+  /* Always show content when printing */
+  .inkpen-toggle {
+    border: 1px solid #ccc;
+  }
+
+  .inkpen-toggle:not([open]) .inkpen-toggle__content > *:not(.inkpen-toggle__summary) {
+    display: block !important;
+  }
+
+  .inkpen-toggle__indicator {
+    display: none;
+  }
+
+  .inkpen-toggle__summary {
+    padding-left: 1rem;
+  }
+
+  .inkpen-toggle__content {
+    padding-left: 1rem;
+  }
+}

@@ -11,6 +11,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Toggle Block Extension (v0.3.3)
+- Collapsible/expandable blocks with clickable header
+- Native HTML5 `<details>` and `<summary>` elements
+- Editable summary text
+- Nested block content support
+- Smooth expand/collapse animations
+- Keyboard shortcuts:
+  - `Cmd+Shift+T` to insert toggle
+  - `Cmd+Enter` to toggle open/close
+  - `Enter` in summary creates content below
+  - `Backspace` on empty summary deletes toggle
+- Commands: `insertToggle`, `toggleOpen`, `expandToggle`, `collapseToggle`
+- Added to slash commands menu
+- Dark mode support
+- Mobile and reduced motion support
+- Print styles (always expanded)
+
 #### Drag & Drop Extension (v0.3.2)
 - Block reordering via drag and drop from gutter handles
 - Visual drop indicator showing insertion point
@@ -109,6 +126,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## File Reference
+
+### Toggle Block Extension
+- JavaScript: `app/assets/javascripts/inkpen/extensions/toggle_block.js`
+- CSS: `app/assets/stylesheets/inkpen/toggle.css`
 
 ### Drag & Drop Extension
 - JavaScript: `app/assets/javascripts/inkpen/extensions/drag_handle.js`

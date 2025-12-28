@@ -46,7 +46,8 @@ const DEFAULT_COMMANDS = [
   { id: "table", title: "Table", description: "Insert a table", icon: "⊞", keywords: ["grid", "data", "rows", "columns"], group: "Media" },
 
   // Advanced
-  { id: "section", title: "Section", description: "Page section with width control", icon: "▢", keywords: ["layout", "container", "wrapper"], group: "Advanced" }
+  { id: "section", title: "Section", description: "Page section with width control", icon: "▢", keywords: ["layout", "container", "wrapper"], group: "Advanced" },
+  { id: "toggle", title: "Toggle", description: "Collapsible content block", icon: "▸", keywords: ["collapse", "expand", "accordion", "details"], group: "Advanced" }
 ]
 
 export const SlashCommands = Extension.create({
@@ -370,6 +371,11 @@ export const SlashCommands = Extension.create({
       case "section":
         if (editor.commands.insertSection) {
           chain.insertSection().run()
+        }
+        break
+      case "toggle":
+        if (editor.commands.insertToggle) {
+          chain.insertToggle().run()
         }
         break
 

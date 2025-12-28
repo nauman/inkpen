@@ -55,6 +55,7 @@ module Inkpen
       preformatted
       block_gutter
       drag_handle
+      toggle_block
     ].freeze
 
     def initialize

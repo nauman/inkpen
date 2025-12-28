@@ -30,6 +30,7 @@ import { Preformatted } from "inkpen/extensions/preformatted"
 import { SlashCommands } from "inkpen/extensions/slash_commands"
 import { BlockGutter } from "inkpen/extensions/block_gutter"
 import { DragHandle } from "inkpen/extensions/drag_handle"
+import { ToggleBlock, ToggleSummary } from "inkpen/extensions/toggle_block"
 
 /**
  * Inkpen Editor Controller
@@ -425,6 +426,17 @@ export default class extends Controller {
         DragHandle.configure({
           scrollSpeed: dragConfig.scrollSpeed || 10,
           scrollThreshold: dragConfig.scrollThreshold || 80
+        })
+      )
+    }
+
+    // Toggle Block extension (collapsible content)
+    if (enabledExtensions.includes("toggle_block")) {
+      const toggleConfig = config.toggle_block || {}
+      extensions.push(
+        ToggleSummary,
+        ToggleBlock.configure({
+          defaultOpen: toggleConfig.defaultOpen !== false
         })
       )
     }

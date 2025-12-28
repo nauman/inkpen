@@ -408,6 +408,25 @@ export const DragHandle = Extension.create({
 ### Goal
 Add Notion-style blocks: toggles, columns, callouts with variants.
 
+### 4.1 Toggle/Collapsible Block ✅
+
+**Status:** Complete
+
+**Features:**
+- Collapsible/expandable blocks with clickable header
+- Native HTML5 `<details>` and `<summary>` elements
+- Editable summary text
+- Nested block content support
+- Smooth expand/collapse animations
+- Keyboard shortcuts: `Cmd+Shift+T`, `Cmd+Enter`
+- Commands: `insertToggle`, `toggleOpen`, `expandToggle`, `collapseToggle`
+
+**Files:**
+```
+app/assets/javascripts/inkpen/extensions/toggle_block.js
+app/assets/stylesheets/inkpen/toggle.css
+```
+
 ### 4.1 Toggle/Collapsible Block
 ```javascript
 // app/assets/javascripts/inkpen/extensions/toggle_block.js
@@ -732,7 +751,7 @@ app/assets/javascripts/inkpen/
 │   ├── slash_commands.js              ✅ DONE
 │   ├── block_gutter.js                ✅ DONE
 │   ├── drag_handle.js                 ✅ DONE
-│   ├── toggle_block.js                ← v0.3.3
+│   ├── toggle_block.js                ✅ DONE
 │   ├── columns.js                     ← v0.3.3
 │   └── callout.js                     ← v0.3.3
 ├── helpers/
@@ -748,7 +767,7 @@ app/assets/stylesheets/inkpen/
 ├── slash_menu.css                     ✅ DONE
 ├── block_gutter.css                   ✅ DONE
 ├── drag_drop.css                      ✅ DONE
-├── toggle.css                         ← v0.3.3
+├── toggle.css                         ✅ DONE
 ├── columns.css                        ← v0.3.3
 └── animations.css                     ← v0.4.0
 
