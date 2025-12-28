@@ -28,6 +28,7 @@ import BubbleMenu from "@tiptap/extension-bubble-menu"
 import { Section } from "inkpen/extensions/section"
 import { Preformatted } from "inkpen/extensions/preformatted"
 import { SlashCommands } from "inkpen/extensions/slash_commands"
+import { BlockGutter } from "inkpen/extensions/block_gutter"
 
 /**
  * Inkpen Editor Controller
@@ -399,6 +400,19 @@ export default class extends Controller {
           startOfLine: slashConfig.startOfLine !== undefined ? slashConfig.startOfLine : false,
           allowSpaces: slashConfig.allowSpaces || false,
           suggestionClass: slashConfig.suggestionClass || "inkpen-slash-menu"
+        })
+      )
+    }
+
+    // Block Gutter extension (drag handles and plus buttons)
+    if (enabledExtensions.includes("block_gutter")) {
+      const gutterConfig = config.block_gutter || {}
+      extensions.push(
+        BlockGutter.configure({
+          showDragHandle: gutterConfig.showDragHandle !== false,
+          showPlusButton: gutterConfig.showPlusButton !== false,
+          skipTypes: gutterConfig.skipTypes || undefined,
+          skipParentTypes: gutterConfig.skipParentTypes || undefined
         })
       )
     }

@@ -11,6 +11,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Block Gutter Extension (v0.3.1)
+- Left-side gutter with drag handles and plus buttons for each block
+- Drag handle (⋮⋮) for block reordering (prepares for drag & drop)
+- Plus button (+) to insert new block below
+- Opens slash commands menu when inserting new block
+- Shows on hover, auto-hides when not focused
+- Skips blocks inside tables and list items
+- Mobile-optimized (always visible, larger touch targets)
+- Dark mode support
+- Reduced motion support
+- Print-safe (hidden)
+
 #### Slash Commands Extension (v0.3.0)
 - Notion-style "/" command palette for rapid block insertion
 - Type "/" to open menu, then type to filter commands
@@ -55,6 +67,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated sticky toolbar with Section and Preformatted buttons
 - Editor controller now configures Section and Preformatted extensions
+- Added `section` and `preformatted` to ADVANCED_EXTENSIONS in configuration.rb
 
 ---
 
@@ -84,6 +97,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## File Reference
+
+### Block Gutter Extension
+- JavaScript: `app/assets/javascripts/inkpen/extensions/block_gutter.js`
+- CSS: `app/assets/stylesheets/inkpen/block_gutter.css`
 
 ### Slash Commands Extension
 - Ruby: `lib/inkpen/extensions/slash_commands.rb`

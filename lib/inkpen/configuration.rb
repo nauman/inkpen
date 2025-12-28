@@ -51,6 +51,8 @@ module Inkpen
       character_count
       code_block_syntax
       task_list
+      section
+      preformatted
     ].freeze
 
     def initialize

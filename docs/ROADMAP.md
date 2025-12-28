@@ -8,11 +8,10 @@
 
 1. [Architecture Overview](#architecture-overview)
 2. [Completed Extensions](#completed-extensions)
-3. [Phase 1: Block Gutter System](#phase-1-block-gutter-system-v031)
-4. [Phase 2: Drag & Drop](#phase-2-drag--drop-v032)
-5. [Phase 3: Enhanced Blocks](#phase-3-enhanced-blocks-v033)
-6. [Phase 4: BlockNote-Style Polish](#phase-4-blocknote-style-polish-v040)
-7. [Technical References](#technical-references)
+3. [Phase 1: Drag & Drop](#phase-1-drag--drop-v032)
+4. [Phase 2: Enhanced Blocks](#phase-2-enhanced-blocks-v033)
+5. [Phase 3: BlockNote-Style Polish](#phase-3-blocknote-style-polish-v040)
+6. [Technical References](#technical-references)
 
 ---
 
@@ -147,12 +146,25 @@ app/assets/stylesheets/inkpen/slash_menu.css
 
 ---
 
-## Phase 1: Block Gutter System (v0.3.1)
+### Block Gutter Extension (v0.3.1) ✅
 
-### Goal
-Add a left-side gutter with drag handles and plus buttons for each block.
+Left-side gutter with drag handles and plus buttons for each block.
 
-### Visual Design
+**Features:**
+- Drag handle (⋮⋮) for block reordering
+- Plus button (+) to insert new block below
+- Integrates with slash commands
+- Shows on hover, hides when not focused
+- Skips blocks inside tables
+- Mobile-optimized
+
+**Files:**
+```
+app/assets/javascripts/inkpen/extensions/block_gutter.js
+app/assets/stylesheets/inkpen/block_gutter.css
+```
+
+**Visual Design:**
 ```
      ┌────────────────────────────────────────┐
      │                                        │
@@ -174,156 +186,9 @@ Legend:
 +  = Plus button (opens slash menu or quick insert)
 ```
 
-### Components
-
-#### 2.1 TipTap Extension: BlockGutter
-```javascript
-// app/assets/javascripts/inkpen/extensions/block_gutter.js
-
-import { Extension } from '@tiptap/core'
-import { Plugin, PluginKey } from '@tiptap/pm/state'
-import { Decoration, DecorationSet } from '@tiptap/pm/view'
-
-export const BlockGutter = Extension.create({
-  name: 'blockGutter',
-
-  addOptions() {
-    return {
-      onPlusClick: null,
-      onDragStart: null
-    }
-  },
-
-  addProseMirrorPlugins() {
-    const extension = this
-
-    return [
-      new Plugin({
-        key: new PluginKey('blockGutter'),
-        props: {
-          decorations(state) {
-            const { doc } = state
-            const decorations = []
-
-            doc.descendants((node, pos) => {
-              if (node.isBlock && !node.isTextblock) return
-
-              // Skip nodes inside tables
-              const $pos = state.doc.resolve(pos)
-              for (let d = $pos.depth; d > 0; d--) {
-                if ($pos.node(d).type.name === 'table') return
-              }
-
-              const gutter = document.createElement('div')
-              gutter.className = 'inkpen-block-gutter'
-              gutter.dataset.pos = pos
-
-              // Drag handle
-              const dragHandle = document.createElement('button')
-              dragHandle.className = 'inkpen-block-gutter__drag'
-              dragHandle.innerHTML = '⋮⋮'
-              dragHandle.draggable = true
-              dragHandle.addEventListener('dragstart', (e) => {
-                extension.options.onDragStart?.(pos, node, e)
-              })
-
-              // Plus button
-              const plusBtn = document.createElement('button')
-              plusBtn.className = 'inkpen-block-gutter__plus'
-              plusBtn.innerHTML = '+'
-              plusBtn.addEventListener('click', (e) => {
-                e.stopPropagation()
-                extension.options.onPlusClick?.(pos + node.nodeSize, e)
-              })
-
-              gutter.appendChild(dragHandle)
-              gutter.appendChild(plusBtn)
-
-              decorations.push(
-                Decoration.widget(pos, gutter, {
-                  side: -1,
-                  key: `gutter-${pos}`
-                })
-              )
-            })
-
-            return DecorationSet.create(doc, decorations)
-          }
-        }
-      })
-    ]
-  }
-})
-```
-
-#### 2.2 CSS Styles
-```css
-/* app/assets/stylesheets/inkpen/block_gutter.css */
-
-.inkpen-editor {
-  position: relative;
-  padding-left: 3rem; /* Space for gutter */
-}
-
-.inkpen-block-gutter {
-  position: absolute;
-  left: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.125rem;
-  opacity: 0;
-  transition: opacity 150ms;
-  transform: translateX(-100%);
-  padding-right: 0.5rem;
-}
-
-/* Show on block hover */
-.ProseMirror > *:hover > .inkpen-block-gutter,
-.ProseMirror > .inkpen-block-gutter:hover {
-  opacity: 1;
-}
-
-.inkpen-block-gutter__drag,
-.inkpen-block-gutter__plus {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.25rem;
-  height: 1.25rem;
-  padding: 0;
-  background: none;
-  border: none;
-  border-radius: 0.25rem;
-  color: var(--inkpen-color-text-muted);
-  cursor: pointer;
-  font-size: 0.75rem;
-  transition: background-color 100ms, color 100ms;
-}
-
-.inkpen-block-gutter__drag:hover {
-  background: var(--inkpen-color-selection);
-  color: var(--inkpen-color-text);
-  cursor: grab;
-}
-
-.inkpen-block-gutter__drag:active {
-  cursor: grabbing;
-}
-
-.inkpen-block-gutter__plus:hover {
-  background: var(--inkpen-color-primary);
-  color: white;
-}
-```
-
-### References
-- [Plate DnD Extension](https://platejs.org/docs/dnd)
-- [Editor.js Block Tune](https://editorjs.io/block-tunes/)
-- [ProseMirror Decorations](https://prosemirror.net/docs/ref/#view.Decorations)
-
 ---
 
-## Phase 2: Drag & Drop (v0.3.2)
+## Phase 1: Drag & Drop (v0.3.2)
 
 ### Goal
 Enable visual block reordering via drag and drop.
@@ -536,7 +401,7 @@ export const DragHandle = Extension.create({
 
 ---
 
-## Phase 3: Enhanced Blocks (v0.3.3)
+## Phase 2: Enhanced Blocks (v0.3.3)
 
 ### Goal
 Add Notion-style blocks: toggles, columns, callouts with variants.
@@ -736,7 +601,7 @@ export const Callout = Node.create({
 
 ---
 
-## Phase 4: BlockNote-Style Polish (v0.4.0)
+## Phase 3: BlockNote-Style Polish (v0.4.0)
 
 ### Goal
 Add the finishing touches that make the editor feel polished and professional.
@@ -863,7 +728,7 @@ app/assets/javascripts/inkpen/
 │   ├── section.js                     ✅ DONE
 │   ├── preformatted.js                ✅ DONE
 │   ├── slash_commands.js              ✅ DONE
-│   ├── block_gutter.js                ← v0.3.1
+│   ├── block_gutter.js                ✅ DONE
 │   ├── drag_handle.js                 ← v0.3.2
 │   ├── toggle_block.js                ← v0.3.3
 │   ├── columns.js                     ← v0.3.3
@@ -880,7 +745,7 @@ app/assets/stylesheets/inkpen/
 ├── section.css                        ✅ DONE
 ├── preformatted.css                   ✅ DONE
 ├── slash_menu.css                     ✅ DONE
-├── block_gutter.css                   ← v0.3.1
+├── block_gutter.css                   ✅ DONE
 ├── drag_drop.css                      ← v0.3.2
 ├── toggle.css                         ← v0.3.3
 ├── columns.css                        ← v0.3.3

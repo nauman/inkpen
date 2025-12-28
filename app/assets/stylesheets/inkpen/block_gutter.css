@@ -1,0 +1,265 @@
+/* ==========================================================================
+   Block Gutter Styles
+   ==========================================================================
+
+   Left-side gutter with drag handles and plus buttons for each block.
+   Similar to Notion/Editor.js block handles.
+
+   @since 0.3.1
+   ========================================================================== */
+
+/* ==========================================================================
+   Gutter Container
+   ========================================================================== */
+
+.inkpen-block-gutter-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3rem;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* ==========================================================================
+   Individual Gutter
+   ========================================================================== */
+
+.inkpen-block-gutter {
+  position: absolute;
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+  padding: 0.25rem;
+  opacity: 0;
+  pointer-events: auto;
+  transition: opacity 150ms ease;
+  transform: translateX(0);
+}
+
+/* Show on hover or when visible class is applied */
+.inkpen-block-gutter.is-visible,
+.inkpen-block-gutter:hover {
+  opacity: 1;
+}
+
+/* Hide during drag unless it's the dragged element */
+.is-block-dragging .inkpen-block-gutter:not(.is-dragging) {
+  opacity: 0.3;
+}
+
+.inkpen-block-gutter.is-dragging {
+  opacity: 1;
+}
+
+/* ==========================================================================
+   Buttons (Drag Handle & Plus)
+   ========================================================================== */
+
+.inkpen-block-gutter__drag,
+.inkpen-block-gutter__plus {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0.25rem;
+  color: var(--inkpen-color-text-muted, #9ca3af);
+  cursor: pointer;
+  transition: background-color 100ms ease, color 100ms ease, transform 100ms ease;
+  outline: none;
+}
+
+.inkpen-block-gutter__drag:hover,
+.inkpen-block-gutter__plus:hover {
+  background: var(--inkpen-color-selection, rgba(59, 130, 246, 0.1));
+  color: var(--inkpen-color-text, #374151);
+}
+
+.inkpen-block-gutter__drag:focus-visible,
+.inkpen-block-gutter__plus:focus-visible {
+  outline: 2px solid var(--inkpen-color-primary, #3b82f6);
+  outline-offset: 1px;
+}
+
+/* Drag Handle */
+.inkpen-block-gutter__drag {
+  cursor: grab;
+}
+
+.inkpen-block-gutter__drag:active {
+  cursor: grabbing;
+  transform: scale(1.1);
+}
+
+.inkpen-block-gutter__drag svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Plus Button */
+.inkpen-block-gutter__plus:hover {
+  background: var(--inkpen-color-primary, #3b82f6);
+  color: white;
+}
+
+.inkpen-block-gutter__plus:active {
+  transform: scale(0.95);
+}
+
+.inkpen-block-gutter__plus svg {
+  width: 12px;
+  height: 12px;
+}
+
+/* ==========================================================================
+   Editor Adjustments
+   ========================================================================== */
+
+/* Add left padding to make room for gutter */
+.inkpen-editor__content.has-gutter {
+  padding-left: 3rem;
+}
+
+/* ==========================================================================
+   Drag State
+   ========================================================================== */
+
+.is-block-dragging {
+  cursor: grabbing !important;
+}
+
+.is-block-dragging * {
+  cursor: grabbing !important;
+}
+
+/* Drop indicator line */
+.inkpen-drop-indicator {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--inkpen-color-primary, #3b82f6);
+  border-radius: 1.5px;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.inkpen-drop-indicator::before,
+.inkpen-drop-indicator::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  background: var(--inkpen-color-primary, #3b82f6);
+  border-radius: 50%;
+  transform: translateY(-50%);
+}
+
+.inkpen-drop-indicator::before {
+  left: -4px;
+}
+
+.inkpen-drop-indicator::after {
+  right: -4px;
+}
+
+/* ==========================================================================
+   Dark Mode
+   ========================================================================== */
+
+@media (prefers-color-scheme: dark) {
+  .inkpen-block-gutter__drag,
+  .inkpen-block-gutter__plus {
+    color: var(--inkpen-color-text-muted, #6b7280);
+  }
+
+  .inkpen-block-gutter__drag:hover,
+  .inkpen-block-gutter__plus:hover {
+    background: var(--inkpen-color-selection, rgba(59, 130, 246, 0.2));
+    color: var(--inkpen-color-text, #e5e7eb);
+  }
+}
+
+/* ==========================================================================
+   Animations
+   ========================================================================== */
+
+@keyframes inkpen-gutter-fade-in {
+  from {
+    opacity: 0;
+    transform: translateX(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.inkpen-block-gutter.is-visible {
+  animation: inkpen-gutter-fade-in 150ms ease-out;
+}
+
+/* ==========================================================================
+   Mobile / Touch
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .inkpen-block-gutter-container {
+    width: 2.5rem;
+  }
+
+  .inkpen-block-gutter {
+    padding: 0.125rem;
+  }
+
+  .inkpen-block-gutter__drag,
+  .inkpen-block-gutter__plus {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  /* Always show gutters on mobile (no hover) */
+  .inkpen-block-gutter {
+    opacity: 0.5;
+  }
+
+  .inkpen-block-gutter:active {
+    opacity: 1;
+  }
+}
+
+/* ==========================================================================
+   Print
+   ========================================================================== */
+
+@media print {
+  .inkpen-block-gutter-container {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   Reduced Motion
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .inkpen-block-gutter {
+    transition: none;
+  }
+
+  .inkpen-block-gutter.is-visible {
+    animation: none;
+  }
+
+  .inkpen-block-gutter__drag,
+  .inkpen-block-gutter__plus {
+    transition: none;
+  }
+}
