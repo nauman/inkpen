@@ -38,6 +38,7 @@ module Inkpen
     ADVANCED_EXTENSIONS = %i[
       image
       table
+      advanced_table
       slash_commands
       mention
       hashtags
@@ -62,6 +63,8 @@ module Inkpen
       enhanced_image
       file_attachment
       embed
+      table_of_contents
+      database
     ].freeze
 
     def initialize

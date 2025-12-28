@@ -55,6 +55,12 @@ const DEFAULT_COMMANDS = [
   { id: "calloutWarning", title: "Warning Callout", description: "Warning or caution", icon: "⚠️", keywords: ["callout", "warning", "caution", "alert"], group: "Advanced" },
   { id: "calloutTip", title: "Tip Callout", description: "Helpful tip", icon: "💡", keywords: ["callout", "tip", "hint", "idea"], group: "Advanced" },
 
+  // Data (v0.6.0)
+  { id: "toc", title: "Table of Contents", description: "Auto-generated navigation", icon: "📑", keywords: ["toc", "contents", "navigation", "index", "outline"], group: "Data" },
+  { id: "database", title: "Database", description: "Inline database with views", icon: "🗃️", keywords: ["database", "notion", "table", "kanban", "board"], group: "Data" },
+  { id: "databaseBoard", title: "Kanban Board", description: "Database with board view", icon: "▣", keywords: ["kanban", "board", "trello", "tasks"], group: "Data" },
+  { id: "databaseGallery", title: "Gallery", description: "Database with gallery view", icon: "⊟", keywords: ["gallery", "cards", "grid"], group: "Data" },
+
   // Embeds
   { id: "embed", title: "Embed", description: "Embed from URL", icon: "🔗", keywords: ["embed", "url", "link", "website"], group: "Media" },
   { id: "embedTwitter", title: "Twitter/X", description: "Embed a tweet", icon: "𝕏", keywords: ["twitter", "x", "tweet", "social"], group: "Media" },
@@ -71,7 +77,7 @@ export const SlashCommands = Extension.create({
   addOptions() {
     return {
       commands: DEFAULT_COMMANDS,
-      groups: ["Basic", "Lists", "Blocks", "Media", "Advanced"],
+      groups: ["Basic", "Lists", "Blocks", "Media", "Data", "Advanced"],
       maxSuggestions: 10,
       char: "/",
       startOfLine: false,
@@ -494,6 +500,28 @@ export const SlashCommands = Extension.create({
           if (spotifyUrl) {
             editor.commands.insertEmbed(spotifyUrl)
           }
+        }
+        break
+
+      // Data (v0.6.0)
+      case "toc":
+        if (editor.commands.insertTableOfContents) {
+          chain.insertTableOfContents().run()
+        }
+        break
+      case "database":
+        if (editor.commands.insertDatabase) {
+          chain.insertDatabase({ view: "table" }).run()
+        }
+        break
+      case "databaseBoard":
+        if (editor.commands.insertDatabase) {
+          chain.insertDatabase({ view: "board" }).run()
+        }
+        break
+      case "databaseGallery":
+        if (editor.commands.insertDatabase) {
+          chain.insertDatabase({ view: "gallery" }).run()
         }
         break
 

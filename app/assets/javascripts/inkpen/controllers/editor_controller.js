@@ -37,6 +37,9 @@ import { BlockCommands } from "inkpen/extensions/block_commands"
 import { EnhancedImage } from "inkpen/extensions/enhanced_image"
 import { FileAttachment } from "inkpen/extensions/file_attachment"
 import { Embed } from "inkpen/extensions/embed"
+import { AdvancedTable, AdvancedTableRow, AdvancedTableCell, AdvancedTableHeader } from "inkpen/extensions/advanced_table"
+import { TableOfContents } from "inkpen/extensions/table_of_contents"
+import { Database } from "inkpen/extensions/database"
 
 /**
  * Inkpen Editor Controller
@@ -250,8 +253,23 @@ export default class extends Controller {
       )
     }
 
-    // Table extension
-    if (enabledExtensions.includes("table")) {
+    // Table extension (use AdvancedTable if advanced_table is enabled)
+    if (enabledExtensions.includes("advanced_table")) {
+      const tableConfig = config.advanced_table || config.table || {}
+      extensions.push(
+        AdvancedTable.configure({
+          resizable: tableConfig.resizable !== false,
+          showControls: tableConfig.showControls !== false,
+          defaultVariant: tableConfig.defaultVariant || "default",
+          HTMLAttributes: {
+            class: "inkpen-table"
+          }
+        }),
+        AdvancedTableRow,
+        AdvancedTableHeader,
+        AdvancedTableCell
+      )
+    } else if (enabledExtensions.includes("table")) {
       const tableConfig = config.table || {}
       extensions.push(
         Table.configure({
@@ -523,6 +541,30 @@ export default class extends Controller {
           privacyMode: embedConfig.privacyMode !== false,
           enableLinkCards: embedConfig.enableLinkCards !== false,
           linkCardFetcher: embedConfig.linkCardFetcher || null
+        })
+      )
+    }
+
+    // Table of Contents extension (auto-generated navigation)
+    if (enabledExtensions.includes("table_of_contents")) {
+      const tocConfig = config.table_of_contents || {}
+      extensions.push(
+        TableOfContents.configure({
+          defaultMaxDepth: tocConfig.maxDepth || 3,
+          defaultStyle: tocConfig.style || "numbered",
+          defaultTitle: tocConfig.title || "Table of Contents",
+          scrollOffset: tocConfig.scrollOffset || 100
+        })
+      )
+    }
+
+    // Database extension (Notion-style inline databases)
+    if (enabledExtensions.includes("database")) {
+      const dbConfig = config.database || {}
+      extensions.push(
+        Database.configure({
+          defaultTitle: dbConfig.title || "Untitled Database",
+          defaultView: dbConfig.view || "table"
         })
       )
     }

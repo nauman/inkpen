@@ -1,0 +1,386 @@
+/**
+ * Table of Contents Styles
+ *
+ * Auto-generated navigation from document headings.
+ *
+ * @since 0.6.0
+ */
+
+/* ============================================
+   Main Container
+   ============================================ */
+
+.inkpen-toc {
+  margin: 1.5rem 0;
+  padding: 1rem 1.25rem;
+  background: var(--inkpen-color-bg-subtle);
+  border-radius: var(--inkpen-radius);
+  border: 1px solid var(--inkpen-color-border);
+}
+
+.inkpen-toc--sticky {
+  position: sticky;
+  top: 1rem;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  z-index: 40;
+}
+
+/* ============================================
+   Header
+   ============================================ */
+
+.inkpen-toc__header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.inkpen-toc__title {
+  flex: 1;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--inkpen-color-text-muted);
+}
+
+.inkpen-toc__toggle,
+.inkpen-toc__settings {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: var(--inkpen-radius-sm, 4px);
+  background: transparent;
+  color: var(--inkpen-color-text-muted);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.inkpen-toc__toggle:hover,
+.inkpen-toc__settings:hover {
+  background: var(--inkpen-color-border);
+  color: var(--inkpen-color-text);
+}
+
+.inkpen-toc__toggle {
+  transition: transform 150ms ease;
+}
+
+.inkpen-toc.is-collapsed .inkpen-toc__toggle {
+  transform: rotate(-90deg);
+}
+
+/* ============================================
+   Navigation
+   ============================================ */
+
+.inkpen-toc__nav {
+  transition: max-height 200ms ease, opacity 200ms ease;
+}
+
+.inkpen-toc.is-collapsed .inkpen-toc__nav {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+}
+
+.inkpen-toc__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Numbered style */
+.inkpen-toc__list--numbered {
+  counter-reset: toc;
+}
+
+.inkpen-toc__list--numbered .inkpen-toc__item::before {
+  counter-increment: toc;
+  content: counters(toc, ".") ".";
+  color: var(--inkpen-color-text-muted);
+  font-size: 0.75rem;
+  margin-right: 0.5rem;
+  min-width: 1.5rem;
+  display: inline-block;
+}
+
+/* Bulleted style */
+.inkpen-toc__list--bulleted .inkpen-toc__item::before {
+  content: "•";
+  color: var(--inkpen-color-text-muted);
+  margin-right: 0.5rem;
+}
+
+/* Plain style - no markers */
+.inkpen-toc__list--plain .inkpen-toc__item::before {
+  content: none;
+}
+
+/* ============================================
+   List Items
+   ============================================ */
+
+.inkpen-toc__item {
+  padding: 0.375rem 0;
+  padding-left: var(--toc-indent, 0);
+  display: flex;
+  align-items: baseline;
+}
+
+.inkpen-toc__link {
+  color: var(--inkpen-color-text);
+  text-decoration: none;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  transition: color 150ms ease;
+}
+
+.inkpen-toc__link:hover {
+  color: var(--inkpen-color-primary);
+}
+
+.inkpen-toc__link:active {
+  opacity: 0.7;
+}
+
+/* Level-specific styling */
+.inkpen-toc__item--level-1 .inkpen-toc__link {
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+
+.inkpen-toc__item--level-2 .inkpen-toc__link {
+  font-weight: 500;
+}
+
+.inkpen-toc__item--level-3 .inkpen-toc__link,
+.inkpen-toc__item--level-4 .inkpen-toc__link,
+.inkpen-toc__item--level-5 .inkpen-toc__link,
+.inkpen-toc__item--level-6 .inkpen-toc__link {
+  font-size: 0.8125rem;
+  color: var(--inkpen-color-text-muted);
+}
+
+.inkpen-toc__item--level-3 .inkpen-toc__link:hover,
+.inkpen-toc__item--level-4 .inkpen-toc__link:hover,
+.inkpen-toc__item--level-5 .inkpen-toc__link:hover,
+.inkpen-toc__item--level-6 .inkpen-toc__link:hover {
+  color: var(--inkpen-color-primary);
+}
+
+/* ============================================
+   Empty State
+   ============================================ */
+
+.inkpen-toc__empty {
+  font-size: 0.875rem;
+  color: var(--inkpen-color-text-muted);
+  font-style: italic;
+  padding: 0.5rem 0;
+}
+
+/* ============================================
+   Settings Dropdown
+   ============================================ */
+
+.inkpen-toc__dropdown {
+  min-width: 160px;
+  padding: 0.5rem;
+  background: var(--inkpen-toolbar-bg);
+  border: 1px solid var(--inkpen-color-border);
+  border-radius: var(--inkpen-radius);
+  box-shadow: var(--inkpen-shadow-lg, 0 4px 12px rgba(0, 0, 0, 0.15));
+  animation: inkpen-toc-dropdown-in 150ms ease;
+}
+
+@keyframes inkpen-toc-dropdown-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.inkpen-toc__dropdown-section {
+  padding: 0.375rem 0;
+}
+
+.inkpen-toc__dropdown-section + .inkpen-toc__dropdown-section {
+  border-top: 1px solid var(--inkpen-color-border);
+  margin-top: 0.375rem;
+  padding-top: 0.5rem;
+}
+
+.inkpen-toc__dropdown-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--inkpen-color-text-muted);
+  padding: 0.25rem 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.inkpen-toc__dropdown-row {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0 0.25rem;
+}
+
+.inkpen-toc__dropdown-btn {
+  flex: 1;
+  padding: 0.375rem 0.5rem;
+  border: 1px solid var(--inkpen-color-border);
+  border-radius: var(--inkpen-radius-sm, 4px);
+  background: transparent;
+  color: var(--inkpen-color-text);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease;
+}
+
+.inkpen-toc__dropdown-btn:hover {
+  background: var(--inkpen-color-bg-subtle);
+}
+
+.inkpen-toc__dropdown-btn.is-active {
+  background: var(--inkpen-color-primary);
+  border-color: var(--inkpen-color-primary);
+  color: white;
+}
+
+.inkpen-toc__dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-radius: var(--inkpen-radius-sm, 4px);
+  background: transparent;
+  color: var(--inkpen-color-text);
+  font-size: 0.875rem;
+  text-align: left;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.inkpen-toc__dropdown-item:hover {
+  background: var(--inkpen-color-bg-subtle);
+}
+
+.inkpen-toc__dropdown-item.is-active {
+  position: relative;
+  background: rgba(var(--inkpen-color-primary-rgb, 59, 130, 246), 0.1);
+}
+
+.inkpen-toc__dropdown-item.is-active::after {
+  content: "✓";
+  position: absolute;
+  right: 0.75rem;
+  color: var(--inkpen-color-primary);
+}
+
+/* ============================================
+   Dark Mode
+   ============================================ */
+
+@media (prefers-color-scheme: dark) {
+  .inkpen-toc {
+    background: var(--inkpen-color-bg-subtle);
+  }
+
+  .inkpen-toc__dropdown-btn.is-active {
+    background: var(--inkpen-color-primary);
+  }
+}
+
+/* ============================================
+   Mobile Optimizations
+   ============================================ */
+
+@media (max-width: 768px) {
+  .inkpen-toc {
+    padding: 0.875rem 1rem;
+    margin: 1rem 0;
+  }
+
+  .inkpen-toc--sticky {
+    position: static;
+    max-height: none;
+  }
+
+  .inkpen-toc__toggle,
+  .inkpen-toc__settings {
+    width: 32px;
+    height: 32px;
+  }
+
+  .inkpen-toc__link {
+    padding: 0.25rem 0;
+  }
+
+  .inkpen-toc__item {
+    padding: 0.5rem 0;
+  }
+}
+
+/* ============================================
+   Print Styles
+   ============================================ */
+
+@media print {
+  .inkpen-toc {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    background: none;
+    border: 1px solid #ccc;
+  }
+
+  .inkpen-toc--sticky {
+    position: static;
+  }
+
+  .inkpen-toc__toggle,
+  .inkpen-toc__settings,
+  .inkpen-toc__dropdown {
+    display: none !important;
+  }
+
+  .inkpen-toc__link {
+    color: #000;
+  }
+
+  .inkpen-toc__link::after {
+    content: " (p. " attr(data-page) ")";
+    font-size: 0.75rem;
+    color: #666;
+  }
+}
+
+/* ============================================
+   Reduced Motion
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .inkpen-toc__toggle,
+  .inkpen-toc__nav,
+  .inkpen-toc__link,
+  .inkpen-toc__dropdown {
+    transition: none;
+  }
+
+  @keyframes inkpen-toc-dropdown-in {
+    from { opacity: 1; transform: none; }
+    to { opacity: 1; transform: none; }
+  }
+}

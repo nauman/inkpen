@@ -9,45 +9,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Planned (v0.6.0)
+### Added
 
-#### Advanced Tables Extension
-- Column alignment (left, center, right)
-- Table caption/title
+#### Advanced Tables Extension (v0.6.0)
+- Extended TipTap Table with professional features
+- Column alignment (left, center, right) via toolbar or keyboard shortcuts
+- Table caption/title (editable)
 - Striped rows option
-- Border style variants (default, borderless, minimal)
+- Border style variants (default, striped, borderless, minimal)
 - Table toolbar on cell selection
-- Cell background colors
-- Row/column drag reordering
+- Cell background colors (7 color options)
 - Sticky header behavior
+- Keyboard shortcuts: `Cmd+Shift+L/E/R` for alignment
 - Commands: `setTableCaption`, `setTableVariant`, `setCellAlignment`, `setCellBackground`, `toggleStickyHeader`
+- Dark mode support
+- Mobile-optimized
 
-#### Database Block Extension
+#### Database Block Extension (v0.6.0)
 - Notion-style inline databases
-- Property types: Text, Number, Select, Multi-select, Date, Checkbox, URL, Email, Person
+- Property types: Text, Number, Select, Date, Checkbox, URL
 - Views: Table, List, Gallery, Board (Kanban)
-- Filters with AND/OR logic
-- Sorting (single and multi-column)
-- Template rows
-- Formulas (basic: SUM, COUNT, AVG)
-- Linked databases
-- Commands: `insertDatabase`, `addDatabaseProperty`, `addDatabaseRow`, `setDatabaseView`, `addDatabaseView`, `setDatabaseFilter`, `setDatabaseSort`
+- Add/edit/delete rows inline
+- Add new properties with type selection
+- Select properties with color-coded tags
+- Editable database title
+- View switching via tab buttons
+- Commands: `insertDatabase`, `setDatabaseTitle`, `setDatabaseView`, `addDatabaseRow`, `updateDatabaseRow`, `deleteDatabaseRow`, `addDatabaseProperty`
 - Slash commands: `/database`, `/kanban`, `/gallery`
+- Dark mode support
+- Mobile-optimized
 
-#### Table of Contents Extension
+#### Table of Contents Extension (v0.6.0)
 - Auto-detect headings (H1-H6)
 - Clickable links with smooth scroll
-- Configurable max depth
+- Configurable max depth (H1-H6)
 - Numbered, bulleted, or plain style
 - Collapsible sections
 - Sticky positioning option
-- Real-time updates
-- Commands: `insertTableOfContents`, `setTocMaxDepth`, `setTocStyle`
+- Real-time updates as document changes
+- Settings dropdown for customization
+- Keyboard shortcut: `Cmd+Shift+T`
+- Commands: `insertTableOfContents`, `setTocMaxDepth`, `setTocStyle`, `setTocTitle`
 - Slash command: `/toc`
+- Dark mode support
+- Mobile-optimized
 
 ---
-
-### Added
 
 #### Social Embed Extension (v0.5.0)
 - Paste URL to auto-embed from supported platforms
