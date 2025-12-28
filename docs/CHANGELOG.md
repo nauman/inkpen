@@ -9,6 +9,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Planned (v0.6.0)
+
+#### Advanced Tables Extension
+- Column alignment (left, center, right)
+- Table caption/title
+- Striped rows option
+- Border style variants (default, borderless, minimal)
+- Table toolbar on cell selection
+- Cell background colors
+- Row/column drag reordering
+- Sticky header behavior
+- Commands: `setTableCaption`, `setTableVariant`, `setCellAlignment`, `setCellBackground`, `toggleStickyHeader`
+
+#### Database Block Extension
+- Notion-style inline databases
+- Property types: Text, Number, Select, Multi-select, Date, Checkbox, URL, Email, Person
+- Views: Table, List, Gallery, Board (Kanban)
+- Filters with AND/OR logic
+- Sorting (single and multi-column)
+- Template rows
+- Formulas (basic: SUM, COUNT, AVG)
+- Linked databases
+- Commands: `insertDatabase`, `addDatabaseProperty`, `addDatabaseRow`, `setDatabaseView`, `addDatabaseView`, `setDatabaseFilter`, `setDatabaseSort`
+- Slash commands: `/database`, `/kanban`, `/gallery`
+
+#### Table of Contents Extension
+- Auto-detect headings (H1-H6)
+- Clickable links with smooth scroll
+- Configurable max depth
+- Numbered, bulleted, or plain style
+- Collapsible sections
+- Sticky positioning option
+- Real-time updates
+- Commands: `insertTableOfContents`, `setTocMaxDepth`, `setTocStyle`
+- Slash command: `/toc`
+
+---
+
 ### Added
 
 #### Social Embed Extension (v0.5.0)

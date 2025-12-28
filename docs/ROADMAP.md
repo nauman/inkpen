@@ -1056,6 +1056,923 @@ lib/inkpen/extensions/
 
 ---
 
+## Phase 5: Tables & Data (v0.6.0)
+
+### Goal
+Transform Inkpen into a data-rich editor with advanced table features, Notion-style database blocks, and automatic table of contents generation.
+
+---
+
+### 5.1 Advanced Tables Extension (v0.6.0-alpha)
+
+Enhance the existing TipTap table with professional features.
+
+**Features:**
+- Column resizing with visual handles (existing)
+- Cell merging and splitting (existing)
+- Header rows with sticky behavior
+- **NEW:** Column alignment (left, center, right)
+- **NEW:** Table caption/title
+- **NEW:** Striped rows option
+- **NEW:** Border style variants (default, borderless, minimal)
+- **NEW:** Table toolbar on cell selection
+- **NEW:** Cell background colors
+- **NEW:** Row/column drag reordering
+
+**Implementation:**
+```javascript
+// app/assets/javascripts/inkpen/extensions/advanced_table.js
+
+import { Table } from '@tiptap/extension-table'
+import { TableRow } from '@tiptap/extension-table-row'
+import { TableCell } from '@tiptap/extension-table-cell'
+import { TableHeader } from '@tiptap/extension-table-header'
+import { Plugin, PluginKey } from '@tiptap/pm/state'
+
+// Extended TableCell with new attributes
+export const AdvancedTableCell = TableCell.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      align: {
+        default: 'left',
+        parseHTML: element => element.style.textAlign || 'left',
+        renderHTML: attributes => ({
+          style: `text-align: ${attributes.align}`
+        })
+      },
+      background: {
+        default: null,
+        parseHTML: element => element.getAttribute('data-background'),
+        renderHTML: attributes => attributes.background
+          ? { 'data-background': attributes.background, style: `background: var(--inkpen-table-bg-${attributes.background})` }
+          : {}
+      }
+    }
+  }
+})
+
+// Extended Table with caption and style variants
+export const AdvancedTable = Table.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      caption: { default: null },
+      variant: { default: 'default' }, // default, striped, borderless, minimal
+      stickyHeader: { default: false }
+    }
+  },
+
+  addNodeView() {
+    return ({ node, editor, getPos }) => {
+      const wrapper = document.createElement('div')
+      wrapper.className = 'inkpen-table-wrapper'
+
+      // Caption above table
+      if (node.attrs.caption) {
+        const caption = document.createElement('div')
+        caption.className = 'inkpen-table__caption'
+        caption.textContent = node.attrs.caption
+        caption.contentEditable = 'true'
+        wrapper.appendChild(caption)
+      }
+
+      // Table controls toolbar
+      if (editor.isEditable) {
+        const controls = document.createElement('div')
+        controls.className = 'inkpen-table__controls'
+        controls.innerHTML = `
+          <button data-action="align-left" title="Align Left">⬅</button>
+          <button data-action="align-center" title="Align Center">⬌</button>
+          <button data-action="align-right" title="Align Right">➡</button>
+          <span class="divider"></span>
+          <button data-action="toggle-striped" title="Striped Rows">≡</button>
+          <button data-action="cell-color" title="Cell Color">🎨</button>
+          <span class="divider"></span>
+          <button data-action="add-row" title="Add Row">+↓</button>
+          <button data-action="add-col" title="Add Column">+→</button>
+        `
+        wrapper.appendChild(controls)
+      }
+
+      // Table element
+      const tableContainer = document.createElement('div')
+      tableContainer.className = 'inkpen-table__container'
+      wrapper.appendChild(tableContainer)
+
+      return {
+        dom: wrapper,
+        contentDOM: tableContainer
+      }
+    }
+  },
+
+  addCommands() {
+    return {
+      ...this.parent?.(),
+      setTableCaption: (caption) => ({ tr, state, dispatch }) => {
+        // Set caption on table node
+      },
+      setTableVariant: (variant) => ({ tr, state, dispatch }) => {
+        // Set variant (default, striped, borderless, minimal)
+      },
+      setCellAlignment: (align) => ({ tr, state, dispatch }) => {
+        // Set alignment for selected cells
+      },
+      setCellBackground: (color) => ({ tr, state, dispatch }) => {
+        // Set background for selected cells
+      },
+      toggleStickyHeader: () => ({ tr, state, dispatch }) => {
+        // Toggle sticky header behavior
+      }
+    }
+  },
+
+  addKeyboardShortcuts() {
+    return {
+      ...this.parent?.(),
+      'Tab': () => this.editor.commands.goToNextCell(),
+      'Shift-Tab': () => this.editor.commands.goToPreviousCell()
+    }
+  }
+})
+```
+
+**CSS:**
+```css
+/* app/assets/stylesheets/inkpen/advanced_table.css */
+
+.inkpen-table-wrapper {
+  margin: 1.5rem 0;
+  position: relative;
+}
+
+.inkpen-table__caption {
+  font-size: 0.875rem;
+  color: var(--inkpen-color-text-muted);
+  margin-bottom: 0.5rem;
+  font-style: italic;
+}
+
+.inkpen-table__controls {
+  position: absolute;
+  top: -36px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  background: var(--inkpen-toolbar-bg);
+  border: 1px solid var(--inkpen-color-border);
+  border-radius: var(--inkpen-radius);
+  box-shadow: var(--inkpen-shadow);
+  opacity: 0;
+  transition: opacity 150ms;
+}
+
+.inkpen-table-wrapper:focus-within .inkpen-table__controls,
+.inkpen-table-wrapper:hover .inkpen-table__controls {
+  opacity: 1;
+}
+
+/* Table Variants */
+.inkpen-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.inkpen-table--default td,
+.inkpen-table--default th {
+  border: 1px solid var(--inkpen-color-border);
+  padding: 0.5rem 0.75rem;
+}
+
+.inkpen-table--striped tr:nth-child(even) {
+  background: var(--inkpen-color-bg-subtle);
+}
+
+.inkpen-table--borderless td,
+.inkpen-table--borderless th {
+  border: none;
+  border-bottom: 1px solid var(--inkpen-color-border);
+}
+
+.inkpen-table--minimal td,
+.inkpen-table--minimal th {
+  border: none;
+  padding: 0.5rem 1rem;
+}
+
+/* Sticky Header */
+.inkpen-table--sticky-header thead {
+  position: sticky;
+  top: 0;
+  background: var(--inkpen-toolbar-bg);
+  z-index: 10;
+}
+
+/* Cell Colors */
+.inkpen-table [data-background="gray"] { background: var(--inkpen-color-bg-subtle); }
+.inkpen-table [data-background="red"] { background: rgba(239, 68, 68, 0.15); }
+.inkpen-table [data-background="orange"] { background: rgba(249, 115, 22, 0.15); }
+.inkpen-table [data-background="yellow"] { background: rgba(234, 179, 8, 0.15); }
+.inkpen-table [data-background="green"] { background: rgba(34, 197, 94, 0.15); }
+.inkpen-table [data-background="blue"] { background: rgba(59, 130, 246, 0.15); }
+.inkpen-table [data-background="purple"] { background: rgba(168, 85, 247, 0.15); }
+
+/* Resize Handles */
+.inkpen-table .column-resize-handle {
+  position: absolute;
+  right: -2px;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--inkpen-color-primary);
+  cursor: col-resize;
+  opacity: 0;
+  transition: opacity 150ms;
+}
+
+.inkpen-table td:hover .column-resize-handle,
+.inkpen-table th:hover .column-resize-handle {
+  opacity: 1;
+}
+```
+
+---
+
+### 5.2 Database Block Extension (v0.6.0-beta)
+
+Notion-style inline databases with multiple views.
+
+**Features:**
+- Property types: Text, Number, Select, Multi-select, Date, Checkbox, URL, Email, Person
+- Views: Table, List, Gallery, Board (Kanban)
+- Filters with AND/OR logic
+- Sorting (single and multi-column)
+- Inline database (embedded in document)
+- Full-page database option
+- Template rows
+- Formulas (basic: SUM, COUNT, AVG)
+- Linked databases (reference same data)
+
+**Implementation:**
+```javascript
+// app/assets/javascripts/inkpen/extensions/database.js
+
+import { Node, mergeAttributes } from '@tiptap/core'
+
+const PROPERTY_TYPES = {
+  text: { icon: 'Aa', default: '' },
+  number: { icon: '#', default: 0 },
+  select: { icon: '▼', default: null, options: [] },
+  multiSelect: { icon: '☰', default: [], options: [] },
+  date: { icon: '📅', default: null },
+  checkbox: { icon: '☑', default: false },
+  url: { icon: '🔗', default: '' },
+  email: { icon: '✉', default: '' },
+  person: { icon: '👤', default: null },
+  formula: { icon: 'ƒ', default: null, formula: '' }
+}
+
+const VIEWS = {
+  table: { icon: '⊞', name: 'Table' },
+  list: { icon: '☰', name: 'List' },
+  gallery: { icon: '⊟', name: 'Gallery' },
+  board: { icon: '▣', name: 'Board' }
+}
+
+export const Database = Node.create({
+  name: 'database',
+  group: 'block',
+  atom: true,
+  draggable: true,
+
+  addAttributes() {
+    return {
+      title: { default: 'Untitled Database' },
+      properties: {
+        default: [
+          { id: 'name', name: 'Name', type: 'text' },
+          { id: 'status', name: 'Status', type: 'select', options: ['To Do', 'In Progress', 'Done'] }
+        ]
+      },
+      rows: {
+        default: []
+      },
+      views: {
+        default: [
+          { id: 'default', type: 'table', name: 'Table View', filters: [], sorts: [] }
+        ]
+      },
+      activeView: { default: 'default' },
+      isInline: { default: true },
+      linkedFrom: { default: null } // ID of source database if linked
+    }
+  },
+
+  addNodeView() {
+    return ({ node, editor, getPos, HTMLAttributes }) => {
+      const { title, properties, rows, views, activeView, isInline } = node.attrs
+      const currentView = views.find(v => v.id === activeView) || views[0]
+
+      const wrapper = document.createElement('div')
+      wrapper.className = `inkpen-database inkpen-database--${currentView.type}`
+      if (isInline) wrapper.classList.add('inkpen-database--inline')
+
+      // Header with title and view tabs
+      const header = document.createElement('div')
+      header.className = 'inkpen-database__header'
+      header.innerHTML = `
+        <input type="text" class="inkpen-database__title" value="${title}" placeholder="Untitled" />
+        <div class="inkpen-database__views">
+          ${views.map(v => `
+            <button class="inkpen-database__view-tab ${v.id === activeView ? 'is-active' : ''}"
+                    data-view-id="${v.id}">
+              ${VIEWS[v.type].icon} ${v.name}
+            </button>
+          `).join('')}
+          <button class="inkpen-database__add-view">+ Add View</button>
+        </div>
+        <div class="inkpen-database__actions">
+          <button class="inkpen-database__filter">Filter</button>
+          <button class="inkpen-database__sort">Sort</button>
+          <button class="inkpen-database__new-row">+ New</button>
+        </div>
+      `
+      wrapper.appendChild(header)
+
+      // Render view based on type
+      const content = document.createElement('div')
+      content.className = 'inkpen-database__content'
+
+      switch (currentView.type) {
+        case 'table':
+          content.innerHTML = this.renderTableView(properties, rows, currentView)
+          break
+        case 'list':
+          content.innerHTML = this.renderListView(properties, rows, currentView)
+          break
+        case 'gallery':
+          content.innerHTML = this.renderGalleryView(properties, rows, currentView)
+          break
+        case 'board':
+          content.innerHTML = this.renderBoardView(properties, rows, currentView)
+          break
+      }
+      wrapper.appendChild(content)
+
+      return { dom: wrapper }
+    }
+  },
+
+  renderTableView(properties, rows, view) {
+    return `
+      <table class="inkpen-database__table">
+        <thead>
+          <tr>
+            ${properties.map(p => `
+              <th data-prop-id="${p.id}">
+                ${PROPERTY_TYPES[p.type].icon} ${p.name}
+              </th>
+            `).join('')}
+            <th class="inkpen-database__add-prop">+</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map(row => `
+            <tr data-row-id="${row.id}">
+              ${properties.map(p => `
+                <td data-prop-id="${p.id}" data-type="${p.type}">
+                  ${this.renderCell(p, row[p.id])}
+                </td>
+              `).join('')}
+            </tr>
+          `).join('')}
+          <tr class="inkpen-database__new-row-placeholder">
+            <td colspan="${properties.length + 1}">+ New row</td>
+          </tr>
+        </tbody>
+      </table>
+    `
+  },
+
+  renderBoardView(properties, rows, view) {
+    const groupBy = view.groupBy || properties.find(p => p.type === 'select')?.id
+    const groupProp = properties.find(p => p.id === groupBy)
+    const groups = groupProp?.options || ['No Status']
+
+    return `
+      <div class="inkpen-database__board">
+        ${groups.map(group => `
+          <div class="inkpen-database__column" data-group="${group}">
+            <div class="inkpen-database__column-header">
+              <span>${group}</span>
+              <span class="inkpen-database__column-count">
+                ${rows.filter(r => r[groupBy] === group).length}
+              </span>
+            </div>
+            <div class="inkpen-database__column-items">
+              ${rows.filter(r => r[groupBy] === group).map(row => `
+                <div class="inkpen-database__card" data-row-id="${row.id}">
+                  ${this.renderCard(properties, row)}
+                </div>
+              `).join('')}
+              <button class="inkpen-database__add-card">+ Add</button>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `
+  },
+
+  addCommands() {
+    return {
+      insertDatabase: (options = {}) => ({ commands }) => {
+        return commands.insertContent({
+          type: this.name,
+          attrs: options
+        })
+      },
+      addDatabaseProperty: (propertyDef) => ({ tr, state }) => {
+        // Add new property column
+      },
+      addDatabaseRow: (rowData) => ({ tr, state }) => {
+        // Add new row
+      },
+      setDatabaseView: (viewId) => ({ tr, state }) => {
+        // Switch active view
+      },
+      addDatabaseView: (viewDef) => ({ tr, state }) => {
+        // Create new view
+      },
+      setDatabaseFilter: (filters) => ({ tr, state }) => {
+        // Update view filters
+      },
+      setDatabaseSort: (sorts) => ({ tr, state }) => {
+        // Update view sorts
+      }
+    }
+  }
+})
+```
+
+**CSS:**
+```css
+/* app/assets/stylesheets/inkpen/database.css */
+
+.inkpen-database {
+  margin: 1.5rem 0;
+  border: 1px solid var(--inkpen-color-border);
+  border-radius: var(--inkpen-radius);
+  overflow: hidden;
+}
+
+.inkpen-database--inline {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+/* Header */
+.inkpen-database__header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--inkpen-color-border);
+  background: var(--inkpen-color-bg-subtle);
+}
+
+.inkpen-database__title {
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  background: transparent;
+  flex: 1;
+}
+
+.inkpen-database__views {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.inkpen-database__view-tab {
+  padding: 0.375rem 0.75rem;
+  border-radius: var(--inkpen-radius);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.inkpen-database__view-tab.is-active {
+  background: var(--inkpen-toolbar-bg);
+}
+
+/* Table View */
+.inkpen-database__table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.inkpen-database__table th {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--inkpen-color-border);
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: var(--inkpen-color-text-muted);
+  white-space: nowrap;
+}
+
+.inkpen-database__table td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--inkpen-color-border);
+}
+
+.inkpen-database__table td:hover {
+  background: var(--inkpen-color-bg-subtle);
+}
+
+/* Board View (Kanban) */
+.inkpen-database__board {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+.inkpen-database__column {
+  flex: 0 0 280px;
+  background: var(--inkpen-color-bg-subtle);
+  border-radius: var(--inkpen-radius);
+}
+
+.inkpen-database__column-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem;
+  font-weight: 500;
+}
+
+.inkpen-database__column-items {
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.inkpen-database__card {
+  padding: 0.75rem;
+  background: var(--inkpen-toolbar-bg);
+  border-radius: var(--inkpen-radius);
+  border: 1px solid var(--inkpen-color-border);
+  cursor: pointer;
+}
+
+.inkpen-database__card:hover {
+  box-shadow: var(--inkpen-shadow);
+}
+
+/* Gallery View */
+.inkpen-database__gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+}
+
+/* Property Cells */
+.inkpen-database [data-type="checkbox"] {
+  text-align: center;
+}
+
+.inkpen-database [data-type="select"] .inkpen-tag {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.inkpen-database [data-type="date"] {
+  font-family: var(--inkpen-font-mono);
+  font-size: 0.875rem;
+}
+```
+
+---
+
+### 5.3 Table of Contents Extension (v0.6.0-rc)
+
+Auto-generated navigation from document headings.
+
+**Features:**
+- Auto-detect headings (H1-H6)
+- Clickable links with smooth scroll
+- Configurable max depth (e.g., H1-H3 only)
+- Numbered or bulleted style
+- Collapsible sections
+- Sticky positioning option
+- Real-time updates as document changes
+- Click heading to scroll into view
+
+**Implementation:**
+```javascript
+// app/assets/javascripts/inkpen/extensions/table_of_contents.js
+
+import { Node } from '@tiptap/core'
+import { Plugin, PluginKey } from '@tiptap/pm/state'
+
+export const TableOfContents = Node.create({
+  name: 'tableOfContents',
+  group: 'block',
+  atom: true,
+  draggable: true,
+
+  addAttributes() {
+    return {
+      maxDepth: { default: 3 },          // Max heading level (1-6)
+      style: { default: 'numbered' },     // numbered, bulleted, plain
+      title: { default: 'Table of Contents' },
+      collapsible: { default: false },
+      sticky: { default: false }
+    }
+  },
+
+  addNodeView() {
+    return ({ node, editor }) => {
+      const wrapper = document.createElement('div')
+      wrapper.className = 'inkpen-toc'
+      if (node.attrs.sticky) wrapper.classList.add('inkpen-toc--sticky')
+
+      const render = () => {
+        const headings = this.getHeadings(editor, node.attrs.maxDepth)
+        wrapper.innerHTML = this.renderTOC(headings, node.attrs)
+        this.attachClickHandlers(wrapper, editor)
+      }
+
+      render()
+
+      // Update on document change
+      const updateHandler = () => render()
+      editor.on('update', updateHandler)
+
+      return {
+        dom: wrapper,
+        destroy: () => editor.off('update', updateHandler)
+      }
+    }
+  },
+
+  getHeadings(editor, maxDepth) {
+    const headings = []
+    let index = 0
+
+    editor.state.doc.descendants((node, pos) => {
+      if (node.type.name === 'heading' && node.attrs.level <= maxDepth) {
+        headings.push({
+          id: `heading-${index++}`,
+          level: node.attrs.level,
+          text: node.textContent,
+          pos
+        })
+      }
+    })
+
+    return headings
+  },
+
+  renderTOC(headings, attrs) {
+    const { title, style, collapsible } = attrs
+
+    if (headings.length === 0) {
+      return `
+        <div class="inkpen-toc__empty">
+          No headings found. Add headings to generate a table of contents.
+        </div>
+      `
+    }
+
+    const listTag = style === 'numbered' ? 'ol' : 'ul'
+
+    return `
+      <div class="inkpen-toc__header">
+        <span class="inkpen-toc__title">${title}</span>
+        ${collapsible ? '<button class="inkpen-toc__toggle">▼</button>' : ''}
+      </div>
+      <nav class="inkpen-toc__nav">
+        <${listTag} class="inkpen-toc__list inkpen-toc__list--${style}">
+          ${headings.map(h => `
+            <li class="inkpen-toc__item inkpen-toc__item--level-${h.level}"
+                style="--toc-indent: ${(h.level - 1) * 1}rem">
+              <a href="#${h.id}" data-pos="${h.pos}">${h.text}</a>
+            </li>
+          `).join('')}
+        </${listTag}>
+      </nav>
+    `
+  },
+
+  attachClickHandlers(wrapper, editor) {
+    wrapper.querySelectorAll('.inkpen-toc__item a').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault()
+        const pos = parseInt(link.dataset.pos)
+
+        // Scroll to heading
+        const coords = editor.view.coordsAtPos(pos)
+        window.scrollTo({
+          top: coords.top - 100, // Offset for sticky headers
+          behavior: 'smooth'
+        })
+
+        // Focus editor at heading
+        editor.commands.setTextSelection(pos)
+      })
+    })
+  },
+
+  addCommands() {
+    return {
+      insertTableOfContents: (options = {}) => ({ commands }) => {
+        return commands.insertContent({
+          type: this.name,
+          attrs: options
+        })
+      },
+      setTocMaxDepth: (depth) => ({ tr, state }) => {
+        // Update max depth
+      },
+      setTocStyle: (style) => ({ tr, state }) => {
+        // Update style (numbered, bulleted, plain)
+      }
+    }
+  }
+})
+```
+
+**CSS:**
+```css
+/* app/assets/stylesheets/inkpen/toc.css */
+
+.inkpen-toc {
+  margin: 1.5rem 0;
+  padding: 1rem 1.5rem;
+  background: var(--inkpen-color-bg-subtle);
+  border-radius: var(--inkpen-radius);
+  border: 1px solid var(--inkpen-color-border);
+}
+
+.inkpen-toc--sticky {
+  position: sticky;
+  top: 1rem;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+}
+
+.inkpen-toc__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.inkpen-toc__title {
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--inkpen-color-text-muted);
+}
+
+.inkpen-toc__toggle {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0.25rem;
+}
+
+.inkpen-toc__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.inkpen-toc__list--numbered {
+  counter-reset: toc;
+}
+
+.inkpen-toc__list--numbered .inkpen-toc__item::before {
+  counter-increment: toc;
+  content: counters(toc, ".") ". ";
+  color: var(--inkpen-color-text-muted);
+  margin-right: 0.5rem;
+}
+
+.inkpen-toc__list--bulleted .inkpen-toc__item::before {
+  content: "•";
+  color: var(--inkpen-color-text-muted);
+  margin-right: 0.5rem;
+}
+
+.inkpen-toc__item {
+  padding: 0.375rem 0;
+  padding-left: var(--toc-indent, 0);
+}
+
+.inkpen-toc__item a {
+  color: var(--inkpen-color-text);
+  text-decoration: none;
+  transition: color 150ms;
+}
+
+.inkpen-toc__item a:hover {
+  color: var(--inkpen-color-primary);
+}
+
+/* Level styling */
+.inkpen-toc__item--level-1 { font-weight: 600; }
+.inkpen-toc__item--level-2 { font-weight: 500; }
+.inkpen-toc__item--level-3,
+.inkpen-toc__item--level-4,
+.inkpen-toc__item--level-5,
+.inkpen-toc__item--level-6 {
+  font-size: 0.875rem;
+  color: var(--inkpen-color-text-muted);
+}
+
+.inkpen-toc__empty {
+  font-size: 0.875rem;
+  color: var(--inkpen-color-text-muted);
+  font-style: italic;
+}
+
+/* Collapsible */
+.inkpen-toc.is-collapsed .inkpen-toc__nav {
+  display: none;
+}
+
+.inkpen-toc.is-collapsed .inkpen-toc__toggle {
+  transform: rotate(-90deg);
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  .inkpen-toc {
+    background: var(--inkpen-color-bg-subtle);
+  }
+}
+```
+
+---
+
+### 5.4 Slash Commands Updates
+
+Add new commands to slash menu:
+
+```javascript
+// Added to DEFAULT_COMMANDS in slash_commands.js
+
+// Data group
+{ id: "table", title: "Table", description: "Insert a table", icon: "⊞", group: "Data" },
+{ id: "database", title: "Database", description: "Create an inline database", icon: "🗃️", group: "Data", keywords: ["notion", "airtable", "spreadsheet"] },
+{ id: "databaseTable", title: "Database - Table View", description: "Database with table view", icon: "⊞", group: "Data" },
+{ id: "databaseBoard", title: "Database - Board View", description: "Kanban-style board", icon: "▣", group: "Data", keywords: ["kanban", "trello"] },
+{ id: "databaseGallery", title: "Database - Gallery", description: "Card gallery view", icon: "⊟", group: "Data" },
+
+// Navigation group
+{ id: "toc", title: "Table of Contents", description: "Auto-generated navigation", icon: "📑", group: "Navigation", keywords: ["contents", "navigation", "index"] },
+```
+
+---
+
+### Implementation Priority
+
+| Feature | Priority | Complexity | Files |
+|---------|----------|------------|-------|
+| Advanced Tables | High | Medium | advanced_table.js, advanced_table.css |
+| Table of Contents | High | Low | table_of_contents.js, toc.css |
+| Database Blocks | Medium | High | database.js, database.css |
+| Slash Menu Updates | Low | Low | slash_commands.js |
+
+---
+
+### Files to Create (v0.6.0)
+
+```
+app/assets/javascripts/inkpen/extensions/
+├── advanced_table.js          ← v0.6.0-alpha
+├── database.js                ← v0.6.0-beta
+└── table_of_contents.js       ← v0.6.0-rc
+
+app/assets/stylesheets/inkpen/
+├── advanced_table.css         ← v0.6.0-alpha
+├── database.css               ← v0.6.0-beta
+└── toc.css                    ← v0.6.0-rc
+```
+
+---
+
 ## Technical References
 
 ### TipTap/ProseMirror
