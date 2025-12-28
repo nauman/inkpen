@@ -1,0 +1,626 @@
+/**
+ * Animations & Polish for Inkpen Editor
+ *
+ * Smooth animations and micro-interactions for a polished editing experience.
+ * Inspired by BlockNote, Notion, and modern block editors.
+ *
+ * @since 0.4.0
+ */
+
+/* ==========================================================================
+   CSS Custom Properties
+   ========================================================================== */
+
+:root {
+  /* Animation durations */
+  --inkpen-animation-fast: 100ms;
+  --inkpen-animation-normal: 150ms;
+  --inkpen-animation-slow: 200ms;
+  --inkpen-animation-slower: 300ms;
+
+  /* Easing functions */
+  --inkpen-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --inkpen-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --inkpen-ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Block selection */
+  --inkpen-selection-bg: rgba(59, 130, 246, 0.1);
+  --inkpen-selection-border: rgba(59, 130, 246, 0.3);
+}
+
+/* Dark mode */
+[data-theme="dark"],
+.dark {
+  --inkpen-selection-bg: rgba(96, 165, 250, 0.15);
+  --inkpen-selection-border: rgba(96, 165, 250, 0.3);
+}
+
+/* ==========================================================================
+   Block Entry Animations
+   ========================================================================== */
+
+/* Fade in and slide up for new blocks */
+@keyframes inkpen-block-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Apply to direct children of ProseMirror */
+.inkpen-editor .ProseMirror > *:not(.ProseMirror-gapcursor) {
+  animation: inkpen-block-enter var(--inkpen-animation-normal) var(--inkpen-ease-out);
+}
+
+/* Disable animation on initial load */
+.inkpen-editor.is-loading .ProseMirror > * {
+  animation: none;
+}
+
+/* ==========================================================================
+   Block Focus & Selection
+   ========================================================================== */
+
+/* Block focus ring */
+.inkpen-editor .ProseMirror > *:focus-within {
+  position: relative;
+}
+
+.inkpen-editor .ProseMirror > *:focus-within::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border: 2px solid var(--inkpen-selection-border);
+  border-radius: 6px;
+  pointer-events: none;
+  opacity: 0;
+  animation: inkpen-focus-ring-in var(--inkpen-animation-fast) var(--inkpen-ease-out) forwards;
+}
+
+@keyframes inkpen-focus-ring-in {
+  to {
+    opacity: 1;
+  }
+}
+
+/* Selected block highlight (via gutter click) */
+.inkpen-editor .ProseMirror > *.is-selected {
+  background: var(--inkpen-selection-bg);
+  border-radius: 4px;
+  transition: background var(--inkpen-animation-fast) var(--inkpen-ease-out);
+}
+
+/* Multi-select blocks */
+.inkpen-editor .ProseMirror > *.is-multi-selected {
+  background: var(--inkpen-selection-bg);
+  border-radius: 4px;
+}
+
+/* ==========================================================================
+   Cursor & Caret Animations
+   ========================================================================== */
+
+/* Smooth caret blink */
+.inkpen-editor .ProseMirror-cursor {
+  animation: inkpen-cursor-blink 1.2s step-end infinite;
+}
+
+@keyframes inkpen-cursor-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Gap cursor animation */
+.inkpen-editor .ProseMirror-gapcursor::after {
+  animation: inkpen-gapcursor-blink 1.2s step-end infinite;
+}
+
+@keyframes inkpen-gapcursor-blink {
+  0%, 100% { border-color: currentColor; }
+  50% { border-color: transparent; }
+}
+
+/* ==========================================================================
+   Placeholder Animations
+   ========================================================================== */
+
+/* Fade in placeholder */
+.inkpen-editor .ProseMirror p.is-empty:first-child::before,
+.inkpen-editor .ProseMirror .is-empty::before {
+  animation: inkpen-placeholder-in var(--inkpen-animation-slow) var(--inkpen-ease-out);
+}
+
+@keyframes inkpen-placeholder-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.5;
+  }
+}
+
+/* ==========================================================================
+   Menu & Popup Animations
+   ========================================================================== */
+
+/* Slash menu entrance */
+.inkpen-slash-menu {
+  animation: inkpen-menu-enter var(--inkpen-animation-normal) var(--inkpen-ease-out);
+  transform-origin: top left;
+}
+
+@keyframes inkpen-menu-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Bubble menu (toolbar) entrance */
+.tippy-box[data-theme="inkpen"] {
+  animation: inkpen-bubble-enter var(--inkpen-animation-fast) var(--inkpen-ease-out);
+}
+
+@keyframes inkpen-bubble-enter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dropdown menus (callout selector, etc.) */
+.inkpen-callout-selector,
+.inkpen-columns-controls,
+.inkpen-section-controls {
+  animation: inkpen-dropdown-enter var(--inkpen-animation-fast) var(--inkpen-ease-out);
+}
+
+@keyframes inkpen-dropdown-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================================================
+   Gutter Animations
+   ========================================================================== */
+
+/* Gutter fade in */
+.inkpen-block-gutter {
+  transition: opacity var(--inkpen-animation-fast) var(--inkpen-ease-out),
+              transform var(--inkpen-animation-fast) var(--inkpen-ease-out);
+}
+
+.inkpen-block-gutter:not(.is-visible) {
+  opacity: 0;
+  transform: translateX(-4px);
+}
+
+.inkpen-block-gutter.is-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Gutter button hover effects */
+.inkpen-block-gutter__drag,
+.inkpen-block-gutter__plus {
+  transition: background var(--inkpen-animation-fast) var(--inkpen-ease-out),
+              color var(--inkpen-animation-fast) var(--inkpen-ease-out),
+              transform var(--inkpen-animation-fast) var(--inkpen-ease-out);
+}
+
+.inkpen-block-gutter__drag:hover,
+.inkpen-block-gutter__plus:hover {
+  transform: scale(1.1);
+}
+
+.inkpen-block-gutter__drag:active,
+.inkpen-block-gutter__plus:active {
+  transform: scale(0.95);
+}
+
+/* ==========================================================================
+   Drag & Drop Animations
+   ========================================================================== */
+
+/* Drop indicator pulse */
+.inkpen-drop-indicator {
+  animation: inkpen-drop-indicator-pulse 1s ease-in-out infinite;
+}
+
+@keyframes inkpen-drop-indicator-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Dragging block fade */
+.inkpen-editor.is-block-dragging .ProseMirror > * {
+  transition: opacity var(--inkpen-animation-fast) var(--inkpen-ease-out),
+              transform var(--inkpen-animation-fast) var(--inkpen-ease-out);
+}
+
+/* Block being dragged */
+.inkpen-editor.is-block-dragging .ProseMirror > *.is-dragging {
+  opacity: 0.5;
+}
+
+/* ==========================================================================
+   Toggle Block Animations
+   ========================================================================== */
+
+/* Toggle indicator rotation */
+.inkpen-toggle__indicator svg {
+  transition: transform var(--inkpen-animation-normal) var(--inkpen-ease-out);
+}
+
+.inkpen-toggle[open] .inkpen-toggle__indicator svg {
+  transform: rotate(90deg);
+}
+
+/* Toggle content reveal */
+.inkpen-toggle__content {
+  transition: opacity var(--inkpen-animation-normal) var(--inkpen-ease-out);
+}
+
+.inkpen-toggle:not([open]) .inkpen-toggle__content {
+  opacity: 0;
+}
+
+.inkpen-toggle[open] .inkpen-toggle__content {
+  animation: inkpen-toggle-content-enter var(--inkpen-animation-normal) var(--inkpen-ease-out);
+}
+
+@keyframes inkpen-toggle-content-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================================================
+   Control Button Animations
+   ========================================================================== */
+
+/* Generic button press effect */
+.inkpen-section-controls__btn,
+.inkpen-columns-controls__btn,
+.inkpen-callout-selector__item {
+  transition: background var(--inkpen-animation-fast) var(--inkpen-ease-out),
+              border-color var(--inkpen-animation-fast) var(--inkpen-ease-out),
+              color var(--inkpen-animation-fast) var(--inkpen-ease-out),
+              transform var(--inkpen-animation-fast) var(--inkpen-ease-out);
+}
+
+.inkpen-section-controls__btn:active,
+.inkpen-columns-controls__btn:active,
+.inkpen-callout-selector__item:active {
+  transform: scale(0.97);
+}
+
+/* Active state indicator slide */
+.inkpen-section-controls__btn.is-active,
+.inkpen-columns-controls__btn.is-active {
+  position: relative;
+}
+
+/* ==========================================================================
+   Text Formatting Animations
+   ========================================================================== */
+
+/* Highlight mark animation */
+mark.inkpen-highlight {
+  animation: inkpen-highlight-in var(--inkpen-animation-slow) var(--inkpen-ease-out);
+}
+
+@keyframes inkpen-highlight-in {
+  from {
+    background-size: 0% 100%;
+  }
+  to {
+    background-size: 100% 100%;
+  }
+}
+
+/* Link hover underline */
+.inkpen-editor a {
+  transition: color var(--inkpen-animation-fast) var(--inkpen-ease-out),
+              text-decoration-color var(--inkpen-animation-fast) var(--inkpen-ease-out);
+}
+
+/* ==========================================================================
+   Code Block Animations
+   ========================================================================== */
+
+/* Code block focus glow */
+.inkpen-editor pre {
+  transition: box-shadow var(--inkpen-animation-normal) var(--inkpen-ease-out);
+}
+
+.inkpen-editor pre:focus-within {
+  box-shadow: 0 0 0 2px var(--inkpen-selection-border);
+}
+
+/* ==========================================================================
+   Table Animations
+   ========================================================================== */
+
+/* Table cell selection */
+.inkpen-editor .tableWrapper td.selectedCell,
+.inkpen-editor .tableWrapper th.selectedCell {
+  animation: inkpen-cell-select var(--inkpen-animation-fast) var(--inkpen-ease-out);
+}
+
+@keyframes inkpen-cell-select {
+  from {
+    background: transparent;
+  }
+  to {
+    background: var(--inkpen-selection-bg);
+  }
+}
+
+/* ==========================================================================
+   Horizontal Rule Animation
+   ========================================================================== */
+
+.inkpen-editor hr {
+  animation: inkpen-hr-enter var(--inkpen-animation-slow) var(--inkpen-ease-out);
+}
+
+@keyframes inkpen-hr-enter {
+  from {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  to {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+/* ==========================================================================
+   Image Animations
+   ========================================================================== */
+
+/* Image load fade in */
+.inkpen-editor img {
+  animation: inkpen-image-load var(--inkpen-animation-slow) var(--inkpen-ease-out);
+}
+
+@keyframes inkpen-image-load {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Image selection */
+.inkpen-editor img.ProseMirror-selectednode {
+  outline: 2px solid var(--inkpen-color-primary, #3b82f6);
+  outline-offset: 2px;
+  animation: inkpen-image-select var(--inkpen-animation-fast) var(--inkpen-ease-out);
+}
+
+@keyframes inkpen-image-select {
+  from {
+    outline-offset: 4px;
+    outline-color: transparent;
+  }
+  to {
+    outline-offset: 2px;
+    outline-color: var(--inkpen-color-primary, #3b82f6);
+  }
+}
+
+/* ==========================================================================
+   Scrollbar Styling
+   ========================================================================== */
+
+/* Smooth scrollbar for editor */
+.inkpen-editor .ProseMirror {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.inkpen-editor .ProseMirror::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.inkpen-editor .ProseMirror::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.inkpen-editor .ProseMirror::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  transition: background var(--inkpen-animation-fast);
+}
+
+.inkpen-editor .ProseMirror::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* Dark mode scrollbar */
+[data-theme="dark"] .inkpen-editor .ProseMirror,
+.dark .inkpen-editor .ProseMirror {
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+[data-theme="dark"] .inkpen-editor .ProseMirror::-webkit-scrollbar-thumb,
+.dark .inkpen-editor .ProseMirror::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="dark"] .inkpen-editor .ProseMirror::-webkit-scrollbar-thumb:hover,
+.dark .inkpen-editor .ProseMirror::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* ==========================================================================
+   Loading State
+   ========================================================================== */
+
+/* Skeleton loading for blocks */
+.inkpen-editor.is-loading .ProseMirror > * {
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.06) 25%,
+    rgba(0, 0, 0, 0.1) 50%,
+    rgba(0, 0, 0, 0.06) 75%
+  );
+  background-size: 200% 100%;
+  animation: inkpen-skeleton 1.5s ease-in-out infinite;
+  border-radius: 4px;
+}
+
+@keyframes inkpen-skeleton {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ==========================================================================
+   Reduced Motion
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ==========================================================================
+   Mobile Touch Optimizations
+   ========================================================================== */
+
+@media (hover: none) and (pointer: coarse) {
+  /* Larger touch targets */
+  .inkpen-block-gutter__drag,
+  .inkpen-block-gutter__plus {
+    width: 32px;
+    height: 32px;
+  }
+
+  /* Disable hover-only animations on touch devices */
+  .inkpen-block-gutter__drag:hover,
+  .inkpen-block-gutter__plus:hover {
+    transform: none;
+  }
+
+  /* Tap feedback instead of hover */
+  .inkpen-block-gutter__drag:active,
+  .inkpen-block-gutter__plus:active {
+    transform: scale(0.92);
+    background: var(--inkpen-selection-bg);
+  }
+
+  /* Always show gutter on mobile */
+  .inkpen-block-gutter {
+    opacity: 0.7;
+  }
+
+  .inkpen-block-gutter.is-visible {
+    opacity: 1;
+  }
+
+  /* Faster animations for snappy mobile feel */
+  .inkpen-slash-menu,
+  .tippy-box[data-theme="inkpen"],
+  .inkpen-callout-selector,
+  .inkpen-columns-controls,
+  .inkpen-section-controls {
+    animation-duration: var(--inkpen-animation-fast);
+  }
+
+  /* Touch-friendly block selection */
+  .inkpen-editor .ProseMirror > *.is-selected {
+    background: var(--inkpen-selection-bg);
+    box-shadow: inset 0 0 0 2px var(--inkpen-selection-border);
+  }
+
+  /* Prevent text selection during drag */
+  .inkpen-editor.is-block-dragging {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* Smoother scrolling */
+  .inkpen-editor .ProseMirror {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+}
+
+/* Small screens */
+@media (max-width: 640px) {
+  /* Compact toolbar animations */
+  .inkpen-toolbar--floating {
+    animation: inkpen-toolbar-enter-mobile var(--inkpen-animation-fast) var(--inkpen-ease-out);
+  }
+
+  @keyframes inkpen-toolbar-enter-mobile {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Stack slash menu items tighter */
+  .inkpen-slash-menu {
+    max-height: 50vh;
+  }
+}
+
+/* ==========================================================================
+   Print - Disable all animations
+   ========================================================================== */
+
+@media print {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

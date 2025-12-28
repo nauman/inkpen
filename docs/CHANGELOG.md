@@ -11,6 +11,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Block Commands Extension (v0.4.0)
+- Block selection via gutter click (drag handle)
+- Multi-block selection with Shift+Click
+- Duplicate block command: `Cmd+D`
+- Delete empty block on Backspace
+- Select entire block with `selectBlock` command
+- ProseMirror plugin for selection state management
+- Decorations for selected block highlighting
+
+#### Animations & Polish (v0.4.0)
+- Block entry animations (fade + slide up)
+- Block focus ring animation
+- Selected block highlighting (`.is-selected`)
+- Menu entrance animations (slash menu, bubble menu, dropdowns)
+- Gutter fade in/out transitions
+- Toggle block expand/collapse animations
+- Cursor and placeholder fade animations
+- Table cell selection animation
+- Image load and selection animations
+- Horizontal rule entrance animation
+- Custom scrollbar styling
+- Mobile touch optimizations:
+  - Larger touch targets (32px)
+  - Tap feedback instead of hover effects
+  - Always-visible gutter on mobile
+  - Faster animations for snappy feel
+  - Touch-friendly block selection
+  - Smooth scrolling
+- Reduced motion support (`prefers-reduced-motion`)
+- Print styles (animations disabled)
+
 #### Callout Extension (v0.3.3)
 - Highlighted blocks for tips, warnings, notes, and other callouts
 - Six types: info, warning, tip, note, success, error
@@ -149,6 +180,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## File Reference
+
+### Block Commands Extension
+- JavaScript: `app/assets/javascripts/inkpen/extensions/block_commands.js`
+
+### Animations & Polish
+- CSS: `app/assets/stylesheets/inkpen/animations.css`
 
 ### Callout Extension
 - JavaScript: `app/assets/javascripts/inkpen/extensions/callout.js`

@@ -562,43 +562,45 @@ app/assets/stylesheets/inkpen/callout.css
 
 ---
 
-## Phase 3: BlockNote-Style Polish (v0.4.0)
+## Phase 3: BlockNote-Style Polish (v0.4.0) ✅
 
 ### Goal
 Add the finishing touches that make the editor feel polished and professional.
 
-### 5.1 Block Selection
-```javascript
-// Select entire block by clicking gutter
-// Multi-select with Shift+Click
-// Blue selection highlight
+**Status:** Complete
+
+### 5.1 Block Commands Extension ✅
+
+**Features:**
+- Block selection via gutter click
+- Multi-block selection with Shift+Click
+- Duplicate block (`Cmd+D`)
+- Delete empty block (`Backspace`)
+- Select all content in block (`Cmd+A` when block selected)
+- Commands: `duplicateBlock`, `deleteBlock`, `selectBlock`, `selectBlockAt`
+
+**Files:**
+```
+app/assets/javascripts/inkpen/extensions/block_commands.js
 ```
 
-### 5.2 Smooth Animations
-```css
-/* Block insertion animation */
-@keyframes inkpen-block-enter {
-  from {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+### 5.2 Smooth Animations ✅
 
-.ProseMirror > * {
-  animation: inkpen-block-enter 150ms ease-out;
-}
+**Features:**
+- Block entry animations (fade + slide)
+- Block focus ring
+- Block selection highlighting
+- Menu entrance animations (slash menu, bubble menu, dropdowns)
+- Gutter fade in/out
+- Toggle block expand/collapse
+- Cursor and placeholder animations
+- Table cell selection
+- Image selection
+- Scrollbar styling
 
-/* Block deletion animation */
-@keyframes inkpen-block-exit {
-  to {
-    opacity: 0;
-    transform: translateX(-16px);
-  }
-}
+**Files:**
+```
+app/assets/stylesheets/inkpen/animations.css
 ```
 
 ### 5.3 Keyboard Shortcuts
@@ -613,25 +615,18 @@ Add the finishing touches that make the editor feel polished and professional.
 | `Tab` | Indent list item |
 | `Shift+Tab` | Outdent list item |
 
-### 5.4 Mobile Optimizations
-```css
-@media (max-width: 768px) {
-  .inkpen-block-gutter {
-    /* Always visible on mobile */
-    opacity: 1;
-  }
+### 5.4 Mobile Touch Optimizations ✅
 
-  .inkpen-slash-menu {
-    /* Full width on mobile */
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    max-height: 50vh;
-    border-radius: var(--inkpen-radius) var(--inkpen-radius) 0 0;
-  }
-}
-```
+**Features:**
+- Larger touch targets (32px)
+- Touch-friendly tap feedback
+- Always-visible gutter on mobile
+- Faster animations for snappy mobile feel
+- Touch-friendly block selection with box-shadow
+- Prevent text selection during drag
+- Smooth scrolling (`-webkit-overflow-scrolling: touch`)
+- Reduced motion support (`prefers-reduced-motion`)
+- Print styles (animations disabled)
 
 ---
 
@@ -693,7 +688,8 @@ app/assets/javascripts/inkpen/
 │   ├── drag_handle.js                 ✅ DONE
 │   ├── toggle_block.js                ✅ DONE
 │   ├── columns.js                     ✅ DONE
-│   └── callout.js                     ✅ DONE
+│   ├── callout.js                     ✅ DONE
+│   └── block_commands.js              ✅ DONE
 ├── helpers/
 │   └── block_helpers.js               ← future
 └── index.js
@@ -710,7 +706,7 @@ app/assets/stylesheets/inkpen/
 ├── toggle.css                         ✅ DONE
 ├── columns.css                        ✅ DONE
 ├── callout.css                        ✅ DONE
-└── animations.css                     ← v0.4.0
+└── animations.css                     ✅ DONE
 
 lib/inkpen/extensions/
 ├── base.rb

@@ -33,6 +33,7 @@ import { DragHandle } from "inkpen/extensions/drag_handle"
 import { ToggleBlock, ToggleSummary } from "inkpen/extensions/toggle_block"
 import { Columns, Column } from "inkpen/extensions/columns"
 import { Callout } from "inkpen/extensions/callout"
+import { BlockCommands } from "inkpen/extensions/block_commands"
 
 /**
  * Inkpen Editor Controller
@@ -463,6 +464,17 @@ export default class extends Controller {
         Callout.configure({
           defaultType: calloutConfig.defaultType || "info",
           showControls: calloutConfig.showControls !== false
+        })
+      )
+    }
+
+    // Block Commands extension (duplicate, delete, select blocks)
+    if (enabledExtensions.includes("block_commands")) {
+      const blockConfig = config.block_commands || {}
+      extensions.push(
+        BlockCommands.configure({
+          selectedClass: blockConfig.selectedClass || "is-selected",
+          enableGutterSelection: blockConfig.enableGutterSelection !== false
         })
       )
     }

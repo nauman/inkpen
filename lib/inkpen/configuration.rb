@@ -58,6 +58,7 @@ module Inkpen
       toggle_block
       columns
       callout
+      block_commands
     ].freeze
 
     def initialize

@@ -15,6 +15,7 @@ import { DragHandle } from "inkpen/extensions/drag_handle"
 import { ToggleBlock, ToggleSummary } from "inkpen/extensions/toggle_block"
 import { Columns, Column } from "inkpen/extensions/columns"
 import { Callout } from "inkpen/extensions/callout"
+import { BlockCommands } from "inkpen/extensions/block_commands"
 
 // Auto-register controllers if Stimulus application exists
 const application = window.Stimulus || Application.start()
@@ -27,4 +28,4 @@ application.register("inkpen--sticky-toolbar", StickyToolbarController)
 export { EditorController, ToolbarController, StickyToolbarController }
 
 // Export extensions for custom use
-export { Section, Preformatted, SlashCommands, BlockGutter, DragHandle, ToggleBlock, ToggleSummary, Columns, Column, Callout }
+export { Section, Preformatted, SlashCommands, BlockGutter, DragHandle, ToggleBlock, ToggleSummary, Columns, Column, Callout, BlockCommands }
