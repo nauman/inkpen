@@ -630,6 +630,432 @@ app/assets/stylesheets/inkpen/animations.css
 
 ---
 
+## Phase 4: Media & Embeds (v0.5.0)
+
+### Goal
+Transform Inkpen into a rich media editor with enhanced image handling, file attachments, and social embeds.
+
+### 4.1 Enhanced Image Extension (v0.5.0-alpha)
+
+**Features:**
+- Resizable images with drag handles
+- Alignment options: left, center, right, full-width
+- Image captions (editable text below image)
+- Lightbox preview on click
+- Lazy loading with blur placeholder
+- Alt text editing
+- Link wrapping (make image clickable)
+
+**Implementation:**
+```javascript
+// app/assets/javascripts/inkpen/extensions/enhanced_image.js
+
+import { Node, mergeAttributes } from '@tiptap/core'
+import { Plugin } from '@tiptap/pm/state'
+
+export const EnhancedImage = Node.create({
+  name: 'enhancedImage',
+  group: 'block',
+
+  addAttributes() {
+    return {
+      src: { default: null },
+      alt: { default: null },
+      title: { default: null },
+      width: { default: null },
+      alignment: { default: 'center' }, // left, center, right, full
+      caption: { default: null },
+      link: { default: null }
+    }
+  },
+
+  addNodeView() {
+    // Interactive NodeView with:
+    // - Resize handles (corners)
+    // - Alignment toolbar on selection
+    // - Caption input below image
+    // - Lightbox trigger
+  },
+
+  addCommands() {
+    return {
+      setImageAlignment: (alignment) => ({ commands }) => {...},
+      setImageWidth: (width) => ({ commands }) => {...},
+      setImageCaption: (caption) => ({ commands }) => {...},
+      setImageLink: (url) => ({ commands }) => {...}
+    }
+  }
+})
+```
+
+**CSS:**
+```css
+/* app/assets/stylesheets/inkpen/enhanced_image.css */
+
+.inkpen-image {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+}
+
+.inkpen-image--left { margin-right: auto; }
+.inkpen-image--center { margin: 0 auto; }
+.inkpen-image--right { margin-left: auto; }
+.inkpen-image--full { width: 100%; }
+
+.inkpen-image__resize-handle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: var(--inkpen-color-primary);
+  border: 2px solid white;
+  border-radius: 50%;
+  cursor: nwse-resize;
+}
+
+.inkpen-image__caption {
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--inkpen-color-text-muted);
+  margin-top: 0.5rem;
+}
+```
+
+**Keyboard Shortcuts:**
+| Shortcut | Action |
+|----------|--------|
+| `Enter` on image | Edit caption |
+| `Delete` on image | Remove image |
+| `Cmd+Shift+L` | Align left |
+| `Cmd+Shift+E` | Align center |
+| `Cmd+Shift+R` | Align right |
+
+---
+
+### 4.2 File Attachment Extension (v0.5.0-beta)
+
+**Features:**
+- Upload any file type via drag & drop or button
+- File type icons (PDF, Word, Excel, ZIP, etc.)
+- File size display
+- Download button
+- Inline PDF preview (optional)
+- Progress indicator during upload
+- Configurable upload endpoint
+
+**Implementation:**
+```javascript
+// app/assets/javascripts/inkpen/extensions/file_attachment.js
+
+export const FileAttachment = Node.create({
+  name: 'fileAttachment',
+  group: 'block',
+
+  addAttributes() {
+    return {
+      url: { default: null },
+      filename: { default: null },
+      filesize: { default: null },
+      filetype: { default: null },
+      uploadProgress: { default: null }
+    }
+  },
+
+  addOptions() {
+    return {
+      uploadUrl: '/uploads',
+      allowedTypes: '*',
+      maxSize: 10 * 1024 * 1024, // 10MB
+      onUpload: null, // Custom upload handler
+      onError: null
+    }
+  },
+
+  addNodeView() {
+    // File card with:
+    // - Icon based on file type
+    // - Filename + size
+    // - Download button
+    // - Upload progress bar
+  },
+
+  addCommands() {
+    return {
+      insertFile: (file) => ({ commands }) => {...},
+      uploadFile: (file) => ({ commands }) => {...}
+    }
+  },
+
+  addProseMirrorPlugins() {
+    return [
+      // Drop handler for file uploads
+      new Plugin({
+        props: {
+          handleDrop(view, event) {
+            const files = event.dataTransfer?.files
+            if (files?.length) {
+              // Handle file upload
+            }
+          }
+        }
+      })
+    ]
+  }
+})
+```
+
+**File Type Icons:**
+```
+📄 PDF, DOC, DOCX, TXT
+📊 XLS, XLSX, CSV
+📁 ZIP, RAR, 7Z
+🎵 MP3, WAV, OGG
+🎬 MP4, MOV, AVI
+🖼️ Image files (fallback)
+📎 Other files
+```
+
+**CSS:**
+```css
+.inkpen-file {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--inkpen-color-border);
+  border-radius: var(--inkpen-radius);
+  margin: 1rem 0;
+}
+
+.inkpen-file__icon {
+  font-size: 1.5rem;
+}
+
+.inkpen-file__info {
+  flex: 1;
+}
+
+.inkpen-file__name {
+  font-weight: 500;
+}
+
+.inkpen-file__size {
+  font-size: 0.75rem;
+  color: var(--inkpen-color-text-muted);
+}
+
+.inkpen-file__download {
+  padding: 0.5rem;
+  border-radius: var(--inkpen-radius);
+  background: var(--inkpen-color-primary);
+  color: white;
+}
+
+.inkpen-file__progress {
+  height: 4px;
+  background: var(--inkpen-color-border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.inkpen-file__progress-bar {
+  height: 100%;
+  background: var(--inkpen-color-primary);
+  transition: width 150ms;
+}
+```
+
+---
+
+### 4.3 Social Embeds Extension (v0.5.0-rc)
+
+**Features:**
+- Paste URL to auto-embed
+- Supported platforms:
+  - Twitter/X posts
+  - Instagram posts
+  - TikTok videos
+  - Figma designs
+  - Loom videos
+  - CodePen pens
+  - GitHub Gists
+  - Spotify tracks/playlists
+- Responsive embeds
+- Fallback link card for unsupported URLs
+- Privacy-aware (no tracking until clicked)
+
+**Implementation:**
+```javascript
+// app/assets/javascripts/inkpen/extensions/embed.js
+
+const EMBED_PROVIDERS = {
+  twitter: {
+    regex: /https?:\/\/(twitter|x)\.com\/\w+\/status\/(\d+)/,
+    template: (id) => `<blockquote class="twitter-tweet" data-id="${id}"></blockquote>`,
+    script: 'https://platform.twitter.com/widgets.js'
+  },
+  instagram: {
+    regex: /https?:\/\/www\.instagram\.com\/(p|reel)\/([A-Za-z0-9_-]+)/,
+    template: (id) => `<blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/p/${id}/"></blockquote>`,
+    script: 'https://www.instagram.com/embed.js'
+  },
+  figma: {
+    regex: /https?:\/\/www\.figma\.com\/(file|proto)\/([A-Za-z0-9]+)/,
+    template: (url) => `<iframe src="https://www.figma.com/embed?embed_host=inkpen&url=${encodeURIComponent(url)}"></iframe>`
+  },
+  loom: {
+    regex: /https?:\/\/www\.loom\.com\/share\/([a-zA-Z0-9]+)/,
+    template: (id) => `<iframe src="https://www.loom.com/embed/${id}"></iframe>`
+  },
+  codepen: {
+    regex: /https?:\/\/codepen\.io\/([^\/]+)\/pen\/([A-Za-z0-9]+)/,
+    template: (user, id) => `<iframe src="https://codepen.io/${user}/embed/${id}?default-tab=result"></iframe>`
+  },
+  gist: {
+    regex: /https?:\/\/gist\.github\.com\/([^\/]+)\/([a-f0-9]+)/,
+    template: (user, id) => `<script src="https://gist.github.com/${user}/${id}.js"></script>`
+  },
+  spotify: {
+    regex: /https?:\/\/open\.spotify\.com\/(track|album|playlist)\/([A-Za-z0-9]+)/,
+    template: (type, id) => `<iframe src="https://open.spotify.com/embed/${type}/${id}"></iframe>`
+  }
+}
+
+export const Embed = Node.create({
+  name: 'embed',
+  group: 'block',
+
+  addAttributes() {
+    return {
+      url: { default: null },
+      provider: { default: null },
+      embedId: { default: null },
+      loaded: { default: false }
+    }
+  },
+
+  addOptions() {
+    return {
+      providers: EMBED_PROVIDERS,
+      allowedProviders: null, // null = all, or ['twitter', 'youtube']
+      privacyMode: true // Show placeholder until clicked
+    }
+  },
+
+  addNodeView() {
+    // Privacy-first embed:
+    // 1. Show preview card with provider logo
+    // 2. "Click to load" button
+    // 3. Load actual embed on click
+  },
+
+  addPasteRules() {
+    // Auto-detect and embed URLs on paste
+  },
+
+  addCommands() {
+    return {
+      insertEmbed: (url) => ({ commands }) => {...},
+      loadEmbed: () => ({ commands }) => {...}
+    }
+  }
+})
+```
+
+**Link Card Fallback:**
+```css
+.inkpen-link-card {
+  display: flex;
+  border: 1px solid var(--inkpen-color-border);
+  border-radius: var(--inkpen-radius);
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+}
+
+.inkpen-link-card__image {
+  width: 120px;
+  height: 80px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.inkpen-link-card__content {
+  padding: 0.75rem;
+  flex: 1;
+}
+
+.inkpen-link-card__title {
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.inkpen-link-card__description {
+  font-size: 0.875rem;
+  color: var(--inkpen-color-text-muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.inkpen-link-card__domain {
+  font-size: 0.75rem;
+  color: var(--inkpen-color-text-muted);
+  margin-top: 0.5rem;
+}
+```
+
+---
+
+### 4.4 Slash Commands Updates
+
+Add new commands to slash menu:
+- `/image` - Insert image (upload or URL)
+- `/file` - Upload file attachment
+- `/embed` - Paste URL to embed
+- `/twitter` - Embed tweet
+- `/figma` - Embed Figma design
+- `/loom` - Embed Loom video
+- `/codepen` - Embed CodePen
+
+---
+
+### Implementation Priority
+
+| Feature | Priority | Complexity | Files |
+|---------|----------|------------|-------|
+| Enhanced Image | High | Medium | enhanced_image.js, enhanced_image.css |
+| File Attachment | High | High | file_attachment.js, file_attachment.css |
+| Social Embeds | Medium | Medium | embed.js, embed.css |
+| Link Cards | Medium | Low | link_card.js, link_card.css |
+| Slash Menu Updates | Low | Low | slash_commands.js |
+
+---
+
+### Files to Create (v0.5.0)
+
+```
+app/assets/javascripts/inkpen/extensions/
+├── enhanced_image.js        ← v0.5.0-alpha
+├── file_attachment.js       ← v0.5.0-beta
+├── embed.js                 ← v0.5.0-rc
+└── link_card.js             ← v0.5.0-rc
+
+app/assets/stylesheets/inkpen/
+├── enhanced_image.css       ← v0.5.0-alpha
+├── file_attachment.css      ← v0.5.0-beta
+├── embed.css                ← v0.5.0-rc
+└── link_card.css            ← v0.5.0-rc
+
+lib/inkpen/extensions/
+├── enhanced_image.rb        ← v0.5.0-alpha
+├── file_attachment.rb       ← v0.5.0-beta
+└── embed.rb                 ← v0.5.0-rc
+```
+
+---
+
 ## Technical References
 
 ### TipTap/ProseMirror
