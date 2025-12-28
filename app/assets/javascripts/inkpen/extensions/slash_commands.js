@@ -358,7 +358,12 @@ export const SlashCommands = Extension.create({
         // Prompt for URL
         const imageUrl = prompt("Enter image URL:")
         if (imageUrl) {
-          chain.setImage({ src: imageUrl }).run()
+          // Use enhanced image if available, otherwise fallback to basic
+          if (editor.commands.setEnhancedImage) {
+            chain.setEnhancedImage({ src: imageUrl }).run()
+          } else {
+            chain.setImage({ src: imageUrl }).run()
+          }
         }
         break
       case "youtube":

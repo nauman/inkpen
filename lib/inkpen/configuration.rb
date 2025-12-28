@@ -59,6 +59,7 @@ module Inkpen
       columns
       callout
       block_commands
+      enhanced_image
     ].freeze
 
     def initialize

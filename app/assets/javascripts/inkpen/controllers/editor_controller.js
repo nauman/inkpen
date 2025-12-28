@@ -34,6 +34,7 @@ import { ToggleBlock, ToggleSummary } from "inkpen/extensions/toggle_block"
 import { Columns, Column } from "inkpen/extensions/columns"
 import { Callout } from "inkpen/extensions/callout"
 import { BlockCommands } from "inkpen/extensions/block_commands"
+import { EnhancedImage } from "inkpen/extensions/enhanced_image"
 
 /**
  * Inkpen Editor Controller
@@ -475,6 +476,23 @@ export default class extends Controller {
         BlockCommands.configure({
           selectedClass: blockConfig.selectedClass || "is-selected",
           enableGutterSelection: blockConfig.enableGutterSelection !== false
+        })
+      )
+    }
+
+    // Enhanced Image extension (resizable, alignable images with captions)
+    if (enabledExtensions.includes("enhanced_image")) {
+      const imageConfig = config.enhanced_image || {}
+      extensions.push(
+        EnhancedImage.configure({
+          resizable: imageConfig.resizable !== false,
+          lightbox: imageConfig.lightbox !== false,
+          defaultAlignment: imageConfig.defaultAlignment || "center",
+          minWidth: imageConfig.minWidth || 100,
+          maxWidth: imageConfig.maxWidth || null,
+          lockAspectRatio: imageConfig.lockAspectRatio !== false,
+          showAlignmentControls: imageConfig.showAlignmentControls !== false,
+          allowCaption: imageConfig.allowCaption !== false
         })
       )
     }

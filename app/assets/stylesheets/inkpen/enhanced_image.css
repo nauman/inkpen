@@ -1,0 +1,453 @@
+/**
+ * Enhanced Image Extension Styles
+ *
+ * Styles for resizable, alignable images with captions and lightbox.
+ *
+ * @since 0.5.0
+ */
+
+/* ==========================================================================
+   Image Container
+   ========================================================================== */
+
+.inkpen-image {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  margin: 1.5rem 0;
+  max-width: 100%;
+}
+
+/* Alignment variants */
+.inkpen-image--left {
+  align-items: flex-start;
+}
+
+.inkpen-image--center {
+  align-items: center;
+}
+
+.inkpen-image--right {
+  align-items: flex-end;
+}
+
+.inkpen-image--full {
+  align-items: stretch;
+}
+
+.inkpen-image--full .inkpen-image__wrapper {
+  width: 100%;
+}
+
+.inkpen-image--full img {
+  width: 100%;
+}
+
+/* ==========================================================================
+   Image Wrapper (contains image + resize handles)
+   ========================================================================== */
+
+.inkpen-image__wrapper {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  line-height: 0;
+}
+
+.inkpen-image__wrapper img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--inkpen-radius);
+  cursor: default;
+}
+
+/* Link wrapper */
+.inkpen-image__wrapper a {
+  display: block;
+  line-height: 0;
+}
+
+.inkpen-image__wrapper a img {
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   Resize Handles
+   ========================================================================== */
+
+.inkpen-image__resize-handle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: var(--inkpen-color-primary, #3b82f6);
+  border: 2px solid white;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity var(--inkpen-animation-fast, 100ms) ease-out;
+  z-index: 10;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.inkpen-image:hover .inkpen-image__resize-handle,
+.inkpen-image.is-selected .inkpen-image__resize-handle {
+  opacity: 1;
+}
+
+.inkpen-image__resize-handle--nw {
+  top: -6px;
+  left: -6px;
+  cursor: nw-resize;
+}
+
+.inkpen-image__resize-handle--ne {
+  top: -6px;
+  right: -6px;
+  cursor: ne-resize;
+}
+
+.inkpen-image__resize-handle--sw {
+  bottom: -6px;
+  left: -6px;
+  cursor: sw-resize;
+}
+
+.inkpen-image__resize-handle--se {
+  bottom: -6px;
+  right: -6px;
+  cursor: se-resize;
+}
+
+/* ==========================================================================
+   Caption
+   ========================================================================== */
+
+.inkpen-image__caption {
+  margin-top: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  color: var(--inkpen-color-text-muted, #6b7280);
+  text-align: center;
+  line-height: 1.4;
+  outline: none;
+  border-radius: var(--inkpen-radius, 0.375rem);
+  min-height: 1.4em;
+  transition: background var(--inkpen-animation-fast, 100ms) ease-out;
+}
+
+.inkpen-image__caption:empty::before {
+  content: attr(placeholder);
+  color: var(--inkpen-color-text-muted, #6b7280);
+  opacity: 0.5;
+}
+
+.inkpen-image__caption:focus {
+  background: var(--inkpen-color-selection, rgba(59, 130, 246, 0.1));
+}
+
+/* ==========================================================================
+   Alignment Controls
+   ========================================================================== */
+
+.inkpen-image__controls {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  background: var(--inkpen-toolbar-bg, #ffffff);
+  border: 1px solid var(--inkpen-color-border, #e5e7eb);
+  border-radius: var(--inkpen-radius, 0.375rem);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--inkpen-animation-fast, 100ms) ease-out,
+              visibility var(--inkpen-animation-fast, 100ms) ease-out;
+  z-index: 20;
+}
+
+.inkpen-image:hover .inkpen-image__controls,
+.inkpen-image.is-selected .inkpen-image__controls {
+  opacity: 1;
+  visibility: visible;
+}
+
+.inkpen-image__control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: var(--inkpen-color-text, #1a1a1a);
+  cursor: pointer;
+  transition: background var(--inkpen-animation-fast, 100ms) ease-out,
+              color var(--inkpen-animation-fast, 100ms) ease-out;
+}
+
+.inkpen-image__control:hover {
+  background: var(--inkpen-color-selection, rgba(59, 130, 246, 0.1));
+}
+
+.inkpen-image__control.is-active {
+  background: var(--inkpen-color-primary, #3b82f6);
+  color: white;
+}
+
+.inkpen-image__control svg {
+  width: 16px;
+  height: 16px;
+}
+
+.inkpen-image__divider {
+  width: 1px;
+  height: 20px;
+  background: var(--inkpen-color-border, #e5e7eb);
+  margin: 0 4px;
+}
+
+/* ==========================================================================
+   Selection State
+   ========================================================================== */
+
+.inkpen-image.is-selected .inkpen-image__wrapper::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border: 2px solid var(--inkpen-color-primary, #3b82f6);
+  border-radius: calc(var(--inkpen-radius, 0.375rem) + 2px);
+  pointer-events: none;
+}
+
+/* ProseMirror selection */
+.inkpen-image.ProseMirror-selectednode .inkpen-image__wrapper::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border: 2px solid var(--inkpen-color-primary, #3b82f6);
+  border-radius: calc(var(--inkpen-radius, 0.375rem) + 2px);
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   Lightbox
+   ========================================================================== */
+
+.inkpen-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 200ms ease-out;
+}
+
+.inkpen-lightbox.is-open {
+  opacity: 1;
+}
+
+.inkpen-lightbox.is-closing {
+  opacity: 0;
+}
+
+.inkpen-lightbox__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.9);
+  cursor: zoom-out;
+}
+
+.inkpen-lightbox__content {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  z-index: 1;
+}
+
+.inkpen-lightbox__content img {
+  display: block;
+  max-width: 90vw;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: var(--inkpen-radius, 0.375rem);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.inkpen-lightbox__close {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  cursor: pointer;
+  transition: background 150ms ease-out;
+}
+
+.inkpen-lightbox__close:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.inkpen-lightbox__close:focus {
+  outline: 2px solid white;
+  outline-offset: 2px;
+}
+
+/* ==========================================================================
+   Loading State
+   ========================================================================== */
+
+.inkpen-image--loading .inkpen-image__wrapper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    var(--inkpen-color-border, #e5e7eb) 25%,
+    var(--inkpen-color-selection, rgba(59, 130, 246, 0.1)) 50%,
+    var(--inkpen-color-border, #e5e7eb) 75%
+  );
+  background-size: 200% 100%;
+  animation: inkpen-image-shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--inkpen-radius, 0.375rem);
+}
+
+@keyframes inkpen-image-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ==========================================================================
+   Dark Mode
+   ========================================================================== */
+
+[data-theme="dark"],
+.dark {
+  .inkpen-lightbox__backdrop {
+    background: rgba(0, 0, 0, 0.95);
+  }
+
+  .inkpen-image__controls {
+    background: var(--inkpen-toolbar-bg, #1f2937);
+    border-color: var(--inkpen-color-border, #374151);
+  }
+
+  .inkpen-image__resize-handle {
+    border-color: #374151;
+  }
+}
+
+/* ==========================================================================
+   Mobile Optimizations
+   ========================================================================== */
+
+@media (hover: none) and (pointer: coarse) {
+  /* Always show controls on mobile */
+  .inkpen-image__controls {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Larger touch targets */
+  .inkpen-image__control {
+    width: 36px;
+    height: 36px;
+  }
+
+  .inkpen-image__resize-handle {
+    width: 20px;
+    height: 20px;
+    opacity: 0.8;
+  }
+
+  .inkpen-image__resize-handle--nw {
+    top: -10px;
+    left: -10px;
+  }
+
+  .inkpen-image__resize-handle--ne {
+    top: -10px;
+    right: -10px;
+  }
+
+  .inkpen-image__resize-handle--sw {
+    bottom: -10px;
+    left: -10px;
+  }
+
+  .inkpen-image__resize-handle--se {
+    bottom: -10px;
+    right: -10px;
+  }
+
+  /* Lightbox close button */
+  .inkpen-lightbox__close {
+    width: 44px;
+    height: 44px;
+    top: -52px;
+  }
+}
+
+/* Small screens */
+@media (max-width: 640px) {
+  .inkpen-image__controls {
+    padding: 2px;
+    gap: 1px;
+  }
+
+  .inkpen-image__divider {
+    margin: 0 2px;
+  }
+}
+
+/* ==========================================================================
+   Reduced Motion
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .inkpen-lightbox,
+  .inkpen-image__controls,
+  .inkpen-image__resize-handle,
+  .inkpen-image--loading .inkpen-image__wrapper::before {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* ==========================================================================
+   Print Styles
+   ========================================================================== */
+
+@media print {
+  .inkpen-image__controls,
+  .inkpen-image__resize-handle {
+    display: none;
+  }
+
+  .inkpen-image__caption {
+    color: #666;
+  }
+
+  .inkpen-lightbox {
+    display: none;
+  }
+}

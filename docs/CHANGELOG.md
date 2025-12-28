@@ -11,6 +11,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Enhanced Image Extension (v0.5.0)
+- Resizable images with corner drag handles
+- Alignment options: left, center, right, full-width
+- Image captions (editable text below image)
+- Lightbox preview on double-click
+- Alt text editing via toolbar
+- Link wrapping (make image clickable)
+- Drag & drop image upload (base64)
+- Paste image from clipboard
+- Aspect ratio lock during resize
+- Mobile-optimized touch targets
+- Dark mode support
+- Commands: `setEnhancedImage`, `setImageAlignment`, `setImageWidth`, `setImageCaption`, `setImageLink`, `setImageAlt`
+- Keyboard: Backspace/Delete removes selected image
+
 #### Block Commands Extension (v0.4.0)
 - Block selection via gutter click (drag handle)
 - Multi-block selection with Shift+Click
@@ -180,6 +195,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## File Reference
+
+### Enhanced Image Extension
+- JavaScript: `app/assets/javascripts/inkpen/extensions/enhanced_image.js`
+- CSS: `app/assets/stylesheets/inkpen/enhanced_image.css`
 
 ### Block Commands Extension
 - JavaScript: `app/assets/javascripts/inkpen/extensions/block_commands.js`
