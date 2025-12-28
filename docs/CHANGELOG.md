@@ -11,6 +11,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Social Embed Extension (v0.5.0)
+- Paste URL to auto-embed from supported platforms
+- Supported providers:
+  - YouTube videos
+  - Twitter/X posts
+  - Instagram posts
+  - TikTok videos
+  - Figma designs
+  - Loom videos
+  - CodePen pens
+  - GitHub Gists
+  - Spotify tracks/playlists
+  - Vimeo videos
+- Privacy mode: placeholder until user clicks to load
+- Link card fallback for unsupported URLs
+- Provider-specific aspect ratios and styling
+- Dark mode support
+- Mobile-optimized
+- Commands: `insertEmbed`, `loadEmbed`, `setEmbedError`
+- Slash commands: `/embed`, `/twitter`, `/instagram`, `/figma`, `/loom`, `/codepen`, `/spotify`
+
 #### File Attachment Extension (v0.5.0)
 - Drag & drop file upload
 - Paste file from clipboard
@@ -210,6 +231,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## File Reference
+
+### Social Embed Extension
+- JavaScript: `app/assets/javascripts/inkpen/extensions/embed.js`
+- CSS: `app/assets/stylesheets/inkpen/embed.css`
 
 ### File Attachment Extension
 - JavaScript: `app/assets/javascripts/inkpen/extensions/file_attachment.js`

@@ -36,6 +36,7 @@ import { Callout } from "inkpen/extensions/callout"
 import { BlockCommands } from "inkpen/extensions/block_commands"
 import { EnhancedImage } from "inkpen/extensions/enhanced_image"
 import { FileAttachment } from "inkpen/extensions/file_attachment"
+import { Embed } from "inkpen/extensions/embed"
 
 /**
  * Inkpen Editor Controller
@@ -509,6 +510,19 @@ export default class extends Controller {
           allowedTypes: fileConfig.allowedTypes || null,
           maxSize: fileConfig.maxSize || 10 * 1024 * 1024,
           uploadHandler: fileConfig.uploadHandler || null
+        })
+      )
+    }
+
+    // Embed extension (social media and website embeds)
+    if (enabledExtensions.includes("embed")) {
+      const embedConfig = config.embed || {}
+      extensions.push(
+        Embed.configure({
+          allowedProviders: embedConfig.allowedProviders || null,
+          privacyMode: embedConfig.privacyMode !== false,
+          enableLinkCards: embedConfig.enableLinkCards !== false,
+          linkCardFetcher: embedConfig.linkCardFetcher || null
         })
       )
     }

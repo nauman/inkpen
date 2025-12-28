@@ -61,6 +61,7 @@ module Inkpen
       block_commands
       enhanced_image
       file_attachment
+      embed
     ].freeze
 
     def initialize

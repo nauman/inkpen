@@ -1,0 +1,468 @@
+/**
+ * Social Embed Extension Styles
+ *
+ * Styles for embedded content from various platforms.
+ *
+ * @since 0.5.0
+ */
+
+/* ==========================================================================
+   Embed Container
+   ========================================================================== */
+
+.inkpen-embed {
+  margin: 1.5rem 0;
+  border-radius: var(--inkpen-radius, 0.375rem);
+  overflow: hidden;
+}
+
+.inkpen-embed.is-selected {
+  box-shadow: 0 0 0 2px var(--inkpen-color-primary, #3b82f6);
+}
+
+/* ==========================================================================
+   Embed Wrapper (iframe container)
+   ========================================================================== */
+
+.inkpen-embed__wrapper {
+  position: relative;
+  width: 100%;
+  background: var(--inkpen-color-border, #f3f4f6);
+  border-radius: var(--inkpen-radius, 0.375rem);
+  overflow: hidden;
+}
+
+.inkpen-embed__wrapper iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* Fixed aspect ratio embeds */
+.inkpen-embed__wrapper[style*="aspect-ratio"] {
+  position: relative;
+}
+
+.inkpen-embed__wrapper[style*="aspect-ratio"] iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Fixed height embeds (Spotify) */
+.inkpen-embed__wrapper[style*="height"] iframe {
+  position: relative;
+  width: 100%;
+}
+
+/* Widget embeds (Twitter, Instagram) */
+.inkpen-embed__wrapper--widget {
+  min-height: 200px;
+  display: flex;
+  justify-content: center;
+  background: transparent;
+}
+
+.inkpen-embed__wrapper--widget .twitter-tweet,
+.inkpen-embed__wrapper--widget .instagram-media {
+  margin: 0 auto !important;
+}
+
+/* Gist embed */
+.inkpen-embed__wrapper--script {
+  background: transparent;
+}
+
+.inkpen-embed__gist-frame {
+  width: 100%;
+  min-height: 100px;
+  border: none;
+}
+
+/* ==========================================================================
+   Privacy Placeholder
+   ========================================================================== */
+
+.inkpen-embed__placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2.5rem 1.5rem;
+  background: linear-gradient(
+    135deg,
+    var(--inkpen-color-border, #f3f4f6) 0%,
+    var(--inkpen-color-background, #ffffff) 100%
+  );
+  border: 1px solid var(--inkpen-color-border, #e5e7eb);
+  border-radius: var(--inkpen-radius, 0.375rem);
+  text-align: center;
+}
+
+.inkpen-embed__placeholder-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  font-size: 1.75rem;
+  background: var(--provider-color, #6b7280);
+  color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.inkpen-embed__placeholder-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.inkpen-embed__placeholder-name {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--inkpen-color-text, #1a1a1a);
+}
+
+.inkpen-embed__placeholder-url {
+  font-size: 0.8125rem;
+  color: var(--inkpen-color-text-muted, #6b7280);
+}
+
+.inkpen-embed__load-btn {
+  padding: 0.625rem 1.25rem;
+  background: var(--provider-color, var(--inkpen-color-primary, #3b82f6));
+  color: white;
+  border: none;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform var(--inkpen-animation-fast, 100ms) ease-out,
+              box-shadow var(--inkpen-animation-fast, 100ms) ease-out;
+}
+
+.inkpen-embed__load-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.inkpen-embed__load-btn:active {
+  transform: translateY(0);
+}
+
+/* ==========================================================================
+   Error State
+   ========================================================================== */
+
+.inkpen-embed__error {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: rgba(220, 38, 38, 0.05);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  border-radius: var(--inkpen-radius, 0.375rem);
+}
+
+.inkpen-embed__error-icon {
+  font-size: 1.25rem;
+}
+
+.inkpen-embed__error-text {
+  flex: 1;
+  font-size: 0.875rem;
+  color: #dc2626;
+}
+
+.inkpen-embed__remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  border-radius: 6px;
+  color: #dc2626;
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: background var(--inkpen-animation-fast, 100ms) ease-out;
+}
+
+.inkpen-embed__remove:hover {
+  background: rgba(220, 38, 38, 0.1);
+}
+
+/* ==========================================================================
+   Link Card (fallback for unknown URLs)
+   ========================================================================== */
+
+.inkpen-link-card {
+  display: flex;
+  overflow: hidden;
+  background: var(--inkpen-color-background, #ffffff);
+  border: 1px solid var(--inkpen-color-border, #e5e7eb);
+  border-radius: var(--inkpen-radius, 0.375rem);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color var(--inkpen-animation-fast, 100ms) ease-out,
+              box-shadow var(--inkpen-animation-fast, 100ms) ease-out;
+}
+
+.inkpen-link-card:hover {
+  border-color: var(--inkpen-color-primary, #3b82f6);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.inkpen-link-card__image {
+  flex-shrink: 0;
+  width: 140px;
+  height: 100px;
+  object-fit: cover;
+  background: var(--inkpen-color-border, #f3f4f6);
+}
+
+.inkpen-link-card__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding: 0.875rem 1rem;
+  min-width: 0;
+}
+
+.inkpen-link-card__title {
+  font-weight: 500;
+  font-size: 0.9375rem;
+  color: var(--inkpen-color-text, #1a1a1a);
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.inkpen-link-card__description {
+  font-size: 0.8125rem;
+  color: var(--inkpen-color-text-muted, #6b7280);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.4;
+}
+
+.inkpen-link-card__domain {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  color: var(--inkpen-color-text-muted, #6b7280);
+  margin-top: auto;
+}
+
+.inkpen-link-card__domain svg {
+  opacity: 0.6;
+}
+
+/* ==========================================================================
+   Provider-specific styles
+   ========================================================================== */
+
+/* YouTube */
+.inkpen-embed[data-provider="youtube"] .inkpen-embed__wrapper {
+  aspect-ratio: 16/9;
+}
+
+/* Vimeo */
+.inkpen-embed[data-provider="vimeo"] .inkpen-embed__wrapper {
+  aspect-ratio: 16/9;
+}
+
+/* Loom */
+.inkpen-embed[data-provider="loom"] .inkpen-embed__wrapper {
+  aspect-ratio: 16/9;
+}
+
+/* Figma */
+.inkpen-embed[data-provider="figma"] .inkpen-embed__wrapper {
+  aspect-ratio: 16/9;
+  min-height: 450px;
+}
+
+/* TikTok */
+.inkpen-embed[data-provider="tiktok"] .inkpen-embed__wrapper {
+  max-width: 325px;
+  margin: 0 auto;
+}
+
+/* Spotify */
+.inkpen-embed[data-provider="spotify"] .inkpen-embed__wrapper {
+  height: 352px;
+  border-radius: 12px;
+}
+
+/* CodePen */
+.inkpen-embed[data-provider="codepen"] .inkpen-embed__wrapper {
+  aspect-ratio: 16/9;
+  min-height: 300px;
+}
+
+/* ==========================================================================
+   Dark Mode
+   ========================================================================== */
+
+[data-theme="dark"],
+.dark {
+  .inkpen-embed__placeholder {
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.05) 0%,
+      rgba(255, 255, 255, 0.02) 100%
+    );
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .inkpen-embed__wrapper {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .inkpen-link-card {
+    background: rgba(255, 255, 255, 0.02);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .inkpen-link-card:hover {
+    border-color: var(--inkpen-color-primary, #3b82f6);
+  }
+
+  .inkpen-link-card__image {
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+/* ==========================================================================
+   Mobile Optimizations
+   ========================================================================== */
+
+@media (max-width: 640px) {
+  .inkpen-embed__placeholder {
+    padding: 2rem 1rem;
+  }
+
+  .inkpen-embed__placeholder-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 1.5rem;
+  }
+
+  .inkpen-link-card {
+    flex-direction: column;
+  }
+
+  .inkpen-link-card__image {
+    width: 100%;
+    height: 140px;
+  }
+
+  /* Center TikTok on mobile */
+  .inkpen-embed[data-provider="tiktok"] .inkpen-embed__wrapper {
+    max-width: 100%;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .inkpen-embed__load-btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+  }
+
+  .inkpen-embed__remove {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+/* ==========================================================================
+   Loading Animation
+   ========================================================================== */
+
+.inkpen-embed__wrapper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  animation: inkpen-embed-shimmer 1.5s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.inkpen-embed__wrapper iframe:not([src=""]) + .inkpen-embed__wrapper::before,
+.inkpen-embed__wrapper--widget::before,
+.inkpen-embed__wrapper--script::before {
+  display: none;
+}
+
+@keyframes inkpen-embed-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* ==========================================================================
+   Reduced Motion
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .inkpen-embed__load-btn,
+  .inkpen-link-card,
+  .inkpen-embed__wrapper::before {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* ==========================================================================
+   Print Styles
+   ========================================================================== */
+
+@media print {
+  .inkpen-embed__placeholder,
+  .inkpen-embed__wrapper {
+    display: none;
+  }
+
+  .inkpen-embed::after {
+    content: "[Embedded content: " attr(data-provider) "]";
+    display: block;
+    padding: 1rem;
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    font-style: italic;
+    color: #6b7280;
+  }
+
+  .inkpen-link-card {
+    border: 1px solid #ccc;
+  }
+
+  .inkpen-link-card__image {
+    display: none;
+  }
+}

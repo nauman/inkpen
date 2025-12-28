@@ -53,7 +53,16 @@ const DEFAULT_COMMANDS = [
   { id: "columns3", title: "3 Columns", description: "Three column layout", icon: "▦", keywords: ["layout", "grid", "three"], group: "Advanced" },
   { id: "calloutInfo", title: "Info Callout", description: "Informational note", icon: "ℹ️", keywords: ["callout", "note", "info", "alert"], group: "Advanced" },
   { id: "calloutWarning", title: "Warning Callout", description: "Warning or caution", icon: "⚠️", keywords: ["callout", "warning", "caution", "alert"], group: "Advanced" },
-  { id: "calloutTip", title: "Tip Callout", description: "Helpful tip", icon: "💡", keywords: ["callout", "tip", "hint", "idea"], group: "Advanced" }
+  { id: "calloutTip", title: "Tip Callout", description: "Helpful tip", icon: "💡", keywords: ["callout", "tip", "hint", "idea"], group: "Advanced" },
+
+  // Embeds
+  { id: "embed", title: "Embed", description: "Embed from URL", icon: "🔗", keywords: ["embed", "url", "link", "website"], group: "Media" },
+  { id: "embedTwitter", title: "Twitter/X", description: "Embed a tweet", icon: "𝕏", keywords: ["twitter", "x", "tweet", "social"], group: "Media" },
+  { id: "embedInstagram", title: "Instagram", description: "Embed Instagram post", icon: "📷", keywords: ["instagram", "ig", "social", "photo"], group: "Media" },
+  { id: "embedFigma", title: "Figma", description: "Embed Figma design", icon: "◈", keywords: ["figma", "design", "prototype"], group: "Media" },
+  { id: "embedLoom", title: "Loom", description: "Embed Loom video", icon: "🎥", keywords: ["loom", "video", "recording"], group: "Media" },
+  { id: "embedCodePen", title: "CodePen", description: "Embed CodePen", icon: "⌨", keywords: ["codepen", "code", "demo"], group: "Media" },
+  { id: "embedSpotify", title: "Spotify", description: "Embed Spotify track", icon: "🎵", keywords: ["spotify", "music", "audio"], group: "Media" }
 ]
 
 export const SlashCommands = Extension.create({
@@ -427,6 +436,64 @@ export const SlashCommands = Extension.create({
       case "calloutTip":
         if (editor.commands.insertCallout) {
           chain.insertCallout({ type: "tip" }).run()
+        }
+        break
+
+      // Embeds
+      case "embed":
+        if (editor.commands.insertEmbed) {
+          const embedUrl = prompt("Enter URL to embed:")
+          if (embedUrl) {
+            editor.commands.insertEmbed(embedUrl)
+          }
+        }
+        break
+      case "embedTwitter":
+        if (editor.commands.insertEmbed) {
+          const twitterUrl = prompt("Enter Twitter/X URL:")
+          if (twitterUrl) {
+            editor.commands.insertEmbed(twitterUrl)
+          }
+        }
+        break
+      case "embedInstagram":
+        if (editor.commands.insertEmbed) {
+          const igUrl = prompt("Enter Instagram URL:")
+          if (igUrl) {
+            editor.commands.insertEmbed(igUrl)
+          }
+        }
+        break
+      case "embedFigma":
+        if (editor.commands.insertEmbed) {
+          const figmaUrl = prompt("Enter Figma URL:")
+          if (figmaUrl) {
+            editor.commands.insertEmbed(figmaUrl)
+          }
+        }
+        break
+      case "embedLoom":
+        if (editor.commands.insertEmbed) {
+          const loomUrl = prompt("Enter Loom URL:")
+          if (loomUrl) {
+            editor.commands.insertEmbed(loomUrl)
+          }
+        }
+        break
+      case "embedCodePen":
+        if (editor.commands.insertEmbed) {
+          const codepenUrl = prompt("Enter CodePen URL:")
+          if (codepenUrl) {
+            editor.commands.insertEmbed(codepenUrl)
+          }
+        }
+        break
+      case "embedSpotify":
+        if (editor.commands.insertEmbed) {
+          const spotifyUrl = prompt("Enter Spotify URL:")
+          if (spotifyUrl) {
+            editor.commands.insertEmbed(spotifyUrl)
+          }
         }
         break
 
