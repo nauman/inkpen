@@ -11,6 +11,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Slash Commands Extension (v0.3.0)
+- Notion-style "/" command palette for rapid block insertion
+- Type "/" to open menu, then type to filter commands
+- Keyboard navigation: Arrow keys, Enter to select, Escape to close
+- Grouped commands: Basic, Lists, Blocks, Media, Advanced
+- Default commands include:
+  - Basic: Text, Heading 1/2/3
+  - Lists: Bullet, Numbered, Task
+  - Blocks: Quote, Code Block, Plain Text, Divider
+  - Media: Image, YouTube, Table
+  - Advanced: Section
+- Fuzzy search across title, keywords, and description
+- Customizable command list via Ruby configuration
+- Dark mode support
+- Smooth animations
+
 #### Preformatted Text Extension (v0.3.0)
 - New `Preformatted` block type for ASCII art, tables, and diagrams
 - Strict monospace font with whitespace preservation (`white-space: pre`)
@@ -68,6 +84,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## File Reference
+
+### Slash Commands Extension
+- Ruby: `lib/inkpen/extensions/slash_commands.rb`
+- JavaScript: `app/assets/javascripts/inkpen/extensions/slash_commands.js`
+- CSS: `app/assets/stylesheets/inkpen/slash_menu.css`
 
 ### Section Extension
 - Ruby: `lib/inkpen/extensions/section.rb`

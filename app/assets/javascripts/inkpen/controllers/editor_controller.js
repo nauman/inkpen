@@ -27,6 +27,7 @@ import BubbleMenu from "@tiptap/extension-bubble-menu"
 // Inkpen custom extensions
 import { Section } from "inkpen/extensions/section"
 import { Preformatted } from "inkpen/extensions/preformatted"
+import { SlashCommands } from "inkpen/extensions/slash_commands"
 
 /**
  * Inkpen Editor Controller
@@ -382,6 +383,22 @@ export default class extends Controller {
           tabSize: preConfig.tabSize || 4,
           showLabel: preConfig.showLabel !== false,
           labelText: preConfig.labelText || "Plain Text"
+        })
+      )
+    }
+
+    // Slash Commands extension (Notion-style "/" menu)
+    if (enabledExtensions.includes("slash_commands")) {
+      const slashConfig = config.slash_commands || {}
+      extensions.push(
+        SlashCommands.configure({
+          commands: slashConfig.commands || undefined,
+          groups: slashConfig.groups || undefined,
+          maxSuggestions: slashConfig.maxSuggestions || 10,
+          char: slashConfig.trigger || "/",
+          startOfLine: slashConfig.startOfLine !== undefined ? slashConfig.startOfLine : false,
+          allowSpaces: slashConfig.allowSpaces || false,
+          suggestionClass: slashConfig.suggestionClass || "inkpen-slash-menu"
         })
       )
     }

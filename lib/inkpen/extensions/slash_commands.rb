@@ -49,7 +49,9 @@ module Inkpen
 
         # Advanced
         { name: "table", label: "Table", description: "Insert a table", icon: "table", group: "Advanced", shortcut: nil },
-        { name: "callout", label: "Callout", description: "Highlighted callout box", icon: "alert-circle", group: "Advanced", shortcut: nil }
+        { name: "callout", label: "Callout", description: "Highlighted callout box", icon: "alert-circle", group: "Advanced", shortcut: nil },
+        { name: "section", label: "Section", description: "Page section with width control", icon: "layout", group: "Advanced", shortcut: nil },
+        { name: "preformatted", label: "Plain Text", description: "Preformatted text for ASCII art", icon: "file-text", group: "Advanced", shortcut: nil }
       ].freeze
 
       DEFAULT_GROUPS = %w[Basic Lists Blocks Media Advanced].freeze

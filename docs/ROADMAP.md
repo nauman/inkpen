@@ -8,12 +8,11 @@
 
 1. [Architecture Overview](#architecture-overview)
 2. [Completed Extensions](#completed-extensions)
-3. [Phase 1: Slash Commands](#phase-1-slash-commands-v030)
-4. [Phase 2: Block Gutter System](#phase-2-block-gutter-system-v031)
-5. [Phase 3: Drag & Drop](#phase-3-drag--drop-v032)
-6. [Phase 4: Enhanced Blocks](#phase-4-enhanced-blocks-v033)
-7. [Phase 5: BlockNote-Style Polish](#phase-5-blocknote-style-polish-v040)
-8. [Technical References](#technical-references)
+3. [Phase 1: Block Gutter System](#phase-1-block-gutter-system-v031)
+4. [Phase 2: Drag & Drop](#phase-2-drag--drop-v032)
+5. [Phase 3: Enhanced Blocks](#phase-3-enhanced-blocks-v033)
+6. [Phase 4: BlockNote-Style Polish](#phase-4-blocknote-style-polish-v040)
+7. [Technical References](#technical-references)
 
 ---
 
@@ -121,332 +120,34 @@ app/assets/stylesheets/inkpen/preformatted.css
 
 ---
 
-## Phase 1: Slash Commands (v0.3.0)
+### Slash Commands Extension (v0.3.0) ✅
 
-### Goal
-Implement Notion-style `/` command palette for rapid block insertion.
+Notion-style "/" command palette for rapid block insertion.
 
-### User Experience
+**Features:**
+- Type "/" to open menu, then type to filter
+- Keyboard navigation (arrows, Enter, Escape)
+- Grouped commands: Basic, Lists, Blocks, Media, Advanced
+- Fuzzy search across title, keywords, description
+- Customizable command list
+
+**Files:**
 ```
-User types "/" → Menu appears → User types "h1" → Filters to "Heading 1" → Enter inserts
-```
-
-### Components
-
-#### 1.1 TipTap Extension: SlashCommands
-```javascript
-// app/assets/javascripts/inkpen/extensions/slash_commands.js
-
-import { Extension } from '@tiptap/core'
-import Suggestion from '@tiptap/suggestion'
-
-export const SlashCommands = Extension.create({
-  name: 'slashCommands',
-
-  addOptions() {
-    return {
-      suggestion: {
-        char: '/',
-        allowSpaces: false,
-        startOfLine: true,
-        command: ({ editor, range, props }) => {
-          props.command({ editor, range })
-        }
-      }
-    }
-  },
-
-  addProseMirrorPlugins() {
-    return [
-      Suggestion({
-        editor: this.editor,
-        ...this.options.suggestion
-      })
-    ]
-  }
-})
+lib/inkpen/extensions/slash_commands.rb
+app/assets/javascripts/inkpen/extensions/slash_commands.js
+app/assets/stylesheets/inkpen/slash_menu.css
 ```
 
-#### 1.2 Stimulus Controller: SlashMenuController
-```javascript
-// app/assets/javascripts/inkpen/controllers/slash_menu_controller.js
-
-import { Controller } from "@hotwired/stimulus"
-
-export default class extends Controller {
-  static targets = ["menu", "item"]
-  static values = {
-    commands: { type: Array, default: [] }
-  }
-
-  #selectedIndex = 0
-  #items = []
-  #range = null
-
-  // Lifecycle
-
-  connect() {
-    this.#buildDefaultCommands()
-  }
-
-  disconnect() {
-    this.#hide()
-  }
-
-  // Actions
-
-  show({ detail: { range, query, clientRect } }) {
-    this.#range = range
-    this.#items = this.#filterCommands(query)
-    this.#selectedIndex = 0
-    this.#render()
-    this.#position(clientRect)
-    this.element.classList.remove("hidden")
-  }
-
-  hide() {
-    this.#hide()
-  }
-
-  navigate(event) {
-    switch (event.key) {
-      case "ArrowDown":
-        event.preventDefault()
-        this.#selectedIndex = (this.#selectedIndex + 1) % this.#items.length
-        this.#updateSelection()
-        break
-      case "ArrowUp":
-        event.preventDefault()
-        this.#selectedIndex = (this.#selectedIndex - 1 + this.#items.length) % this.#items.length
-        this.#updateSelection()
-        break
-      case "Enter":
-        event.preventDefault()
-        this.#executeSelected()
-        break
-      case "Escape":
-        event.preventDefault()
-        this.#hide()
-        break
-    }
-  }
-
-  select(event) {
-    const index = parseInt(event.currentTarget.dataset.index)
-    this.#selectedIndex = index
-    this.#executeSelected()
-  }
-
-  // Private
-
-  #buildDefaultCommands() {
-    this.#items = [
-      // Text
-      { id: "paragraph", title: "Paragraph", icon: "¶", keywords: ["text", "p"], group: "Basic" },
-      { id: "heading1", title: "Heading 1", icon: "H1", keywords: ["h1", "title"], group: "Basic" },
-      { id: "heading2", title: "Heading 2", icon: "H2", keywords: ["h2", "subtitle"], group: "Basic" },
-      { id: "heading3", title: "Heading 3", icon: "H3", keywords: ["h3"], group: "Basic" },
-
-      // Lists
-      { id: "bulletList", title: "Bullet List", icon: "•", keywords: ["ul", "unordered"], group: "Lists" },
-      { id: "orderedList", title: "Numbered List", icon: "1.", keywords: ["ol", "numbered"], group: "Lists" },
-      { id: "taskList", title: "Task List", icon: "☐", keywords: ["todo", "checkbox"], group: "Lists" },
-
-      // Blocks
-      { id: "blockquote", title: "Quote", icon: "❝", keywords: ["quote", "citation"], group: "Blocks" },
-      { id: "codeBlock", title: "Code Block", icon: "</>", keywords: ["code", "pre"], group: "Blocks" },
-      { id: "callout", title: "Callout", icon: "💡", keywords: ["alert", "note", "info"], group: "Blocks" },
-      { id: "divider", title: "Divider", icon: "—", keywords: ["hr", "line"], group: "Blocks" },
-
-      // Media
-      { id: "image", title: "Image", icon: "🖼", keywords: ["img", "picture"], group: "Media" },
-      { id: "youtube", title: "YouTube", icon: "▶", keywords: ["video", "embed"], group: "Media" },
-      { id: "table", title: "Table", icon: "⊞", keywords: ["grid", "data"], group: "Media" }
-    ]
-  }
-
-  #filterCommands(query) {
-    if (!query) return this.#items
-    const q = query.toLowerCase()
-    return this.#items.filter(item =>
-      item.title.toLowerCase().includes(q) ||
-      item.keywords.some(k => k.includes(q))
-    )
-  }
-
-  #render() {
-    const grouped = this.#groupByCategory(this.#items)
-    this.menuTarget.innerHTML = Object.entries(grouped).map(([group, items]) => `
-      <div class="inkpen-slash-menu__group">
-        <div class="inkpen-slash-menu__group-title">${group}</div>
-        ${items.map((item, i) => `
-          <button type="button"
-                  class="inkpen-slash-menu__item ${i === this.#selectedIndex ? 'is-selected' : ''}"
-                  data-action="click->inkpen--slash-menu#select"
-                  data-index="${this.#items.indexOf(item)}">
-            <span class="inkpen-slash-menu__icon">${item.icon}</span>
-            <span class="inkpen-slash-menu__title">${item.title}</span>
-          </button>
-        `).join('')}
-      </div>
-    `).join('')
-  }
-
-  #groupByCategory(items) {
-    return items.reduce((groups, item) => {
-      const group = item.group || "Other"
-      if (!groups[group]) groups[group] = []
-      groups[group].push(item)
-      return groups
-    }, {})
-  }
-
-  #position(clientRect) {
-    if (!clientRect) return
-    const rect = clientRect()
-    this.menuTarget.style.left = `${rect.left}px`
-    this.menuTarget.style.top = `${rect.bottom + 8}px`
-  }
-
-  #updateSelection() {
-    this.itemTargets.forEach((item, i) => {
-      item.classList.toggle("is-selected", i === this.#selectedIndex)
-    })
-  }
-
-  #executeSelected() {
-    const command = this.#items[this.#selectedIndex]
-    if (command) {
-      this.dispatch("execute", { detail: { command, range: this.#range } })
-    }
-    this.#hide()
-  }
-
-  #hide() {
-    this.element.classList.add("hidden")
-    this.#range = null
-  }
-}
-```
-
-#### 1.3 Ruby Extension Config
-```ruby
-# lib/inkpen/extensions/slash_commands.rb
-
-module Inkpen
-  module Extensions
-    class SlashCommands < Base
-      DEFAULT_COMMANDS = %w[
-        paragraph heading1 heading2 heading3
-        bulletList orderedList taskList
-        blockquote codeBlock callout divider
-        image youtube table
-      ].freeze
-
-      def initialize(commands: DEFAULT_COMMANDS, groups: nil, custom_commands: [])
-        @commands = commands
-        @groups = groups
-        @custom_commands = custom_commands
-      end
-
-      def name
-        :slash_commands
-      end
-
-      def to_config
-        {
-          name: name,
-          enabled: enabled?,
-          options: {
-            commands: @commands,
-            groups: @groups,
-            custom_commands: @custom_commands.map(&:to_h)
-          }
-        }
-      end
-    end
-  end
-end
-```
-
-#### 1.4 CSS Styles
-```css
-/* app/assets/stylesheets/inkpen/slash_menu.css */
-
-.inkpen-slash-menu {
-  position: fixed;
-  z-index: 9999;
-  min-width: 280px;
-  max-width: 320px;
-  max-height: 400px;
-  overflow-y: auto;
-  background: var(--inkpen-toolbar-bg);
-  border: 1px solid var(--inkpen-color-border);
-  border-radius: var(--inkpen-radius);
-  box-shadow: var(--inkpen-shadow);
-  padding: 0.5rem 0;
-}
-
-.inkpen-slash-menu.hidden {
-  display: none;
-}
-
-.inkpen-slash-menu__group {
-  padding: 0.25rem 0;
-}
-
-.inkpen-slash-menu__group-title {
-  padding: 0.375rem 0.75rem;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--inkpen-color-text-muted);
-}
-
-.inkpen-slash-menu__item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  width: 100%;
-  padding: 0.5rem 0.75rem;
-  background: none;
-  border: none;
-  cursor: pointer;
-  text-align: left;
-  color: var(--inkpen-color-text);
-  transition: background-color 100ms;
-}
-
-.inkpen-slash-menu__item:hover,
-.inkpen-slash-menu__item.is-selected {
-  background: var(--inkpen-color-selection);
-}
-
-.inkpen-slash-menu__icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.75rem;
-  height: 1.75rem;
-  background: var(--inkpen-color-border);
-  border-radius: 0.25rem;
-  font-size: 0.875rem;
-}
-
-.inkpen-slash-menu__title {
-  font-size: 0.875rem;
-}
-```
-
-### References
-- [TipTap Suggestion Plugin](https://tiptap.dev/docs/editor/api/utilities/suggestion)
-- [Plate Slash Commands](https://platejs.org/docs/slash-command)
-- [BlockNote Slash Menu](https://www.blocknotejs.org/docs/editor-basics/document-structure#slash-menu)
+**Default Commands:**
+- Basic: paragraph, heading1, heading2, heading3
+- Lists: bulletList, orderedList, taskList
+- Blocks: blockquote, codeBlock, preformatted, divider
+- Media: image, youtube, table
+- Advanced: section
 
 ---
 
-## Phase 2: Block Gutter System (v0.3.1)
+## Phase 1: Block Gutter System (v0.3.1)
 
 ### Goal
 Add a left-side gutter with drag handles and plus buttons for each block.
@@ -622,7 +323,7 @@ export const BlockGutter = Extension.create({
 
 ---
 
-## Phase 3: Drag & Drop (v0.3.2)
+## Phase 2: Drag & Drop (v0.3.2)
 
 ### Goal
 Enable visual block reordering via drag and drop.
@@ -835,7 +536,7 @@ export const DragHandle = Extension.create({
 
 ---
 
-## Phase 4: Enhanced Blocks (v0.3.3)
+## Phase 3: Enhanced Blocks (v0.3.3)
 
 ### Goal
 Add Notion-style blocks: toggles, columns, callouts with variants.
@@ -1035,7 +736,7 @@ export const Callout = Node.create({
 
 ---
 
-## Phase 5: BlockNote-Style Polish (v0.4.0)
+## Phase 4: BlockNote-Style Polish (v0.4.0)
 
 ### Goal
 Add the finishing touches that make the editor feel polished and professional.
@@ -1157,19 +858,17 @@ app/assets/javascripts/inkpen/
 │   ├── editor_controller.js
 │   ├── toolbar_controller.js
 │   ├── sticky_toolbar_controller.js
-│   ├── slash_menu_controller.js       ← v0.3.0
 │   └── block_menu_controller.js       ← v0.3.1
 ├── extensions/
 │   ├── section.js                     ✅ DONE
 │   ├── preformatted.js                ✅ DONE
-│   ├── slash_commands.js              ← v0.3.0
+│   ├── slash_commands.js              ✅ DONE
 │   ├── block_gutter.js                ← v0.3.1
 │   ├── drag_handle.js                 ← v0.3.2
 │   ├── toggle_block.js                ← v0.3.3
 │   ├── columns.js                     ← v0.3.3
 │   └── callout.js                     ← v0.3.3
 ├── helpers/
-│   ├── position_helpers.js            ← v0.3.0
 │   ├── block_helpers.js               ← v0.3.1
 │   └── drag_helpers.js                ← v0.3.2
 └── index.js
@@ -1180,7 +879,7 @@ app/assets/stylesheets/inkpen/
 ├── sticky_toolbar.css
 ├── section.css                        ✅ DONE
 ├── preformatted.css                   ✅ DONE
-├── slash_menu.css                     ← v0.3.0
+├── slash_menu.css                     ✅ DONE
 ├── block_gutter.css                   ← v0.3.1
 ├── drag_drop.css                      ← v0.3.2
 ├── toggle.css                         ← v0.3.3
@@ -1191,10 +890,10 @@ lib/inkpen/extensions/
 ├── base.rb
 ├── section.rb                         ✅ DONE
 ├── preformatted.rb                    ✅ DONE
+├── slash_commands.rb                  ✅ DONE
 ├── mention.rb
 ├── table.rb
 ├── task_list.rb
 ├── code_block_syntax.rb
-├── forced_document.rb
-└── slash_commands.rb                  ← v0.3.0
+└── forced_document.rb
 ```

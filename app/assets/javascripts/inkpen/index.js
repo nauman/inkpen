@@ -9,6 +9,7 @@ import StickyToolbarController from "inkpen/controllers/sticky_toolbar_controlle
 // TipTap extensions
 import { Section } from "inkpen/extensions/section"
 import { Preformatted } from "inkpen/extensions/preformatted"
+import { SlashCommands } from "inkpen/extensions/slash_commands"
 
 // Auto-register controllers if Stimulus application exists
 const application = window.Stimulus || Application.start()
@@ -21,4 +22,4 @@ application.register("inkpen--sticky-toolbar", StickyToolbarController)
 export { EditorController, ToolbarController, StickyToolbarController }
 
 // Export extensions for custom use
-export { Section, Preformatted }
+export { Section, Preformatted, SlashCommands }
