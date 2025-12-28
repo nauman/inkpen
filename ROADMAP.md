@@ -46,6 +46,7 @@
 - [x] Block buttons: Table, Code Block, Blockquote, Task List, Divider
 - [x] Media buttons: Image, YouTube, Embed
 - [x] Widget picker modal with event-driven integration
+- [x] Widget modal appended to body (avoids CSS transform containing block issues)
 - [x] Per-instance configuration via Ruby PORO
 - [x] Dark mode support
 - [x] Responsive (mobile adapts to bottom position)
@@ -54,6 +55,17 @@
 - [x] BubbleMenu/Tippy.js integration (handles DOM moves)
 - [x] Editor reference persistence across reconnections
 - [x] Mouse event handling to preserve text selection
+
+#### Context-Aware Toolbar
+- [x] Automatic context detection (text, table, code, image)
+- [x] Table operations: add/delete rows & columns, merge/split cells
+- [x] Code block language selector
+- [x] Image alignment controls
+
+#### Advanced HTML Features
+- [x] Callout boxes (info, warning, tip, note styles)
+- [x] HTML block insertion
+- [x] Custom CSS classes support
 
 ---
 
@@ -69,7 +81,7 @@
 - [ ] Custom command registration
 
 ### Enhanced Blocks
-- [ ] Callout boxes (info, warning, tip, note)
+- [x] Callout boxes (info, warning, tip, note) ✅ Completed in v0.2.1
 - [ ] Toggle/Collapsible sections
 - [ ] Dividers with styles
 - [ ] Emoji picker via ":"
@@ -77,7 +89,7 @@
 
 ### Media & Embeds
 - [ ] File attachments (drag & drop)
-- [ ] Image resizing and alignment
+- [x] Image resizing and alignment ✅ Completed in v0.2.1
 - [ ] Embed cards (URL unfurling)
 - [ ] Figma/Miro/Loom embeds
 - [ ] PDF viewer embed

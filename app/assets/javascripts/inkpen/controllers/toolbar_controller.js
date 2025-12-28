@@ -3,23 +3,33 @@ import { Controller } from "@hotwired/stimulus"
 /**
  * Inkpen Toolbar Controller
  *
- * Handles toolbar button clicks for the floating selection toolbar.
+ * Context-aware floating toolbar that adapts its buttons based on the current selection.
+ * Shows different actions when selecting text vs. inside a table vs. on an image.
+ *
  * Visibility and positioning are handled by TipTap's BubbleMenu extension.
  *
  * Important: BubbleMenu uses Tippy.js which moves the toolbar element to the
  * document body. This triggers Stimulus to disconnect and reconnect the
  * controller. We store the editor element ID on the DOM element itself
  * so we can find it after reconnection.
+ *
+ * Context Types:
+ * - text: Regular text selection (formatting options)
+ * - table: Inside a table cell (table operations)
+ * - image: Image selected (alignment, delete)
+ * - code: Inside code block (language selector)
  */
 export default class extends Controller {
-  static targets = ["button"]
+  static targets = ["button", "contextMenu"]
 
   static values = {
-    buttons: { type: Array, default: [] }
+    buttons: { type: Array, default: [] },
+    contextAware: { type: Boolean, default: true }
   }
 
   connect() {
     this.editorController = null
+    this.currentContext = "text"
 
     // Store editor element ID on the DOM element before BubbleMenu moves us to body
     // Using a data attribute persists across Stimulus disconnect/reconnect cycles
@@ -40,14 +50,75 @@ export default class extends Controller {
       this.retryFindEditor()
     }
 
-    // Build toolbar buttons
+    // Build initial toolbar buttons
     this.buildToolbar()
+
+    // Listen for selection changes to update context
+    if (this.contextAwareValue) {
+      this.setupContextDetection()
+    }
   }
 
   disconnect() {
     if (this.retryTimer) {
       clearTimeout(this.retryTimer)
     }
+    if (this.selectionObserver) {
+      this.selectionObserver = null
+    }
+  }
+
+  // --- Context Detection ---
+
+  setupContextDetection() {
+    // Watch for editor selection events
+    const editorElement = this.getEditorElement()
+    if (editorElement) {
+      editorElement.addEventListener("inkpen:selection-change", this.handleSelectionChange.bind(this))
+    }
+  }
+
+  handleSelectionChange(event) {
+    const newContext = this.detectContext()
+    if (newContext !== this.currentContext) {
+      this.currentContext = newContext
+      this.buildToolbar()
+    }
+    this.updateActiveStates()
+  }
+
+  detectContext() {
+    if (!this.editorController?.editor) return "text"
+
+    const editor = this.editorController.editor
+    const { selection } = editor.state
+    const { $from } = selection
+
+    // Check if inside a table cell
+    for (let depth = $from.depth; depth > 0; depth--) {
+      const node = $from.node(depth)
+      if (node.type.name === "tableCell" || node.type.name === "tableHeader") {
+        return "table"
+      }
+      if (node.type.name === "codeBlock") {
+        return "code"
+      }
+    }
+
+    // Check if an image is selected
+    if (selection.node?.type?.name === "image") {
+      return "image"
+    }
+
+    return "text"
+  }
+
+  getEditorElement() {
+    const editorId = this.element.dataset.inkpenEditorId
+    if (editorId) {
+      return document.getElementById(editorId)
+    }
+    return null
   }
 
   retryFindEditor() {
@@ -95,7 +166,7 @@ export default class extends Controller {
   }
 
   buildToolbar() {
-    const buttons = this.buttonsValue.length > 0 ? this.buttonsValue : this.defaultButtons()
+    const buttons = this.getButtonsForContext()
 
     this.element.innerHTML = buttons.map(btn => {
       if (btn === "divider") {
@@ -114,6 +185,31 @@ export default class extends Controller {
         </button>
       `
     }).join("")
+
+    // Update data attribute for CSS styling
+    this.element.dataset.context = this.currentContext
+  }
+
+  /**
+   * Get buttons based on current context
+   */
+  getButtonsForContext() {
+    // If buttons are explicitly set, use those
+    if (this.buttonsValue.length > 0) {
+      return this.buttonsValue
+    }
+
+    // Otherwise, return context-appropriate buttons
+    switch (this.currentContext) {
+      case "table":
+        return this.tableButtons()
+      case "code":
+        return this.codeButtons()
+      case "image":
+        return this.imageButtons()
+      default:
+        return this.defaultButtons()
+    }
   }
 
   /**
@@ -124,8 +220,27 @@ export default class extends Controller {
     event.preventDefault()
   }
 
+  // --- Button Sets by Context ---
+
   defaultButtons() {
-    return ["bold", "italic", "underline", "strike", "divider", "code", "codeBlock", "highlight", "link", "divider", "heading"]
+    return ["bold", "italic", "underline", "strike", "divider", "code", "highlight", "link", "divider", "heading", "callout"]
+  }
+
+  tableButtons() {
+    return [
+      "bold", "italic", "divider",
+      "addRowBefore", "addRowAfter", "deleteRow", "divider",
+      "addColumnBefore", "addColumnAfter", "deleteColumn", "divider",
+      "mergeCells", "splitCell", "deleteTable"
+    ]
+  }
+
+  codeButtons() {
+    return ["languageSelector"]
+  }
+
+  imageButtons() {
+    return ["alignLeft", "alignCenter", "alignRight", "divider", "deleteImage"]
   }
 
   buttonConfig(name) {
@@ -181,6 +296,78 @@ export default class extends Controller {
       youtube: {
         title: "YouTube Video",
         icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/><path d="m10 15 5-3-5-3z"/></svg>'
+      },
+
+      // --- Table Operations ---
+      addRowBefore: {
+        title: "Add Row Above",
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M12 2v4"/><path d="M9 4h6"/></svg>'
+      },
+      addRowAfter: {
+        title: "Add Row Below",
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="13" rx="2"/><path d="M12 18v4"/><path d="M9 20h6"/></svg>'
+      },
+      deleteRow: {
+        title: "Delete Row",
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M9 12h6"/></svg>'
+      },
+      addColumnBefore: {
+        title: "Add Column Left",
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="3" width="13" height="18" rx="2"/><path d="M2 12h4"/><path d="M4 9v6"/></svg>'
+      },
+      addColumnAfter: {
+        title: "Add Column Right",
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="13" height="18" rx="2"/><path d="M18 12h4"/><path d="M20 9v6"/></svg>'
+      },
+      deleteColumn: {
+        title: "Delete Column",
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 12h6"/></svg>'
+      },
+      mergeCells: {
+        title: "Merge Cells",
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/><path d="M15 3v18"/><path d="M9 12h6"/></svg>'
+      },
+      splitCell: {
+        title: "Split Cell",
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 3v18"/><path d="M3 12h7"/><path d="M14 12h7"/></svg>'
+      },
+      deleteTable: {
+        title: "Delete Table",
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="4" y1="4" x2="20" y2="20" stroke-width="2.5"/></svg>'
+      },
+
+      // --- Advanced HTML Features ---
+      callout: {
+        title: "Callout Box",
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="12" cy="10" r="1" fill="currentColor"/><path d="M12 14v3"/></svg>'
+      },
+      htmlBlock: {
+        title: "HTML Block",
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m16 18 2-2v-3"/><path d="m8 18-2-2v-3"/><path d="M12 2v6"/><path d="m16 6-2-2v-3"/><path d="m8 6 2-2V2"/><rect x="4" y="10" width="16" height="10" rx="2"/></svg>'
+      },
+
+      // --- Image Operations ---
+      alignLeft: {
+        title: "Align Left",
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>'
+      },
+      alignCenter: {
+        title: "Align Center",
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>'
+      },
+      alignRight: {
+        title: "Align Right",
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="9" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>'
+      },
+      deleteImage: {
+        title: "Delete Image",
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/><line x1="5" y1="5" x2="19" y2="19" stroke-width="2.5"/></svg>'
+      },
+
+      // --- Code Block ---
+      languageSelector: {
+        title: "Select Language",
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/><text x="9" y="17" font-size="8" fill="currentColor">JS</text></svg>'
       }
     }
 
@@ -195,6 +382,7 @@ export default class extends Controller {
     if (!this.editorController) return
 
     switch (command) {
+      // --- Text Formatting ---
       case "bold":
         this.editorController.toggleBold()
         break
@@ -233,6 +421,64 @@ export default class extends Controller {
         break
       case "youtube":
         this.promptForYoutubeUrl()
+        break
+
+      // --- Table Operations ---
+      case "addRowBefore":
+        this.editorController.addTableRowBefore()
+        break
+      case "addRowAfter":
+        this.editorController.addTableRowAfter()
+        break
+      case "deleteRow":
+        this.editorController.deleteTableRow()
+        break
+      case "addColumnBefore":
+        this.editorController.addTableColumnBefore()
+        break
+      case "addColumnAfter":
+        this.editorController.addTableColumnAfter()
+        break
+      case "deleteColumn":
+        this.editorController.deleteTableColumn()
+        break
+      case "mergeCells":
+        this.editorController.mergeCells()
+        break
+      case "splitCell":
+        this.editorController.splitCell()
+        break
+      case "deleteTable":
+        if (confirm("Delete this table?")) {
+          this.editorController.deleteTable()
+        }
+        break
+
+      // --- Advanced HTML Features ---
+      case "callout":
+        this.insertCallout()
+        break
+      case "htmlBlock":
+        this.insertHtmlBlock()
+        break
+
+      // --- Image Operations ---
+      case "alignLeft":
+        this.setImageAlignment("left")
+        break
+      case "alignCenter":
+        this.setImageAlignment("center")
+        break
+      case "alignRight":
+        this.setImageAlignment("right")
+        break
+      case "deleteImage":
+        this.deleteSelectedNode()
+        break
+
+      // --- Code Block ---
+      case "languageSelector":
+        this.showLanguageSelector()
         break
     }
 
@@ -279,5 +525,123 @@ export default class extends Controller {
       highlight: "highlight"
     }
     return mapping[command] || command
+  }
+
+  // --- Advanced HTML Features ---
+
+  /**
+   * Insert a callout/alert box
+   * Types: info, warning, tip, note
+   */
+  insertCallout() {
+    const type = this.promptCalloutType()
+    if (!type) return
+
+    const calloutHtml = `
+<div class="inkpen-callout inkpen-callout--${type}" data-callout-type="${type}">
+  <div class="inkpen-callout__icon">${this.getCalloutIcon(type)}</div>
+  <div class="inkpen-callout__content"><p>Type your ${type} message here...</p></div>
+</div>
+`
+    this.editorController?.editor?.chain().focus().insertContent(calloutHtml).run()
+  }
+
+  promptCalloutType() {
+    const type = prompt("Callout type (info, warning, tip, note):", "info")
+    if (!type) return null
+
+    const validTypes = ["info", "warning", "tip", "note"]
+    const normalizedType = type.toLowerCase().trim()
+
+    if (!validTypes.includes(normalizedType)) {
+      alert("Invalid callout type. Please use: info, warning, tip, or note.")
+      return null
+    }
+
+    return normalizedType
+  }
+
+  getCalloutIcon(type) {
+    const icons = {
+      info: "ℹ️",
+      warning: "⚠️",
+      tip: "💡",
+      note: "📝"
+    }
+    return icons[type] || "ℹ️"
+  }
+
+  /**
+   * Insert a raw HTML block
+   */
+  insertHtmlBlock() {
+    const html = prompt("Enter HTML code:", "<div></div>")
+    if (!html) return
+
+    // Wrap in a container with editing disabled for the raw HTML
+    const wrappedHtml = `<div class="inkpen-html-block" contenteditable="false">${html}</div>`
+    this.editorController?.editor?.chain().focus().insertContent(wrappedHtml).run()
+  }
+
+  // --- Image Operations ---
+
+  setImageAlignment(alignment) {
+    const editor = this.editorController?.editor
+    if (!editor) return
+
+    // Get the selected image node
+    const { selection } = editor.state
+    if (selection.node?.type?.name !== "image") return
+
+    // Update the image with alignment attribute
+    editor.chain().focus().updateAttributes("image", {
+      style: `display: block; margin: ${alignment === "center" ? "0 auto" : alignment === "right" ? "0 0 0 auto" : "0"};`
+    }).run()
+  }
+
+  deleteSelectedNode() {
+    this.editorController?.editor?.chain().focus().deleteSelection().run()
+  }
+
+  // --- Code Block Language ---
+
+  showLanguageSelector() {
+    const languages = [
+      "javascript", "typescript", "python", "ruby", "go",
+      "rust", "java", "c", "cpp", "csharp",
+      "html", "css", "json", "yaml", "sql",
+      "bash", "shell", "markdown", "plaintext"
+    ]
+
+    const current = this.getCurrentCodeLanguage() || "plaintext"
+    const selected = prompt(
+      `Select language (current: ${current}):\n\n${languages.join(", ")}`,
+      current
+    )
+
+    if (selected && languages.includes(selected.toLowerCase())) {
+      this.setCodeLanguage(selected.toLowerCase())
+    }
+  }
+
+  getCurrentCodeLanguage() {
+    const editor = this.editorController?.editor
+    if (!editor) return null
+
+    const { selection } = editor.state
+    const { $from } = selection
+
+    for (let depth = $from.depth; depth > 0; depth--) {
+      const node = $from.node(depth)
+      if (node.type.name === "codeBlock") {
+        return node.attrs.language || null
+      }
+    }
+
+    return null
+  }
+
+  setCodeLanguage(language) {
+    this.editorController?.editor?.chain().focus().updateAttributes("codeBlock", { language }).run()
   }
 }

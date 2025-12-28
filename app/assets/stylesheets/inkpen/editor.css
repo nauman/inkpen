@@ -178,6 +178,97 @@
     margin-bottom: 0.25rem;
   }
 
+  /* Task Lists (TipTap TaskList extension)
+   * Uses .inkpen-task-list and .inkpen-task-item classes from TipTap config
+   * High specificity via nesting to avoid !important */
+  ul.inkpen-task-list,
+  ul[data-type="taskList"] {
+    list-style-type: none;
+    padding-left: 0;
+    margin: 0 0 1rem 0;
+  }
+
+  /* Reset any browser default markers */
+  ul.inkpen-task-list li,
+  ul[data-type="taskList"] li {
+    list-style-type: none;
+  }
+
+  li.inkpen-task-item,
+  li[data-type="taskItem"] {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Hide any list markers/bullets */
+  li.inkpen-task-item::before,
+  li[data-type="taskItem"]::before {
+    content: none;
+  }
+
+  li.inkpen-task-item::marker,
+  li[data-type="taskItem"]::marker {
+    content: none;
+  }
+
+  /* Checkbox label container */
+  li.inkpen-task-item > label,
+  li[data-type="taskItem"] > label {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 0.125rem;
+    user-select: none;
+    cursor: pointer;
+  }
+
+  /* Checkbox input */
+  li.inkpen-task-item > label input[type="checkbox"],
+  li[data-type="taskItem"] > label input[type="checkbox"] {
+    width: 1.125rem;
+    height: 1.125rem;
+    cursor: pointer;
+    accent-color: var(--inkpen-color-primary);
+    margin: 0;
+    padding: 0;
+    border-radius: 0.25rem;
+  }
+
+  /* Content area - where user types (contenteditable div) */
+  li.inkpen-task-item > div,
+  li[data-type="taskItem"] > div {
+    flex: 1 1 auto;
+    min-width: 0;
+    outline: none;
+    word-break: break-word;
+  }
+
+  /* Paragraph inside task item - reset margins for inline feel */
+  li.inkpen-task-item > div p,
+  li[data-type="taskItem"] > div p {
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Checked state - strikethrough */
+  li.inkpen-task-item[data-checked="true"] > div,
+  li[data-type="taskItem"][data-checked="true"] > div {
+    text-decoration: line-through;
+    color: var(--inkpen-color-text-muted);
+  }
+
+  /* Nested task lists */
+  ul.inkpen-task-list ul.inkpen-task-list,
+  ul[data-type="taskList"] ul[data-type="taskList"] {
+    margin-top: 0.5rem;
+    margin-bottom: 0;
+    padding-left: 1.5rem;
+  }
+
   /* Blockquote */
   blockquote {
     border-left: 3px solid var(--inkpen-color-border);
@@ -251,4 +342,87 @@
   ::selection {
     background: var(--inkpen-color-selection);
   }
+
+  /* Callout Boxes */
+  .inkpen-callout {
+    display: flex;
+    gap: 0.75rem;
+    padding: 1rem;
+    border-radius: var(--inkpen-radius);
+    margin: 1rem 0;
+    background: var(--inkpen-color-border);
+    border-left: 4px solid var(--inkpen-color-primary);
+  }
+
+  .inkpen-callout__icon {
+    flex-shrink: 0;
+    font-size: 1.25rem;
+    line-height: 1.5;
+  }
+
+  .inkpen-callout__content {
+    flex: 1;
+    min-width: 0;
+
+    p {
+      margin: 0;
+    }
+  }
+
+  .inkpen-callout--info {
+    background: rgba(59, 130, 246, 0.1);
+    border-left-color: #3b82f6;
+  }
+
+  .inkpen-callout--warning {
+    background: rgba(245, 158, 11, 0.1);
+    border-left-color: #f59e0b;
+  }
+
+  .inkpen-callout--tip {
+    background: rgba(16, 185, 129, 0.1);
+    border-left-color: #10b981;
+  }
+
+  .inkpen-callout--note {
+    background: rgba(139, 92, 246, 0.1);
+    border-left-color: #8b5cf6;
+  }
+
+  /* HTML Block */
+  .inkpen-html-block {
+    padding: 1rem;
+    margin: 1rem 0;
+    border: 1px dashed var(--inkpen-color-border);
+    border-radius: var(--inkpen-radius);
+    background: var(--inkpen-color-background);
+    position: relative;
+  }
+
+  .inkpen-html-block::before {
+    content: "HTML";
+    position: absolute;
+    top: -0.75em;
+    left: 0.5rem;
+    padding: 0 0.25rem;
+    font-size: 0.625rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--inkpen-color-text-muted);
+    background: var(--inkpen-color-background);
+  }
+}
+
+/* Context-Aware Toolbar Styles */
+.inkpen-toolbar[data-context="table"] {
+  min-width: 400px;
+}
+
+.inkpen-toolbar[data-context="code"] {
+  min-width: 150px;
+}
+
+.inkpen-toolbar[data-context="image"] {
+  min-width: 180px;
 }

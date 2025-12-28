@@ -31,14 +31,19 @@ export default class extends Controller {
   connect() {
     this.editorController = null
     this.findEditorController()
-    this.createToolbarElement()
-    this.buildToolbar()
-    this.applyLayout()
+
+    // Prevent duplicate toolbars on reconnect
+    if (!this.toolbarElement) {
+      this.createToolbarElement()
+      this.buildToolbar()
+      this.applyLayout()
+    }
   }
 
   disconnect() {
     this.closeWidgetModal()
     this.removeToolbarElement()
+    this.removeModalElement()
   }
 
   // --- Toolbar Element Management ---
@@ -47,7 +52,6 @@ export default class extends Controller {
     // Create the sticky toolbar container as a sibling to the editor
     this.toolbarElement = document.createElement("div")
     this.toolbarElement.className = "inkpen-sticky-toolbar"
-    this.toolbarElement.dataset.controller = "inkpen--sticky-toolbar-ui"
 
     // Insert after the editor element
     this.element.parentNode.insertBefore(this.toolbarElement, this.element.nextSibling)
@@ -57,6 +61,44 @@ export default class extends Controller {
     if (this.toolbarElement && this.toolbarElement.parentNode) {
       this.toolbarElement.parentNode.removeChild(this.toolbarElement)
     }
+  }
+
+  // Create modal element and append to body (avoids transform containing block issues)
+  createModalElement() {
+    // Prevent duplicate modals
+    if (this.modalElement) return
+
+    const wrapper = document.createElement("div")
+    wrapper.innerHTML = this.renderWidgetModal()
+    this.modalElement = wrapper.firstElementChild
+    document.body.appendChild(this.modalElement)
+
+    // Bind modal event handlers
+    this.bindModalEvents()
+  }
+
+  removeModalElement() {
+    if (this.modalElement && this.modalElement.parentNode) {
+      this.modalElement.parentNode.removeChild(this.modalElement)
+    }
+  }
+
+  bindModalEvents() {
+    if (!this.modalElement) return
+
+    const backdrop = this.modalElement.querySelector(".inkpen-widget-modal__backdrop")
+    if (backdrop) {
+      backdrop.addEventListener("click", () => this.closeWidgetModal())
+    }
+
+    const closeBtn = this.modalElement.querySelector(".inkpen-widget-modal__close")
+    if (closeBtn) {
+      closeBtn.addEventListener("click", () => this.closeWidgetModal())
+    }
+
+    this.modalElement.querySelectorAll("[data-widget-type]").forEach(btn => {
+      btn.addEventListener("click", (e) => this.insertWidget(e))
+    })
   }
 
   // --- Layout Management ---
@@ -81,15 +123,18 @@ export default class extends Controller {
 
     const buttons = this.buttonsValue.length > 0 ? this.buttonsValue : this.defaultButtons()
 
+    // Build toolbar buttons only (modal is appended to body separately)
     this.toolbarElement.innerHTML = `
       <div class="inkpen-sticky-toolbar__buttons">
         ${buttons.map(btn => this.renderButton(btn)).join("")}
       </div>
-      ${this.renderWidgetModal()}
     `
 
-    // Bind event handlers
+    // Bind toolbar button handlers
     this.bindToolbarEvents()
+
+    // Create modal as child of body to avoid transform containing block issues
+    this.createModalElement()
   }
 
   bindToolbarEvents() {
@@ -99,21 +144,6 @@ export default class extends Controller {
     this.toolbarElement.querySelectorAll("[data-command]").forEach(btn => {
       btn.addEventListener("mousedown", (e) => e.preventDefault())
       btn.addEventListener("click", (e) => this.executeCommand(e))
-    })
-
-    // Widget modal handlers
-    const backdrop = this.toolbarElement.querySelector(".inkpen-widget-modal__backdrop")
-    if (backdrop) {
-      backdrop.addEventListener("click", () => this.closeWidgetModal())
-    }
-
-    const closeBtn = this.toolbarElement.querySelector(".inkpen-widget-modal__close")
-    if (closeBtn) {
-      closeBtn.addEventListener("click", () => this.closeWidgetModal())
-    }
-
-    this.toolbarElement.querySelectorAll("[data-widget-type]").forEach(btn => {
-      btn.addEventListener("click", (e) => this.insertWidget(e))
     })
   }
 
@@ -241,17 +271,15 @@ export default class extends Controller {
   }
 
   openWidgetModal() {
-    const modal = this.toolbarElement?.querySelector(".inkpen-widget-modal")
-    if (modal) {
-      modal.classList.remove("hidden")
+    if (this.modalElement) {
+      this.modalElement.classList.remove("hidden")
       document.body.style.overflow = "hidden"
     }
   }
 
   closeWidgetModal() {
-    const modal = this.toolbarElement?.querySelector(".inkpen-widget-modal")
-    if (modal) {
-      modal.classList.add("hidden")
+    if (this.modalElement) {
+      this.modalElement.classList.add("hidden")
       document.body.style.overflow = ""
     }
   }
