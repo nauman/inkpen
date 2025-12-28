@@ -60,6 +60,7 @@ module Inkpen
       callout
       block_commands
       enhanced_image
+      file_attachment
     ].freeze
 
     def initialize

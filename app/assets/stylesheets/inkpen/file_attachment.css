@@ -1,0 +1,347 @@
+/**
+ * File Attachment Extension Styles
+ *
+ * Styles for file upload cards with icons, progress, and download.
+ *
+ * @since 0.5.0
+ */
+
+/* ==========================================================================
+   File Container
+   ========================================================================== */
+
+.inkpen-file {
+  display: block;
+  margin: 1rem 0;
+  border-radius: var(--inkpen-radius, 0.375rem);
+  overflow: hidden;
+  transition: box-shadow var(--inkpen-animation-fast, 100ms) ease-out;
+}
+
+.inkpen-file:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.inkpen-file.is-selected {
+  box-shadow: 0 0 0 2px var(--inkpen-color-primary, #3b82f6);
+}
+
+/* ==========================================================================
+   File Link (complete state)
+   ========================================================================== */
+
+.inkpen-file__link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  background: var(--inkpen-color-border, #f3f4f6);
+  border: 1px solid var(--inkpen-color-border, #e5e7eb);
+  border-radius: var(--inkpen-radius, 0.375rem);
+  text-decoration: none;
+  color: inherit;
+  transition: background var(--inkpen-animation-fast, 100ms) ease-out,
+              border-color var(--inkpen-animation-fast, 100ms) ease-out;
+}
+
+.inkpen-file__link:hover {
+  background: var(--inkpen-color-selection, rgba(59, 130, 246, 0.08));
+  border-color: var(--inkpen-color-primary, #3b82f6);
+}
+
+/* ==========================================================================
+   File Icon
+   ========================================================================== */
+
+.inkpen-file__icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  font-size: 1.5rem;
+  background: var(--inkpen-color-background, #ffffff);
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* ==========================================================================
+   File Info
+   ========================================================================== */
+
+.inkpen-file__info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.inkpen-file__name {
+  font-weight: 500;
+  font-size: 0.9375rem;
+  color: var(--inkpen-color-text, #1a1a1a);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.inkpen-file__meta {
+  font-size: 0.8125rem;
+  color: var(--inkpen-color-text-muted, #6b7280);
+}
+
+.inkpen-file__meta--error {
+  color: #dc2626;
+}
+
+/* ==========================================================================
+   Download Button
+   ========================================================================== */
+
+.inkpen-file__download {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: var(--inkpen-color-primary, #3b82f6);
+  color: white;
+  border-radius: 8px;
+  opacity: 0;
+  transform: translateX(4px);
+  transition: opacity var(--inkpen-animation-fast, 100ms) ease-out,
+              transform var(--inkpen-animation-fast, 100ms) ease-out,
+              background var(--inkpen-animation-fast, 100ms) ease-out;
+}
+
+.inkpen-file__link:hover .inkpen-file__download {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.inkpen-file__download:hover {
+  background: var(--inkpen-color-primary-dark, #2563eb);
+}
+
+.inkpen-file__download svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ==========================================================================
+   Uploading State
+   ========================================================================== */
+
+.inkpen-file__uploading {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  background: var(--inkpen-color-border, #f3f4f6);
+  border: 1px solid var(--inkpen-color-border, #e5e7eb);
+  border-radius: var(--inkpen-radius, 0.375rem);
+  position: relative;
+}
+
+.inkpen-file__progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--inkpen-color-border, #e5e7eb);
+  border-radius: 0 0 var(--inkpen-radius, 0.375rem) var(--inkpen-radius, 0.375rem);
+  overflow: hidden;
+}
+
+.inkpen-file__progress-bar {
+  height: 100%;
+  background: var(--inkpen-color-primary, #3b82f6);
+  border-radius: 0 0 0 var(--inkpen-radius, 0.375rem);
+  transition: width 150ms ease-out;
+}
+
+/* Animated gradient for progress bar */
+.inkpen-file__progress-bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  animation: inkpen-file-progress-shine 1.5s ease-in-out infinite;
+}
+
+@keyframes inkpen-file-progress-shine {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* ==========================================================================
+   Error State
+   ========================================================================== */
+
+.inkpen-file__error {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  background: rgba(220, 38, 38, 0.05);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  border-radius: var(--inkpen-radius, 0.375rem);
+}
+
+.inkpen-file__retry,
+.inkpen-file__remove {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--inkpen-color-border, #e5e7eb);
+  border-radius: 6px;
+  color: var(--inkpen-color-text-muted, #6b7280);
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background var(--inkpen-animation-fast, 100ms) ease-out,
+              border-color var(--inkpen-animation-fast, 100ms) ease-out,
+              color var(--inkpen-animation-fast, 100ms) ease-out;
+}
+
+.inkpen-file__retry:hover {
+  background: var(--inkpen-color-selection, rgba(59, 130, 246, 0.1));
+  border-color: var(--inkpen-color-primary, #3b82f6);
+  color: var(--inkpen-color-primary, #3b82f6);
+}
+
+.inkpen-file__remove:hover {
+  background: rgba(220, 38, 38, 0.1);
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
+/* ==========================================================================
+   Dark Mode
+   ========================================================================== */
+
+[data-theme="dark"],
+.dark {
+  .inkpen-file__link {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .inkpen-file__link:hover {
+    background: rgba(59, 130, 246, 0.15);
+    border-color: var(--inkpen-color-primary, #3b82f6);
+  }
+
+  .inkpen-file__icon {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .inkpen-file__uploading {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .inkpen-file__error {
+    background: rgba(220, 38, 38, 0.1);
+    border-color: rgba(220, 38, 38, 0.3);
+  }
+}
+
+/* ==========================================================================
+   Mobile Optimizations
+   ========================================================================== */
+
+@media (hover: none) and (pointer: coarse) {
+  /* Always show download button on touch devices */
+  .inkpen-file__download {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  /* Larger touch targets */
+  .inkpen-file__link {
+    padding: 1rem;
+  }
+
+  .inkpen-file__icon {
+    width: 48px;
+    height: 48px;
+    font-size: 1.75rem;
+  }
+
+  .inkpen-file__download {
+    width: 44px;
+    height: 44px;
+  }
+
+  .inkpen-file__retry,
+  .inkpen-file__remove {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+/* Small screens */
+@media (max-width: 480px) {
+  .inkpen-file__name {
+    font-size: 0.875rem;
+  }
+
+  .inkpen-file__meta {
+    font-size: 0.75rem;
+  }
+}
+
+/* ==========================================================================
+   Reduced Motion
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .inkpen-file,
+  .inkpen-file__link,
+  .inkpen-file__download,
+  .inkpen-file__progress-bar {
+    transition: none;
+  }
+
+  .inkpen-file__progress-bar::after {
+    animation: none;
+  }
+}
+
+/* ==========================================================================
+   Print Styles
+   ========================================================================== */
+
+@media print {
+  .inkpen-file__link {
+    background: none;
+    border: 1px solid #ccc;
+  }
+
+  .inkpen-file__download {
+    display: none;
+  }
+
+  .inkpen-file__uploading,
+  .inkpen-file__error {
+    display: none;
+  }
+}

@@ -35,6 +35,7 @@ import { Columns, Column } from "inkpen/extensions/columns"
 import { Callout } from "inkpen/extensions/callout"
 import { BlockCommands } from "inkpen/extensions/block_commands"
 import { EnhancedImage } from "inkpen/extensions/enhanced_image"
+import { FileAttachment } from "inkpen/extensions/file_attachment"
 
 /**
  * Inkpen Editor Controller
@@ -493,6 +494,21 @@ export default class extends Controller {
           lockAspectRatio: imageConfig.lockAspectRatio !== false,
           showAlignmentControls: imageConfig.showAlignmentControls !== false,
           allowCaption: imageConfig.allowCaption !== false
+        })
+      )
+    }
+
+    // File Attachment extension (file uploads with icons and download)
+    if (enabledExtensions.includes("file_attachment")) {
+      const fileConfig = config.file_attachment || {}
+      extensions.push(
+        FileAttachment.configure({
+          uploadUrl: fileConfig.uploadUrl || null,
+          uploadHeaders: fileConfig.uploadHeaders || {},
+          uploadFieldName: fileConfig.uploadFieldName || "file",
+          allowedTypes: fileConfig.allowedTypes || null,
+          maxSize: fileConfig.maxSize || 10 * 1024 * 1024,
+          uploadHandler: fileConfig.uploadHandler || null
         })
       )
     }

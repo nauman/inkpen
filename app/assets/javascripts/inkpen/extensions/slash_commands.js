@@ -42,6 +42,7 @@ const DEFAULT_COMMANDS = [
 
   // Media
   { id: "image", title: "Image", description: "Upload or embed an image", icon: "🖼", keywords: ["img", "picture", "photo"], group: "Media" },
+  { id: "file", title: "File", description: "Upload a file attachment", icon: "📎", keywords: ["upload", "attachment", "document", "pdf"], group: "Media" },
   { id: "youtube", title: "YouTube", description: "Embed a YouTube video", icon: "▶", keywords: ["video", "embed", "youtube"], group: "Media" },
   { id: "table", title: "Table", description: "Insert a table", icon: "⊞", keywords: ["grid", "data", "rows", "columns"], group: "Media" },
 
@@ -364,6 +365,21 @@ export const SlashCommands = Extension.create({
           } else {
             chain.setImage({ src: imageUrl }).run()
           }
+        }
+        break
+      case "file":
+        // Create file input and trigger click
+        if (editor.commands.uploadFile) {
+          const fileInput = document.createElement("input")
+          fileInput.type = "file"
+          fileInput.accept = "*/*"
+          fileInput.onchange = (e) => {
+            const file = e.target.files?.[0]
+            if (file) {
+              editor.commands.uploadFile(file)
+            }
+          }
+          fileInput.click()
         }
         break
       case "youtube":

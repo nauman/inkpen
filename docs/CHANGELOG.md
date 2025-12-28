@@ -11,6 +11,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### File Attachment Extension (v0.5.0)
+- Drag & drop file upload
+- Paste file from clipboard
+- File type icons for 30+ formats (PDF, Word, Excel, ZIP, audio, video, code)
+- File size display with human-readable formatting
+- Download button with hover animation
+- Upload progress indicator with animated progress bar
+- Configurable upload endpoint or base64 fallback
+- File type and size validation
+- Error state with retry/remove options
+- Mobile-optimized touch targets
+- Dark mode support
+- Commands: `insertFileAttachment`, `uploadFile`
+- Slash command: `/file`
+
 #### Enhanced Image Extension (v0.5.0)
 - Resizable images with corner drag handles
 - Alignment options: left, center, right, full-width
@@ -195,6 +210,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## File Reference
+
+### File Attachment Extension
+- JavaScript: `app/assets/javascripts/inkpen/extensions/file_attachment.js`
+- CSS: `app/assets/stylesheets/inkpen/file_attachment.css`
 
 ### Enhanced Image Extension
 - JavaScript: `app/assets/javascripts/inkpen/extensions/enhanced_image.js`
