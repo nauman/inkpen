@@ -486,65 +486,23 @@ app/assets/javascripts/inkpen/extensions/columns.js
 app/assets/stylesheets/inkpen/columns.css
 ```
 
-### 4.3 Enhanced Callout
-```javascript
-// app/assets/javascripts/inkpen/extensions/callout.js
+### 4.3 Callout ✅
 
-import { Node, mergeAttributes } from '@tiptap/core'
+**Status:** Complete
 
-export const Callout = Node.create({
-  name: 'callout',
-  group: 'block',
-  content: 'block+',
+**Features:**
+- Highlighted blocks for tips, warnings, notes, and other callouts
+- Six types: info, warning, tip, note, success, error
+- Default emoji icons per type (customizable)
+- Click emoji to change callout type via dropdown
+- Colored backgrounds and left borders per type
+- Keyboard shortcut: `Cmd+Shift+O`
+- Commands: `insertCallout`, `setCalloutType`, `setCalloutEmoji`, `toggleCallout`
 
-  addAttributes() {
-    return {
-      type: { default: 'info' },  // info, warning, tip, note, success, error
-      emoji: { default: null },
-      collapsible: { default: false },
-      collapsed: { default: false }
-    }
-  },
-
-  parseHTML() {
-    return [{ tag: 'div[data-callout]' }]
-  },
-
-  renderHTML({ HTMLAttributes }) {
-    const emoji = HTMLAttributes.emoji || this.getDefaultEmoji(HTMLAttributes.type)
-
-    return ['div', mergeAttributes(HTMLAttributes, {
-      class: `inkpen-callout inkpen-callout--${HTMLAttributes.type}`,
-      'data-callout': HTMLAttributes.type
-    }), [
-      ['div', { class: 'inkpen-callout__icon' }, emoji],
-      ['div', { class: 'inkpen-callout__content' }, 0]
-    ]]
-  },
-
-  getDefaultEmoji(type) {
-    const emojis = {
-      info: 'ℹ️',
-      warning: '⚠️',
-      tip: '💡',
-      note: '📝',
-      success: '✅',
-      error: '❌'
-    }
-    return emojis[type] || 'ℹ️'
-  },
-
-  addCommands() {
-    return {
-      setCallout: (type = 'info') => ({ commands }) => {
-        return commands.wrapIn(this.name, { type })
-      },
-      toggleCalloutType: (type) => ({ tr, state }) => {
-        // Change callout type
-      }
-    }
-  }
-})
+**Files:**
+```
+app/assets/javascripts/inkpen/extensions/callout.js
+app/assets/stylesheets/inkpen/callout.css
 ```
 
 ### CSS for Enhanced Blocks
@@ -735,7 +693,7 @@ app/assets/javascripts/inkpen/
 │   ├── drag_handle.js                 ✅ DONE
 │   ├── toggle_block.js                ✅ DONE
 │   ├── columns.js                     ✅ DONE
-│   └── callout.js                     ← v0.3.3
+│   └── callout.js                     ✅ DONE
 ├── helpers/
 │   └── block_helpers.js               ← future
 └── index.js
@@ -751,6 +709,7 @@ app/assets/stylesheets/inkpen/
 ├── drag_drop.css                      ✅ DONE
 ├── toggle.css                         ✅ DONE
 ├── columns.css                        ✅ DONE
+├── callout.css                        ✅ DONE
 └── animations.css                     ← v0.4.0
 
 lib/inkpen/extensions/

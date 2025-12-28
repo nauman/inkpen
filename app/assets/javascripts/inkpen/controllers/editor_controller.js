@@ -32,6 +32,7 @@ import { BlockGutter } from "inkpen/extensions/block_gutter"
 import { DragHandle } from "inkpen/extensions/drag_handle"
 import { ToggleBlock, ToggleSummary } from "inkpen/extensions/toggle_block"
 import { Columns, Column } from "inkpen/extensions/columns"
+import { Callout } from "inkpen/extensions/callout"
 
 /**
  * Inkpen Editor Controller
@@ -451,6 +452,17 @@ export default class extends Controller {
           defaultCount: columnsConfig.defaultCount || 2,
           defaultLayout: columnsConfig.defaultLayout || "equal-2",
           showControls: columnsConfig.showControls !== false
+        })
+      )
+    }
+
+    // Callout extension (highlighted blocks)
+    if (enabledExtensions.includes("callout")) {
+      const calloutConfig = config.callout || {}
+      extensions.push(
+        Callout.configure({
+          defaultType: calloutConfig.defaultType || "info",
+          showControls: calloutConfig.showControls !== false
         })
       )
     }

@@ -57,6 +57,7 @@ module Inkpen
       drag_handle
       toggle_block
       columns
+      callout
     ].freeze
 
     def initialize

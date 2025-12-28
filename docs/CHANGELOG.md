@@ -11,6 +11,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Callout Extension (v0.3.3)
+- Highlighted blocks for tips, warnings, notes, and other callouts
+- Six types: info, warning, tip, note, success, error
+- Default emoji icons per type (customizable)
+- Click emoji to change callout type via dropdown
+- Colored backgrounds and left borders per type
+- Keyboard shortcut: `Cmd+Shift+O` to insert info callout
+- Commands: `insertCallout`, `setCalloutType`, `setCalloutEmoji`, `toggleCallout`
+- Added to slash commands menu (Info, Warning, Tip)
+- Dark mode support
+- Print styles
+
 #### Columns Extension (v0.3.3)
 - Multi-column layouts (2, 3, or 4 columns)
 - Layout presets: equal, 1:2, 2:1, 1:3, 3:1, 1:2:1, etc.
@@ -137,6 +149,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## File Reference
+
+### Callout Extension
+- JavaScript: `app/assets/javascripts/inkpen/extensions/callout.js`
+- CSS: `app/assets/stylesheets/inkpen/callout.css`
 
 ### Columns Extension
 - JavaScript: `app/assets/javascripts/inkpen/extensions/columns.js`

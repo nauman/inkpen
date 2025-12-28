@@ -49,7 +49,10 @@ const DEFAULT_COMMANDS = [
   { id: "section", title: "Section", description: "Page section with width control", icon: "▢", keywords: ["layout", "container", "wrapper"], group: "Advanced" },
   { id: "toggle", title: "Toggle", description: "Collapsible content block", icon: "▸", keywords: ["collapse", "expand", "accordion", "details"], group: "Advanced" },
   { id: "columns2", title: "2 Columns", description: "Side-by-side columns", icon: "▥", keywords: ["layout", "grid", "split", "two"], group: "Advanced" },
-  { id: "columns3", title: "3 Columns", description: "Three column layout", icon: "▦", keywords: ["layout", "grid", "three"], group: "Advanced" }
+  { id: "columns3", title: "3 Columns", description: "Three column layout", icon: "▦", keywords: ["layout", "grid", "three"], group: "Advanced" },
+  { id: "calloutInfo", title: "Info Callout", description: "Informational note", icon: "ℹ️", keywords: ["callout", "note", "info", "alert"], group: "Advanced" },
+  { id: "calloutWarning", title: "Warning Callout", description: "Warning or caution", icon: "⚠️", keywords: ["callout", "warning", "caution", "alert"], group: "Advanced" },
+  { id: "calloutTip", title: "Tip Callout", description: "Helpful tip", icon: "💡", keywords: ["callout", "tip", "hint", "idea"], group: "Advanced" }
 ]
 
 export const SlashCommands = Extension.create({
@@ -388,6 +391,21 @@ export const SlashCommands = Extension.create({
       case "columns3":
         if (editor.commands.insertColumns) {
           chain.insertColumns({ count: 3 }).run()
+        }
+        break
+      case "calloutInfo":
+        if (editor.commands.insertCallout) {
+          chain.insertCallout({ type: "info" }).run()
+        }
+        break
+      case "calloutWarning":
+        if (editor.commands.insertCallout) {
+          chain.insertCallout({ type: "warning" }).run()
+        }
+        break
+      case "calloutTip":
+        if (editor.commands.insertCallout) {
+          chain.insertCallout({ type: "tip" }).run()
         }
         break
 

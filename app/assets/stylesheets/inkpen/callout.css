@@ -1,0 +1,359 @@
+/**
+ * Callout Block Styles for Inkpen Editor
+ *
+ * Highlighted blocks for tips, warnings, notes, etc.
+ *
+ * @since 0.3.3
+ */
+
+/* ==========================================================================
+   CSS Custom Properties
+   ========================================================================== */
+
+:root {
+  /* Base callout */
+  --inkpen-callout-radius: 6px;
+  --inkpen-callout-padding: 1rem;
+  --inkpen-callout-border-width: 4px;
+  --inkpen-callout-icon-size: 1.5rem;
+  --inkpen-callout-gap: 0.75rem;
+
+  /* Info (blue) */
+  --inkpen-callout-info-bg: #eff6ff;
+  --inkpen-callout-info-border: #3b82f6;
+  --inkpen-callout-info-text: #1e40af;
+
+  /* Warning (amber) */
+  --inkpen-callout-warning-bg: #fffbeb;
+  --inkpen-callout-warning-border: #f59e0b;
+  --inkpen-callout-warning-text: #92400e;
+
+  /* Tip (green) */
+  --inkpen-callout-tip-bg: #ecfdf5;
+  --inkpen-callout-tip-border: #10b981;
+  --inkpen-callout-tip-text: #065f46;
+
+  /* Note (gray) */
+  --inkpen-callout-note-bg: #f9fafb;
+  --inkpen-callout-note-border: #6b7280;
+  --inkpen-callout-note-text: #374151;
+
+  /* Success (emerald) */
+  --inkpen-callout-success-bg: #ecfdf5;
+  --inkpen-callout-success-border: #059669;
+  --inkpen-callout-success-text: #065f46;
+
+  /* Error (red) */
+  --inkpen-callout-error-bg: #fef2f2;
+  --inkpen-callout-error-border: #ef4444;
+  --inkpen-callout-error-text: #991b1b;
+}
+
+/* Dark mode */
+[data-theme="dark"],
+.dark {
+  /* Info */
+  --inkpen-callout-info-bg: rgba(59, 130, 246, 0.15);
+  --inkpen-callout-info-border: #60a5fa;
+  --inkpen-callout-info-text: #93c5fd;
+
+  /* Warning */
+  --inkpen-callout-warning-bg: rgba(245, 158, 11, 0.15);
+  --inkpen-callout-warning-border: #fbbf24;
+  --inkpen-callout-warning-text: #fcd34d;
+
+  /* Tip */
+  --inkpen-callout-tip-bg: rgba(16, 185, 129, 0.15);
+  --inkpen-callout-tip-border: #34d399;
+  --inkpen-callout-tip-text: #6ee7b7;
+
+  /* Note */
+  --inkpen-callout-note-bg: rgba(107, 114, 128, 0.15);
+  --inkpen-callout-note-border: #9ca3af;
+  --inkpen-callout-note-text: #d1d5db;
+
+  /* Success */
+  --inkpen-callout-success-bg: rgba(5, 150, 105, 0.15);
+  --inkpen-callout-success-border: #34d399;
+  --inkpen-callout-success-text: #6ee7b7;
+
+  /* Error */
+  --inkpen-callout-error-bg: rgba(239, 68, 68, 0.15);
+  --inkpen-callout-error-border: #f87171;
+  --inkpen-callout-error-text: #fca5a5;
+}
+
+/* ==========================================================================
+   Base Callout
+   ========================================================================== */
+
+.inkpen-callout {
+  display: flex;
+  gap: var(--inkpen-callout-gap);
+  margin: 1rem 0;
+  padding: var(--inkpen-callout-padding);
+  border-radius: var(--inkpen-callout-radius);
+  border-left: var(--inkpen-callout-border-width) solid;
+}
+
+/* ==========================================================================
+   Icon
+   ========================================================================== */
+
+.inkpen-callout__icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 0.125rem;
+}
+
+.inkpen-callout__emoji {
+  font-size: var(--inkpen-callout-icon-size);
+  line-height: 1;
+}
+
+/* Clickable icon for type change */
+.inkpen-callout__icon[style*="cursor: pointer"]:hover {
+  opacity: 0.8;
+}
+
+/* ==========================================================================
+   Content
+   ========================================================================== */
+
+.inkpen-callout__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.inkpen-callout__content > * + * {
+  margin-top: 0.5rem;
+}
+
+/* First paragraph styling */
+.inkpen-callout__content > p:first-child {
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   Type Variants
+   ========================================================================== */
+
+/* Info */
+.inkpen-callout--info {
+  background: var(--inkpen-callout-info-bg);
+  border-left-color: var(--inkpen-callout-info-border);
+  color: var(--inkpen-callout-info-text);
+}
+
+/* Warning */
+.inkpen-callout--warning {
+  background: var(--inkpen-callout-warning-bg);
+  border-left-color: var(--inkpen-callout-warning-border);
+  color: var(--inkpen-callout-warning-text);
+}
+
+/* Tip */
+.inkpen-callout--tip {
+  background: var(--inkpen-callout-tip-bg);
+  border-left-color: var(--inkpen-callout-tip-border);
+  color: var(--inkpen-callout-tip-text);
+}
+
+/* Note */
+.inkpen-callout--note {
+  background: var(--inkpen-callout-note-bg);
+  border-left-color: var(--inkpen-callout-note-border);
+  color: var(--inkpen-callout-note-text);
+}
+
+/* Success */
+.inkpen-callout--success {
+  background: var(--inkpen-callout-success-bg);
+  border-left-color: var(--inkpen-callout-success-border);
+  color: var(--inkpen-callout-success-text);
+}
+
+/* Error */
+.inkpen-callout--error {
+  background: var(--inkpen-callout-error-bg);
+  border-left-color: var(--inkpen-callout-error-border);
+  color: var(--inkpen-callout-error-text);
+}
+
+/* ==========================================================================
+   Type Selector Dropdown
+   ========================================================================== */
+
+.inkpen-callout-selector {
+  display: flex;
+  flex-direction: column;
+  min-width: 140px;
+  padding: 0.25rem;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  animation: inkpen-callout-selector-enter 100ms ease-out;
+}
+
+@keyframes inkpen-callout-selector-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.inkpen-callout-selector__item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 100ms ease;
+}
+
+.inkpen-callout-selector__item:hover {
+  background: #f3f4f6;
+}
+
+.inkpen-callout-selector__item.is-active {
+  background: #eff6ff;
+}
+
+.inkpen-callout-selector__emoji {
+  font-size: 1.125rem;
+  width: 1.5rem;
+  text-align: center;
+}
+
+.inkpen-callout-selector__label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+/* Dark mode selector */
+[data-theme="dark"] .inkpen-callout-selector,
+.dark .inkpen-callout-selector {
+  background: #1f2937;
+  border-color: #374151;
+}
+
+[data-theme="dark"] .inkpen-callout-selector__item:hover,
+.dark .inkpen-callout-selector__item:hover {
+  background: #374151;
+}
+
+[data-theme="dark"] .inkpen-callout-selector__item.is-active,
+.dark .inkpen-callout-selector__item.is-active {
+  background: rgba(59, 130, 246, 0.2);
+}
+
+[data-theme="dark"] .inkpen-callout-selector__label,
+.dark .inkpen-callout-selector__label {
+  color: #e5e7eb;
+}
+
+/* ==========================================================================
+   Focus States
+   ========================================================================== */
+
+.inkpen-callout:focus-within {
+  outline: 2px solid var(--inkpen-color-primary, #3b82f6);
+  outline-offset: 2px;
+}
+
+/* ==========================================================================
+   Nested Elements
+   ========================================================================== */
+
+/* Links inside callouts */
+.inkpen-callout a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.inkpen-callout a:hover {
+  opacity: 0.8;
+}
+
+/* Code inside callouts */
+.inkpen-callout code {
+  background: rgba(0, 0, 0, 0.1);
+  padding: 0.125rem 0.375rem;
+  border-radius: 4px;
+  font-size: 0.875em;
+}
+
+[data-theme="dark"] .inkpen-callout code,
+.dark .inkpen-callout code {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Lists inside callouts */
+.inkpen-callout ul,
+.inkpen-callout ol {
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+}
+
+/* ==========================================================================
+   Mobile Optimizations
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .inkpen-callout {
+    padding: 0.875rem;
+  }
+
+  .inkpen-callout__emoji {
+    font-size: 1.25rem;
+  }
+
+  .inkpen-callout-selector {
+    position: fixed !important;
+    left: 1rem !important;
+    right: 1rem !important;
+    bottom: 1rem !important;
+    top: auto !important;
+    max-width: none;
+    border-radius: 12px;
+  }
+}
+
+/* ==========================================================================
+   Reduced Motion
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .inkpen-callout-selector {
+    animation: none;
+  }
+}
+
+/* ==========================================================================
+   Print Styles
+   ========================================================================== */
+
+@media print {
+  .inkpen-callout {
+    border: 1px solid;
+    border-left-width: var(--inkpen-callout-border-width);
+    page-break-inside: avoid;
+  }
+
+  .inkpen-callout-selector {
+    display: none;
+  }
+}
