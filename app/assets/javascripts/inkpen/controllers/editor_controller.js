@@ -26,6 +26,7 @@ import CharacterCount from "@tiptap/extension-character-count"
 import BubbleMenu from "@tiptap/extension-bubble-menu"
 // Inkpen custom extensions
 import { Section } from "inkpen/extensions/section"
+import { Preformatted } from "inkpen/extensions/preformatted"
 
 /**
  * Inkpen Editor Controller
@@ -371,6 +372,20 @@ export default class extends Controller {
       )
     }
 
+    // Preformatted extension (ASCII art, tables, diagrams)
+    if (enabledExtensions.includes("preformatted")) {
+      const preConfig = config.preformatted || {}
+      extensions.push(
+        Preformatted.configure({
+          showLineNumbers: preConfig.showLineNumbers || false,
+          wrapLines: preConfig.wrapLines || false,
+          tabSize: preConfig.tabSize || 4,
+          showLabel: preConfig.showLabel !== false,
+          labelText: preConfig.labelText || "Plain Text"
+        })
+      )
+    }
+
     return extensions
   }
 
@@ -704,6 +719,15 @@ export default class extends Controller {
 
   wrapInSection(width = "default", spacing = "normal") {
     this.editor?.chain().focus().wrapInSection({ width, spacing }).run()
+  }
+
+  // Preformatted commands
+  insertPreformatted(content = "") {
+    this.editor?.chain().focus().insertPreformatted(content).run()
+  }
+
+  togglePreformatted() {
+    this.editor?.chain().focus().togglePreformatted().run()
   }
 
   // Character count methods

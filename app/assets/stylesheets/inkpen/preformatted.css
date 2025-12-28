@@ -1,0 +1,215 @@
+/* ==========================================================================
+   Preformatted Text Extension Styles
+   ==========================================================================
+
+   Plain text block for ASCII art, tables, and diagrams.
+   Preserves whitespace exactly with strict monospace font.
+
+   @since 0.3.0
+   ========================================================================== */
+
+/* Wrapper (contains label + pre) */
+.inkpen-preformatted-wrapper {
+  position: relative;
+  margin: 1rem 0;
+}
+
+/* Label badge */
+.inkpen-preformatted__label {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--inkpen-color-text-muted, #6b7280);
+  background: var(--inkpen-color-background, #ffffff);
+  border: 1px solid var(--inkpen-color-border, #e5e7eb);
+  border-top: none;
+  border-right: none;
+  border-radius: 0 0 0 var(--inkpen-radius, 0.375rem);
+  user-select: none;
+  z-index: 1;
+}
+
+/* Main preformatted block */
+.inkpen-preformatted {
+  margin: 0;
+  padding: 1rem;
+  padding-top: 1.5rem; /* Space for label */
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--inkpen-color-text, #1a1a1a);
+  background: var(--inkpen-color-border, #f3f4f6);
+  border: 1px solid var(--inkpen-color-border, #e5e7eb);
+  border-radius: var(--inkpen-radius, 0.375rem);
+  overflow-x: auto;
+
+  /* Critical for ASCII art */
+  white-space: pre;
+  tab-size: 4;
+  -moz-tab-size: 4;
+
+  /* Prevent any text manipulation */
+  text-transform: none;
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0;
+}
+
+/* When wrapping is enabled */
+.inkpen-preformatted[data-wrap="true"] {
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* Without wrapper (fallback) */
+pre.inkpen-preformatted:not(.inkpen-preformatted-wrapper .inkpen-preformatted) {
+  padding-top: 1rem;
+}
+
+/* ==========================================================================
+   Focus & Selection States
+   ========================================================================== */
+
+.inkpen-preformatted:focus {
+  outline: none;
+  border-color: var(--inkpen-color-primary, #3b82f6);
+  box-shadow: 0 0 0 3px var(--inkpen-color-selection, rgba(59, 130, 246, 0.2));
+}
+
+.inkpen-preformatted::selection,
+.inkpen-preformatted *::selection {
+  background: var(--inkpen-color-selection, rgba(59, 130, 246, 0.3));
+}
+
+/* Selected node */
+.inkpen-preformatted-wrapper.ProseMirror-selectednode .inkpen-preformatted,
+.inkpen-preformatted.ProseMirror-selectednode {
+  outline: 2px solid var(--inkpen-color-primary, #3b82f6);
+  outline-offset: 2px;
+}
+
+/* ==========================================================================
+   Cursor & Caret
+   ========================================================================== */
+
+.inkpen-preformatted {
+  caret-color: var(--inkpen-color-primary, #3b82f6);
+}
+
+/* ==========================================================================
+   Empty State
+   ========================================================================== */
+
+.inkpen-preformatted:empty::before {
+  content: "Type or paste ASCII art, tables, diagrams...";
+  color: var(--inkpen-color-text-muted, #9ca3af);
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   Dark Mode
+   ========================================================================== */
+
+@media (prefers-color-scheme: dark) {
+  .inkpen-preformatted {
+    background: var(--inkpen-color-border, #1f2937);
+    border-color: var(--inkpen-color-border, #374151);
+    color: var(--inkpen-color-text, #f3f4f6);
+  }
+
+  .inkpen-preformatted__label {
+    background: var(--inkpen-color-background, #111827);
+    border-color: var(--inkpen-color-border, #374151);
+  }
+}
+
+/* ==========================================================================
+   Line Numbers (optional)
+   ========================================================================== */
+
+.inkpen-preformatted[data-line-numbers="true"] {
+  padding-left: 3.5rem;
+  position: relative;
+}
+
+.inkpen-preformatted[data-line-numbers="true"]::before {
+  content: counter(line);
+  counter-reset: line;
+  position: absolute;
+  left: 0;
+  top: 1.5rem;
+  bottom: 1rem;
+  width: 2.5rem;
+  padding-right: 0.5rem;
+  text-align: right;
+  color: var(--inkpen-color-text-muted, #9ca3af);
+  border-right: 1px solid var(--inkpen-color-border, #e5e7eb);
+  user-select: none;
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .inkpen-preformatted {
+    font-size: 0.75rem;
+    padding: 0.75rem;
+    padding-top: 1.25rem;
+  }
+
+  .inkpen-preformatted__label {
+    font-size: 0.5625rem;
+    padding: 0.125rem 0.375rem;
+  }
+}
+
+/* ==========================================================================
+   Print
+   ========================================================================== */
+
+@media print {
+  .inkpen-preformatted {
+    white-space: pre-wrap;
+    word-break: break-all;
+    border: 1px solid #ccc;
+    background: #f9f9f9;
+  }
+
+  .inkpen-preformatted__label {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   ASCII Art Examples (for reference)
+   ==========================================================================
+
+   The following should render correctly:
+
+   ┌─────────────────────────────────────┐
+   │           ASCII Table               │
+   ├──────────┬──────────┬───────────────┤
+   │  Column  │  Column  │    Column     │
+   ├──────────┼──────────┼───────────────┤
+   │  Data 1  │  Data 2  │    Data 3     │
+   │  Data 4  │  Data 5  │    Data 6     │
+   └──────────┴──────────┴───────────────┘
+
+   ╔═══════════════════════════════════╗
+   ║         Double Line Box           ║
+   ╠═══════════════════════════════════╣
+   ║  Content goes here                ║
+   ╚═══════════════════════════════════╝
+
+      /\
+     /  \
+    /    \
+   /______\
+      ||
+
+   ========================================================================== */

@@ -16,6 +16,7 @@ require_relative "inkpen/extensions/table"
 require_relative "inkpen/extensions/task_list"
 require_relative "inkpen/extensions/slash_commands"
 require_relative "inkpen/extensions/section"
+require_relative "inkpen/extensions/preformatted"
 
 module Inkpen
   class Error < StandardError; end

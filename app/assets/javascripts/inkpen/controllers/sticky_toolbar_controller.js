@@ -208,6 +208,10 @@ export default class extends Controller {
       section: {
         title: "Insert Section",
         icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>'
+      },
+      preformatted: {
+        title: "Preformatted Text (ASCII)",
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><text x="6" y="10" font-size="5" font-family="monospace" fill="currentColor">┌──┐</text><text x="6" y="15" font-size="5" font-family="monospace" fill="currentColor">│  │</text><text x="6" y="20" font-size="5" font-family="monospace" fill="currentColor">└──┘</text></svg>'
       }
     }
 
@@ -348,6 +352,9 @@ export default class extends Controller {
         break
       case "section":
         this.editorController.insertSection()
+        break
+      case "preformatted":
+        this.editorController.insertPreformatted()
         break
     }
   }

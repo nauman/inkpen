@@ -7,12 +7,13 @@
 ## Table of Contents
 
 1. [Architecture Overview](#architecture-overview)
-2. [Phase 1: Slash Commands](#phase-1-slash-commands-v030)
-3. [Phase 2: Block Gutter System](#phase-2-block-gutter-system-v031)
-4. [Phase 3: Drag & Drop](#phase-3-drag--drop-v032)
-5. [Phase 4: Enhanced Blocks](#phase-4-enhanced-blocks-v033)
-6. [Phase 5: BlockNote-Style Polish](#phase-5-blocknote-style-polish-v040)
-7. [Technical References](#technical-references)
+2. [Completed Extensions](#completed-extensions)
+3. [Phase 1: Slash Commands](#phase-1-slash-commands-v030)
+4. [Phase 2: Block Gutter System](#phase-2-block-gutter-system-v031)
+5. [Phase 3: Drag & Drop](#phase-3-drag--drop-v032)
+6. [Phase 4: Enhanced Blocks](#phase-4-enhanced-blocks-v033)
+7. [Phase 5: BlockNote-Style Polish](#phase-5-blocknote-style-polish-v040)
+8. [Technical References](#technical-references)
 
 ---
 
@@ -55,6 +56,68 @@
 │      └── drag_helpers.js                ← NEW       │
 └─────────────────────────────────────────────────────┘
 ```
+
+---
+
+## Completed Extensions
+
+### Section Extension (v0.2.2) ✅
+
+Page-builder style layout blocks with configurable width and spacing.
+
+**Features:**
+- Width presets: narrow (560px), default (680px), wide (900px), full (100%)
+- Spacing presets: none, small (1rem), medium (2rem), large (4rem)
+- Interactive NodeView with hover controls
+- Keyboard shortcut: `Cmd+Shift+S`
+
+**Files:**
+```
+lib/inkpen/extensions/section.rb
+app/assets/javascripts/inkpen/extensions/section.js
+app/assets/stylesheets/inkpen/section.css
+```
+
+**Commands:**
+- `insertSection()` - Insert new section block
+- `setSectionWidth(width)` - Change width preset
+- `setSectionSpacing(spacing)` - Change spacing preset
+- `wrapInSection()` - Wrap selection in section
+
+---
+
+### Preformatted Text Extension (v0.3.0) ✅
+
+Plain text block for ASCII art, tables, and diagrams with strict whitespace preservation.
+
+**Features:**
+- Strict monospace font (no ligatures)
+- Whitespace preservation (`white-space: pre`)
+- Tab key inserts actual tabs
+- No formatting marks allowed (bold, italic disabled)
+- "Plain Text" label badge
+- Paste handling preserves whitespace
+
+**Files:**
+```
+lib/inkpen/extensions/preformatted.rb
+app/assets/javascripts/inkpen/extensions/preformatted.js
+app/assets/stylesheets/inkpen/preformatted.css
+```
+
+**Commands:**
+- `setPreformatted()` - Convert to preformatted
+- `togglePreformatted()` - Toggle preformatted/paragraph
+- `insertPreformatted(content)` - Insert with content
+
+**Keyboard Shortcuts:**
+| Shortcut | Action |
+|----------|--------|
+| `Cmd+Shift+P` | Toggle preformatted |
+| `Tab` | Insert tab character |
+| `Shift+Tab` | Remove leading tab |
+| `Enter` | Insert newline (not new block) |
+| `Backspace` (empty) | Exit to paragraph |
 
 ---
 
@@ -1097,6 +1160,8 @@ app/assets/javascripts/inkpen/
 │   ├── slash_menu_controller.js       ← v0.3.0
 │   └── block_menu_controller.js       ← v0.3.1
 ├── extensions/
+│   ├── section.js                     ✅ DONE
+│   ├── preformatted.js                ✅ DONE
 │   ├── slash_commands.js              ← v0.3.0
 │   ├── block_gutter.js                ← v0.3.1
 │   ├── drag_handle.js                 ← v0.3.2
@@ -1113,10 +1178,23 @@ app/assets/stylesheets/inkpen/
 ├── editor.css
 ├── toolbar.css
 ├── sticky_toolbar.css
+├── section.css                        ✅ DONE
+├── preformatted.css                   ✅ DONE
 ├── slash_menu.css                     ← v0.3.0
 ├── block_gutter.css                   ← v0.3.1
 ├── drag_drop.css                      ← v0.3.2
 ├── toggle.css                         ← v0.3.3
 ├── columns.css                        ← v0.3.3
 └── animations.css                     ← v0.4.0
+
+lib/inkpen/extensions/
+├── base.rb
+├── section.rb                         ✅ DONE
+├── preformatted.rb                    ✅ DONE
+├── mention.rb
+├── table.rb
+├── task_list.rb
+├── code_block_syntax.rb
+├── forced_document.rb
+└── slash_commands.rb                  ← v0.3.0
 ```
