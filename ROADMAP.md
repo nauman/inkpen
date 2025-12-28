@@ -1,6 +1,8 @@
 # Inkpen Roadmap
 
-**Vision:** A Rails-native rich text editor that can replace Dropbox Paper, Notion, and Atlassian Confluence for document editing and collaboration.
+**Vision:** A Rails-native Notion-style block editor that rivals Dropbox Paper, Notion, and Editor.js - with zero JavaScript build complexity.
+
+---
 
 ## Current Status: v0.2.1 (Beta)
 
@@ -46,7 +48,7 @@
 - [x] Block buttons: Table, Code Block, Blockquote, Task List, Divider
 - [x] Media buttons: Image, YouTube, Embed
 - [x] Widget picker modal with event-driven integration
-- [x] Widget modal appended to body (avoids CSS transform containing block issues)
+- [x] Widget modal appended to body (avoids CSS transform issues)
 - [x] Per-instance configuration via Ruby PORO
 - [x] Dark mode support
 - [x] Responsive (mobile adapts to bottom position)
@@ -69,42 +71,131 @@
 
 ---
 
-## Phase 1: Document Excellence (v0.3.0)
+## v0.3.0: Notion-Style Block Editing
 
-**Goal:** Match Dropbox Paper's core editing experience.
+**Goal:** Transform Inkpen into a true block editor with slash commands and visual block manipulation.
 
-### Slash Commands
-- [ ] "/" command palette
-- [ ] Command groups (Basic, Lists, Blocks, Media, Advanced)
-- [ ] Keyboard navigation in palette
-- [ ] Search/filter commands
-- [ ] Custom command registration
+### Slash Commands (v0.3.0)
+*Notion's killer feature - rapid block insertion via keyboard*
 
-### Enhanced Blocks
-- [x] Callout boxes (info, warning, tip, note) ✅ Completed in v0.2.1
-- [ ] Toggle/Collapsible sections
-- [ ] Dividers with styles
-- [ ] Emoji picker via ":"
-- [ ] Date picker via "@date"
+- [ ] `/` command palette trigger
+- [ ] Command groups: Basic, Lists, Blocks, Media, Advanced
+- [ ] Keyboard navigation (↑↓ Enter Escape)
+- [ ] Fuzzy search/filter (type `/h1` → "Heading 1")
+- [ ] Icons and descriptions for each command
+- [ ] Custom command registration API
+- [ ] Ruby configuration: `SlashCommands.new(commands: [...], groups: [...])`
 
-### Media & Embeds
-- [ ] File attachments (drag & drop)
-- [x] Image resizing and alignment ✅ Completed in v0.2.1
-- [ ] Embed cards (URL unfurling)
-- [ ] Figma/Miro/Loom embeds
-- [ ] PDF viewer embed
+**Reference:** [TipTap Suggestion](https://tiptap.dev/docs/editor/api/utilities/suggestion), [Plate Slash Commands](https://platejs.org/docs/slash-command)
+
+### Block Gutter System (v0.3.1)
+*Visual block handles like Notion/Editor.js*
+
+```
+     ┌────────────────────────────────┐
+⋮⋮ + │ Heading text                   │
+     ├────────────────────────────────┤
+⋮⋮ + │ Paragraph content...           │
+     └────────────────────────────────┘
+```
+
+- [ ] Left-side gutter appearing on hover
+- [ ] Drag handle (`⋮⋮`) for reordering blocks
+- [ ] Plus button (`+`) to insert new block below
+- [ ] Plus button opens slash menu at cursor position
+- [ ] Gutter hidden inside tables (avoid clutter)
+- [ ] ProseMirror decorations for gutter widgets
+
+**Reference:** [Plate DnD](https://platejs.org/docs/dnd), [Editor.js](https://editorjs.io/)
+
+### Drag & Drop Blocks (v0.3.2)
+*Visual block reordering*
+
+- [ ] Drag blocks via handle to reorder
+- [ ] Drop indicator (blue line with dots)
+- [ ] Smooth animations during drag
+- [ ] Auto-scroll when dragging near edges
+- [ ] Ghost preview of dragged block
+- [ ] Touch support for mobile
+
+**Reference:** [Plate DnD Examples](https://platejs.org/docs/examples/dnd)
+
+### Enhanced Block Types (v0.3.3)
+
+- [ ] Toggle/Collapsible blocks (like Notion)
+- [ ] Column layouts (2-4 columns)
+- [ ] Enhanced callouts with emoji picker
+- [ ] Divider styles (line, dots, gradient)
+
+---
+
+## v0.4.0: Polish & Delight
+
+**Goal:** Professional-grade UX matching BlockNote quality.
+
+### Block Selection
+- [ ] Click gutter to select entire block
+- [ ] Shift+Click for multi-block selection
+- [ ] Blue selection highlight
+- [ ] Cmd+A selects all blocks
+- [ ] Block-level copy/paste
+
+### Animations & Transitions
+- [ ] Smooth block insertion animation
+- [ ] Block deletion fade-out
+- [ ] Drag reorder animations
+- [ ] Menu open/close transitions
+- [ ] Focus ring animations
+
+### Keyboard Power-User Features
+- [ ] `Cmd+Shift+↑/↓` to move block up/down
+- [ ] `Cmd+D` to duplicate block
+- [ ] `Backspace` on empty block deletes it
+- [ ] `Tab` / `Shift+Tab` for list indentation
+- [ ] `Cmd+/` to toggle slash menu
+
+### Mobile Optimization
+- [ ] Touch-friendly gutter buttons
+- [ ] Bottom sheet slash menu
+- [ ] Swipe gestures for block actions
+- [ ] Responsive toolbar layouts
+
+**Reference:** [BlockNote](https://www.blocknotejs.org/)
+
+---
+
+## v0.5.0: Media & Embeds
+
+**Goal:** Rich media handling like Notion.
+
+### File Handling
+- [ ] Drag & drop file upload
+- [ ] Image paste from clipboard
+- [ ] File attachment blocks
+- [ ] Image gallery block
+- [ ] PDF preview embed
+
+### URL Embeds
+- [ ] URL unfurling (paste URL → preview card)
+- [ ] YouTube/Vimeo embeds
+- [ ] Twitter/X embeds
+- [ ] Figma embeds
+- [ ] Miro/Excalidraw embeds
+- [ ] CodePen/CodeSandbox embeds
+- [ ] Loom video embeds
 
 ### Export & Import
 - [ ] Export to Markdown
-- [ ] Export to HTML (clean)
+- [ ] Export to clean HTML
+- [ ] Export to PDF
 - [ ] Import from Markdown
 - [ ] Copy as Markdown/HTML
 
 ---
 
-## Phase 2: Team Collaboration (v0.4.0)
+## v0.6.0: Team Collaboration
 
-**Goal:** Match Confluence's collaboration features.
+**Goal:** Match Confluence collaboration features.
 
 ### Comments & Annotations
 - [ ] Inline comments on text selection
@@ -129,76 +220,107 @@
 
 ---
 
-## Phase 3: Knowledge Base (v0.5.0)
+## v1.0.0: Knowledge Base
 
-**Goal:** Compete with Notion for knowledge management.
+**Goal:** Production-ready, enterprise-grade editor.
 
 ### Document Structure
-- [ ] Table of Contents generation
+- [ ] Auto-generated Table of Contents
 - [ ] Document outline sidebar
-- [ ] Internal document links (wiki-style)
+- [ ] Wiki-style internal links `[[Page Name]]`
 - [ ] Backlinks (who links here)
 - [ ] Tags and metadata
 
 ### Templates
-- [ ] Document templates
-- [ ] Template library
-- [ ] Variable placeholders
-- [ ] Template from existing doc
+- [ ] Document templates library
+- [ ] Variable placeholders `{{variable}}`
+- [ ] Create template from document
+- [ ] Template categories
 
 ### Search & Discovery
 - [ ] Full-text search
 - [ ] Search within document
-- [ ] Find & Replace (regex)
+- [ ] Find & Replace (regex support)
 - [ ] Filter by tags/metadata
 
----
-
-## Phase 4: Enterprise Features (v1.0.0)
-
-**Goal:** Production-ready for enterprise use.
-
-### Security & Permissions
+### Enterprise Features
 - [ ] Read/Write/Admin roles
 - [ ] Section-level permissions
 - [ ] Audit logging
 - [ ] SSO integration hooks
-
-### Performance
-- [ ] Lazy loading for large docs
-- [ ] Image optimization
-- [ ] Offline support (Service Worker)
-- [ ] Mobile optimization
-
-### Customization
 - [ ] Custom CSS themes
 - [ ] Plugin architecture
-- [ ] Custom block types
 - [ ] Webhook events
 
 ---
 
 ## Comparison with Alternatives
 
-| Feature | Inkpen | Dropbox Paper | Notion | Confluence |
-|---------|--------|---------------|--------|------------|
-| Rails Native | ✅ | ❌ | ❌ | ❌ |
-| PORO Architecture | ✅ | N/A | N/A | N/A |
-| No Build Step | ✅ | N/A | N/A | N/A |
-| Self-Hosted | ✅ | ❌ | ❌ | ✅ |
-| Real-Time Collab | 🔄 | ✅ | ✅ | ✅ |
-| Comments | 🔄 | ✅ | ✅ | ✅ |
-| Version History | 🔄 | ✅ | ✅ | ✅ |
-| Templates | 🔄 | ✅ | ✅ | ✅ |
-| @Mentions | ✅ | ✅ | ✅ | ✅ |
-| Slash Commands | 🔄 | ✅ | ✅ | ❌ |
-| Tables | ✅ | ✅ | ✅ | ✅ |
-| Code Blocks | ✅ | ✅ | ✅ | ✅ |
-| Embeds | ✅ | ✅ | ✅ | ✅ |
-| Sticky Toolbar | ✅ | ❌ | ✅ | ❌ |
-| Widget Picker | ✅ | ❌ | ✅ | ✅ |
+| Feature | Inkpen v0.2 | Inkpen v0.4 | Notion | Editor.js | BlockNote |
+|---------|-------------|-------------|--------|-----------|-----------|
+| Rails Native | ✅ | ✅ | ❌ | ❌ | ❌ |
+| No Build Step | ✅ | ✅ | N/A | ❌ | ❌ |
+| Slash Commands | ❌ | ✅ | ✅ | ❌ | ✅ |
+| Block Gutter | ❌ | ✅ | ✅ | ✅ | ✅ |
+| Drag & Drop | ❌ | ✅ | ✅ | ✅ | ✅ |
+| Tables | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Code Blocks | ✅ | ✅ | ✅ | ✅ | ✅ |
+| @Mentions | ✅ | ✅ | ✅ | ❌ | ❌ |
+| Real-Time Collab | ❌ | 🔄 | ✅ | ❌ | ✅ |
+| JSON Output | ✅ | ✅ | ✅ | ✅ | ✅ |
 
-Legend: ✅ Implemented | 🔄 In Progress | ❌ Not Available
+Legend: ✅ Done | 🔄 Planned | ❌ Not Available
+
+---
+
+## Technical Architecture
+
+### Current Stack
+```
+Rails App → Inkpen Gem → Stimulus Controllers → TipTap → ProseMirror
+```
+
+### v0.4.0 Stack
+```
+Rails App
+    ↓
+Inkpen Gem (Rails Engine)
+    ├── Ruby POROs (Editor, Toolbar, Extensions)
+    ├── Stimulus Controllers
+    │   ├── editor_controller.js
+    │   ├── toolbar_controller.js
+    │   ├── sticky_toolbar_controller.js
+    │   ├── slash_menu_controller.js      ← NEW
+    │   └── block_gutter_controller.js    ← NEW
+    ├── TipTap Extensions
+    │   ├── SlashCommands                  ← NEW
+    │   ├── BlockGutter                    ← NEW
+    │   ├── DragHandle                     ← NEW
+    │   └── UniqueID                       ← NEW
+    └── Helpers (Fizzy-style)
+        ├── position_helpers.js
+        ├── block_helpers.js
+        └── drag_helpers.js
+```
+
+### Design Principles
+
+1. **Rails-First**: Native integration with Rails conventions
+2. **Fizzy-Style JS**: Follow Basecamp/37signals Stimulus patterns
+3. **No Build Step**: Works with importmaps, no Node.js required
+4. **PORO Excellence**: Configuration via plain Ruby objects
+5. **Extensible**: Modular extension system
+6. **Production-Ready**: Stable core before adding features
+
+---
+
+## Implementation Details
+
+See [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md) for detailed technical specifications including:
+- Code samples for each extension
+- CSS specifications
+- Controller implementations
+- Ruby configuration classes
 
 ---
 
@@ -206,8 +328,8 @@ Legend: ✅ Implemented | 🔄 In Progress | ❌ Not Available
 
 ### Primary: Ruby on Rails Applications
 
-1. **mademysite** - Blogging platform with rich post editor
-2. **kuickr** - Knowledge management and document sharing
+1. **mademysite.com** - Blogging platform with rich post editor
+2. **kuickr.co** - Knowledge management and document sharing
 
 ### Secondary: Any Web Application
 
@@ -217,14 +339,20 @@ Legend: ✅ Implemented | 🔄 In Progress | ❌ Not Available
 
 ---
 
-## Technical Principles
+## References
 
-1. **Rails-First**: Native integration with Rails conventions
-2. **PORO Excellence**: Configuration via plain Ruby objects
-3. **No Build Step**: Works with importmaps, no Node.js required
-4. **Extensible**: Modular extension system
-5. **Stable**: Production-ready core before adding features
-6. **Documented**: RDoc for all public APIs
+### Block Editors
+- [TipTap](https://tiptap.dev) - Core editor framework
+- [TipTap Notion Template](https://tiptap.dev/docs/ui-components/templates/notion-like-editor)
+- [Plate](https://platejs.org) - React block editor
+- [BlockNote](https://www.blocknotejs.org) - Notion-style TipTap wrapper
+- [Editor.js](https://editorjs.io) - Block editor with JSON output
+- [Notitap](https://github.com/sereneinserenade/notitap) - Notion clone on TipTap
+
+### Technical
+- [ProseMirror Guide](https://prosemirror.net/docs/guide/)
+- [Stimulus Handbook](https://stimulus.hotwired.dev/handbook/introduction)
+- [37signals Coding Style](https://github.com/marckohlbrugge/unofficial-37signals-coding-style-guide)
 
 ---
 
@@ -232,10 +360,10 @@ Legend: ✅ Implemented | 🔄 In Progress | ❌ Not Available
 
 We welcome contributions! Priority areas:
 
-1. **Bug fixes** - Stability is paramount
-2. **Documentation** - Examples and guides
-3. **Extensions** - New block types and features
-4. **Tests** - Increase coverage
-5. **Performance** - Optimization
+1. **Slash Commands** - Most requested feature
+2. **Block Gutter** - Visual block editing
+3. **Bug fixes** - Stability is paramount
+4. **Documentation** - Examples and guides
+5. **Tests** - Increase coverage
 
 See CONTRIBUTING.md for guidelines.
