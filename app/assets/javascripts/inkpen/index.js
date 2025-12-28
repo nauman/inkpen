@@ -6,6 +6,9 @@ import EditorController from "inkpen/controllers/editor_controller"
 import ToolbarController from "inkpen/controllers/toolbar_controller"
 import StickyToolbarController from "inkpen/controllers/sticky_toolbar_controller"
 
+// TipTap extensions
+import { Section } from "inkpen/extensions/section"
+
 // Auto-register controllers if Stimulus application exists
 const application = window.Stimulus || Application.start()
 
@@ -13,4 +16,8 @@ application.register("inkpen--editor", EditorController)
 application.register("inkpen--toolbar", ToolbarController)
 application.register("inkpen--sticky-toolbar", StickyToolbarController)
 
+// Export controllers
 export { EditorController, ToolbarController, StickyToolbarController }
+
+// Export extensions for custom use
+export { Section }

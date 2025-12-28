@@ -24,6 +24,8 @@ import Superscript from "@tiptap/extension-superscript"
 import Youtube from "@tiptap/extension-youtube"
 import CharacterCount from "@tiptap/extension-character-count"
 import BubbleMenu from "@tiptap/extension-bubble-menu"
+// Inkpen custom extensions
+import { Section } from "inkpen/extensions/section"
 
 /**
  * Inkpen Editor Controller
@@ -355,6 +357,20 @@ export default class extends Controller {
       )
     }
 
+    // Section extension (page-builder style width/spacing control)
+    if (enabledExtensions.includes("section")) {
+      const sectionConfig = config.section || {}
+      extensions.push(
+        Section.configure({
+          defaultWidth: sectionConfig.defaultWidth || "default",
+          defaultSpacing: sectionConfig.defaultSpacing || "normal",
+          showControls: sectionConfig.showControls !== false,
+          widthPresets: sectionConfig.widthPresets || undefined,
+          spacingPresets: sectionConfig.spacingPresets || undefined
+        })
+      )
+    }
+
     return extensions
   }
 
@@ -671,6 +687,23 @@ export default class extends Controller {
     if (url) {
       this.editor?.chain().focus().setYoutubeVideo({ src: url }).run()
     }
+  }
+
+  // Section commands
+  insertSection(width = "default", spacing = "normal") {
+    this.editor?.chain().focus().insertSection({ width, spacing }).run()
+  }
+
+  setSectionWidth(width) {
+    this.editor?.chain().focus().setSectionWidth(width).run()
+  }
+
+  setSectionSpacing(spacing) {
+    this.editor?.chain().focus().setSectionSpacing(spacing).run()
+  }
+
+  wrapInSection(width = "default", spacing = "normal") {
+    this.editor?.chain().focus().wrapInSection({ width, spacing }).run()
   }
 
   // Character count methods

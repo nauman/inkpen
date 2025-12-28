@@ -122,6 +122,7 @@
 
 ### Enhanced Block Types (v0.3.3)
 
+- [x] Section blocks (width/spacing control) - Completed in v0.3.0
 - [ ] Toggle/Collapsible blocks (like Notion)
 - [ ] Column layouts (2-4 columns)
 - [ ] Enhanced callouts with emoji picker
