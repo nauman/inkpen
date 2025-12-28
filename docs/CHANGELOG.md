@@ -11,6 +11,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Columns Extension (v0.3.3)
+- Multi-column layouts (2, 3, or 4 columns)
+- Layout presets: equal, 1:2, 2:1, 1:3, 3:1, 1:2:1, etc.
+- Interactive controls to change layout and add/remove columns
+- Responsive stacking on mobile
+- Keyboard shortcut: `Cmd+Shift+C` to insert 2 columns
+- Commands: `insertColumns`, `setColumnLayout`, `addColumn`, `removeColumn`
+- Added to slash commands menu (2 Columns, 3 Columns)
+- Dark mode support
+- Print styles
+
 #### Toggle Block Extension (v0.3.3)
 - Collapsible/expandable blocks with clickable header
 - Native HTML5 `<details>` and `<summary>` elements
@@ -126,6 +137,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## File Reference
+
+### Columns Extension
+- JavaScript: `app/assets/javascripts/inkpen/extensions/columns.js`
+- CSS: `app/assets/stylesheets/inkpen/columns.css`
 
 ### Toggle Block Extension
 - JavaScript: `app/assets/javascripts/inkpen/extensions/toggle_block.js`

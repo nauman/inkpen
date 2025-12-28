@@ -468,40 +468,22 @@ export const ToggleBlock = Node.create({
 })
 ```
 
-### 4.2 Column Layout
-```javascript
-// app/assets/javascripts/inkpen/extensions/columns.js
+### 4.2 Column Layout ✅
 
-import { Node } from '@tiptap/core'
+**Status:** Complete
 
-export const Columns = Node.create({
-  name: 'columns',
-  group: 'block',
-  content: 'column+',
+**Features:**
+- Multi-column layouts (2, 3, or 4 columns)
+- Layout presets: equal, 1:2, 2:1, 1:3, 3:1, 1:2:1, etc.
+- Interactive controls to change layout and add/remove columns
+- Responsive stacking on mobile
+- Keyboard shortcut: `Cmd+Shift+C`
+- Commands: `insertColumns`, `setColumnLayout`, `addColumn`, `removeColumn`
 
-  addAttributes() {
-    return {
-      count: { default: 2 }
-    }
-  },
-
-  renderHTML({ HTMLAttributes }) {
-    return ['div', {
-      class: 'inkpen-columns',
-      style: `--column-count: ${HTMLAttributes.count}`
-    }, 0]
-  }
-})
-
-export const Column = Node.create({
-  name: 'column',
-  group: 'block',
-  content: 'block+',
-
-  renderHTML() {
-    return ['div', { class: 'inkpen-column' }, 0]
-  }
-})
+**Files:**
+```
+app/assets/javascripts/inkpen/extensions/columns.js
+app/assets/stylesheets/inkpen/columns.css
 ```
 
 ### 4.3 Enhanced Callout
@@ -752,7 +734,7 @@ app/assets/javascripts/inkpen/
 │   ├── block_gutter.js                ✅ DONE
 │   ├── drag_handle.js                 ✅ DONE
 │   ├── toggle_block.js                ✅ DONE
-│   ├── columns.js                     ← v0.3.3
+│   ├── columns.js                     ✅ DONE
 │   └── callout.js                     ← v0.3.3
 ├── helpers/
 │   └── block_helpers.js               ← future
@@ -768,7 +750,7 @@ app/assets/stylesheets/inkpen/
 ├── block_gutter.css                   ✅ DONE
 ├── drag_drop.css                      ✅ DONE
 ├── toggle.css                         ✅ DONE
-├── columns.css                        ← v0.3.3
+├── columns.css                        ✅ DONE
 └── animations.css                     ← v0.4.0
 
 lib/inkpen/extensions/

@@ -47,7 +47,9 @@ const DEFAULT_COMMANDS = [
 
   // Advanced
   { id: "section", title: "Section", description: "Page section with width control", icon: "▢", keywords: ["layout", "container", "wrapper"], group: "Advanced" },
-  { id: "toggle", title: "Toggle", description: "Collapsible content block", icon: "▸", keywords: ["collapse", "expand", "accordion", "details"], group: "Advanced" }
+  { id: "toggle", title: "Toggle", description: "Collapsible content block", icon: "▸", keywords: ["collapse", "expand", "accordion", "details"], group: "Advanced" },
+  { id: "columns2", title: "2 Columns", description: "Side-by-side columns", icon: "▥", keywords: ["layout", "grid", "split", "two"], group: "Advanced" },
+  { id: "columns3", title: "3 Columns", description: "Three column layout", icon: "▦", keywords: ["layout", "grid", "three"], group: "Advanced" }
 ]
 
 export const SlashCommands = Extension.create({
@@ -376,6 +378,16 @@ export const SlashCommands = Extension.create({
       case "toggle":
         if (editor.commands.insertToggle) {
           chain.insertToggle().run()
+        }
+        break
+      case "columns2":
+        if (editor.commands.insertColumns) {
+          chain.insertColumns({ count: 2 }).run()
+        }
+        break
+      case "columns3":
+        if (editor.commands.insertColumns) {
+          chain.insertColumns({ count: 3 }).run()
         }
         break
 

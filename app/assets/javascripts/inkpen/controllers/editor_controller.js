@@ -31,6 +31,7 @@ import { SlashCommands } from "inkpen/extensions/slash_commands"
 import { BlockGutter } from "inkpen/extensions/block_gutter"
 import { DragHandle } from "inkpen/extensions/drag_handle"
 import { ToggleBlock, ToggleSummary } from "inkpen/extensions/toggle_block"
+import { Columns, Column } from "inkpen/extensions/columns"
 
 /**
  * Inkpen Editor Controller
@@ -437,6 +438,19 @@ export default class extends Controller {
         ToggleSummary,
         ToggleBlock.configure({
           defaultOpen: toggleConfig.defaultOpen !== false
+        })
+      )
+    }
+
+    // Columns extension (multi-column layouts)
+    if (enabledExtensions.includes("columns")) {
+      const columnsConfig = config.columns || {}
+      extensions.push(
+        Column,
+        Columns.configure({
+          defaultCount: columnsConfig.defaultCount || 2,
+          defaultLayout: columnsConfig.defaultLayout || "equal-2",
+          showControls: columnsConfig.showControls !== false
         })
       )
     }

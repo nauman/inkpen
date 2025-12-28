@@ -1,0 +1,314 @@
+/**
+ * Columns Layout Styles for Inkpen Editor
+ *
+ * Multi-column layouts with responsive stacking.
+ *
+ * @since 0.3.3
+ */
+
+/* ==========================================================================
+   CSS Custom Properties
+   ========================================================================== */
+
+:root {
+  --inkpen-columns-gap: 1.5rem;
+  --inkpen-columns-min-width: 200px;
+  --inkpen-columns-border: #e5e7eb;
+  --inkpen-columns-bg: transparent;
+  --inkpen-columns-bg-hover: #f9fafb;
+  --inkpen-column-bg: transparent;
+  --inkpen-column-border: transparent;
+  --inkpen-column-border-hover: #e5e7eb;
+  --inkpen-columns-controls-bg: #ffffff;
+  --inkpen-columns-controls-border: #e5e7eb;
+}
+
+/* Dark mode */
+[data-theme="dark"],
+.dark {
+  --inkpen-columns-border: #374151;
+  --inkpen-columns-bg-hover: #1f2937;
+  --inkpen-column-border-hover: #4b5563;
+  --inkpen-columns-controls-bg: #1f2937;
+  --inkpen-columns-controls-border: #374151;
+}
+
+/* ==========================================================================
+   Columns Container
+   ========================================================================== */
+
+.inkpen-columns {
+  position: relative;
+  margin: 1rem 0;
+  padding: 0.5rem;
+  border: 1px dashed var(--inkpen-columns-border);
+  border-radius: 6px;
+  background: var(--inkpen-columns-bg);
+  transition: background 150ms ease, border-color 150ms ease;
+}
+
+.inkpen-columns:hover {
+  background: var(--inkpen-columns-bg-hover);
+  border-color: var(--inkpen-color-primary, #3b82f6);
+}
+
+/* Content wrapper with grid */
+.inkpen-columns__content {
+  display: grid;
+  grid-template-columns: var(--inkpen-columns-template, repeat(2, 1fr));
+  gap: var(--inkpen-columns-gap);
+  min-height: 60px;
+}
+
+/* ==========================================================================
+   Individual Column
+   ========================================================================== */
+
+.inkpen-column {
+  position: relative;
+  min-width: 0;
+  padding: 0.75rem;
+  border: 1px dashed var(--inkpen-column-border);
+  border-radius: 4px;
+  background: var(--inkpen-column-bg);
+  transition: border-color 150ms ease;
+}
+
+.inkpen-column:hover {
+  border-color: var(--inkpen-column-border-hover);
+}
+
+.inkpen-column:focus-within {
+  border-color: var(--inkpen-color-primary, #3b82f6);
+  border-style: solid;
+}
+
+/* Column content spacing */
+.inkpen-column > * + * {
+  margin-top: 0.75rem;
+}
+
+/* Empty column placeholder */
+.inkpen-column:empty::before,
+.inkpen-column > p:only-child:empty::before {
+  content: "Type here...";
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+[data-theme="dark"] .inkpen-column:empty::before,
+[data-theme="dark"] .inkpen-column > p:only-child:empty::before,
+.dark .inkpen-column:empty::before,
+.dark .inkpen-column > p:only-child:empty::before {
+  color: #6b7280;
+}
+
+/* ==========================================================================
+   Controls
+   ========================================================================== */
+
+.inkpen-columns-controls {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  background: var(--inkpen-columns-controls-bg);
+  border: 1px solid var(--inkpen-columns-controls-border);
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  transition: opacity 150ms ease;
+  z-index: 10;
+}
+
+.inkpen-columns:hover .inkpen-columns-controls,
+.inkpen-columns:focus-within .inkpen-columns-controls {
+  opacity: 1;
+}
+
+.inkpen-columns-controls__group {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.inkpen-columns-controls__label {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-right: 0.25rem;
+}
+
+.inkpen-columns-controls__btn {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #374151;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+
+.inkpen-columns-controls__btn:hover {
+  background: #f3f4f6;
+  border-color: #e5e7eb;
+}
+
+.inkpen-columns-controls__btn.is-active {
+  background: var(--inkpen-color-primary, #3b82f6);
+  color: white;
+  border-color: var(--inkpen-color-primary, #3b82f6);
+}
+
+.inkpen-columns-controls__btn--icon {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+.inkpen-columns-controls__btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.inkpen-columns-controls__count {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6b7280;
+  padding: 0 0.25rem;
+  min-width: 3rem;
+  text-align: center;
+}
+
+/* Dark mode controls */
+[data-theme="dark"] .inkpen-columns-controls__btn,
+.dark .inkpen-columns-controls__btn {
+  color: #d1d5db;
+}
+
+[data-theme="dark"] .inkpen-columns-controls__btn:hover,
+.dark .inkpen-columns-controls__btn:hover {
+  background: #374151;
+  border-color: #4b5563;
+}
+
+[data-theme="dark"] .inkpen-columns-controls__label,
+[data-theme="dark"] .inkpen-columns-controls__count,
+.dark .inkpen-columns-controls__label,
+.dark .inkpen-columns-controls__count {
+  color: #9ca3af;
+}
+
+/* ==========================================================================
+   Responsive Design
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .inkpen-columns__content {
+    grid-template-columns: 1fr !important;
+  }
+
+  .inkpen-columns-controls {
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: calc(100% - 1rem);
+  }
+
+  .inkpen-column {
+    padding: 0.5rem;
+  }
+}
+
+/* Tablet: 2 columns max */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .inkpen-columns[data-layout^="equal-3"] .inkpen-columns__content,
+  .inkpen-columns[data-layout^="equal-4"] .inkpen-columns__content,
+  .inkpen-columns[data-layout="1:2:1"] .inkpen-columns__content,
+  .inkpen-columns[data-layout="2:1:1"] .inkpen-columns__content,
+  .inkpen-columns[data-layout="1:1:2"] .inkpen-columns__content {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ==========================================================================
+   Focus States
+   ========================================================================== */
+
+.inkpen-columns:focus-within {
+  border-color: var(--inkpen-color-primary, #3b82f6);
+  border-style: solid;
+}
+
+/* ==========================================================================
+   Nested Content
+   ========================================================================== */
+
+/* Nested columns (not recommended but supported) */
+.inkpen-column .inkpen-columns {
+  margin: 0.5rem 0;
+}
+
+/* Tables inside columns */
+.inkpen-column table {
+  width: 100%;
+}
+
+/* Images inside columns */
+.inkpen-column img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* ==========================================================================
+   Reduced Motion
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .inkpen-columns,
+  .inkpen-column,
+  .inkpen-columns-controls,
+  .inkpen-columns-controls__btn {
+    transition: none;
+  }
+}
+
+/* ==========================================================================
+   Print Styles
+   ========================================================================== */
+
+@media print {
+  .inkpen-columns {
+    border: 1px solid #ccc;
+    padding: 0;
+    page-break-inside: avoid;
+  }
+
+  .inkpen-columns__content {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .inkpen-column {
+    flex: 1;
+    min-width: 30%;
+    border: none;
+    padding: 0.5rem;
+  }
+
+  .inkpen-columns-controls {
+    display: none;
+  }
+}

@@ -56,6 +56,7 @@ module Inkpen
       block_gutter
       drag_handle
       toggle_block
+      columns
     ].freeze
 
     def initialize
