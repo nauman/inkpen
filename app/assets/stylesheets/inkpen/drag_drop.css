@@ -1,0 +1,220 @@
+/**
+ * Drag & Drop Styles for Inkpen Editor
+ *
+ * Visual feedback for block drag and drop operations.
+ *
+ * @since 0.3.2
+ */
+
+/* ==========================================================================
+   CSS Custom Properties
+   ========================================================================== */
+
+:root {
+  --inkpen-drop-indicator-color: #3b82f6;
+  --inkpen-drop-indicator-height: 3px;
+  --inkpen-drop-indicator-dot-size: 8px;
+  --inkpen-drag-ghost-bg: #ffffff;
+  --inkpen-drag-ghost-border: #e5e7eb;
+  --inkpen-drag-ghost-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Dark mode */
+[data-theme="dark"],
+.dark {
+  --inkpen-drop-indicator-color: #60a5fa;
+  --inkpen-drag-ghost-bg: #1f2937;
+  --inkpen-drag-ghost-border: #374151;
+  --inkpen-drag-ghost-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* ==========================================================================
+   Editor Dragging State
+   ========================================================================== */
+
+/* Editor during drag operation */
+.inkpen-editor.is-block-dragging {
+  cursor: grabbing !important;
+}
+
+.inkpen-editor.is-block-dragging * {
+  cursor: grabbing !important;
+}
+
+/* Reduce pointer events on content during drag for smoother experience */
+.inkpen-editor.is-block-dragging .ProseMirror > * {
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   Drop Indicator
+   ========================================================================== */
+
+.inkpen-drop-indicator {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: var(--inkpen-drop-indicator-height);
+  background: var(--inkpen-drop-indicator-color);
+  border-radius: calc(var(--inkpen-drop-indicator-height) / 2);
+  pointer-events: none;
+  z-index: 100;
+  transform: translateY(-50%);
+}
+
+/* Dot at start of indicator */
+.inkpen-drop-indicator::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: var(--inkpen-drop-indicator-dot-size);
+  height: var(--inkpen-drop-indicator-dot-size);
+  background: var(--inkpen-drop-indicator-color);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Dot at end of indicator */
+.inkpen-drop-indicator::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 0;
+  width: var(--inkpen-drop-indicator-dot-size);
+  height: var(--inkpen-drop-indicator-dot-size);
+  background: var(--inkpen-drop-indicator-color);
+  border-radius: 50%;
+  transform: translate(50%, -50%);
+}
+
+/* Animated entrance */
+.inkpen-drop-indicator {
+  animation: inkpen-drop-indicator-enter 100ms ease-out;
+}
+
+@keyframes inkpen-drop-indicator-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) scaleX(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) scaleX(1);
+  }
+}
+
+/* ==========================================================================
+   Dragging Block Visual Feedback
+   ========================================================================== */
+
+/* Block being dragged (via gutter) */
+.inkpen-block-gutter.is-dragging + .ProseMirror > * {
+  opacity: 0.5;
+}
+
+/* The block row that's being dragged */
+.inkpen-editor.is-block-dragging .ProseMirror > [data-dragging="true"] {
+  opacity: 0.4;
+  background: var(--inkpen-drop-indicator-color);
+  background: linear-gradient(
+    90deg,
+    rgba(59, 130, 246, 0.1) 0%,
+    rgba(59, 130, 246, 0.05) 100%
+  );
+  border-radius: 4px;
+}
+
+/* ==========================================================================
+   Ghost Element (follows cursor)
+   ========================================================================== */
+
+.inkpen-drag-ghost {
+  position: fixed;
+  padding: 0.5rem 1rem;
+  background: var(--inkpen-drag-ghost-bg);
+  border: 1px solid var(--inkpen-drag-ghost-border);
+  border-radius: 6px;
+  box-shadow: var(--inkpen-drag-ghost-shadow);
+  opacity: 0.95;
+  pointer-events: none;
+  z-index: 9999;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.inkpen-drag-ghost::before {
+  content: "⋮⋮";
+  margin-right: 0.5rem;
+  opacity: 0.5;
+}
+
+/* ==========================================================================
+   Block Hover States During Drag
+   ========================================================================== */
+
+/* Highlight potential drop targets */
+.inkpen-editor.is-block-dragging .ProseMirror > *:not([data-dragging="true"]) {
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+/* Space opening animation for drop target */
+.inkpen-editor.is-block-dragging .ProseMirror > *.is-drop-target-before {
+  transform: translateY(8px);
+}
+
+.inkpen-editor.is-block-dragging .ProseMirror > *.is-drop-target-after {
+  transform: translateY(-8px);
+}
+
+/* ==========================================================================
+   Mobile Optimizations
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .inkpen-drop-indicator {
+    --inkpen-drop-indicator-height: 4px;
+    --inkpen-drop-indicator-dot-size: 10px;
+  }
+
+  .inkpen-drag-ghost {
+    max-width: 200px;
+    font-size: 0.8125rem;
+  }
+}
+
+/* Touch-friendly: larger touch targets during drag */
+@media (pointer: coarse) {
+  .inkpen-editor.is-block-dragging .ProseMirror > * {
+    min-height: 44px;
+  }
+}
+
+/* ==========================================================================
+   Reduced Motion
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .inkpen-drop-indicator {
+    animation: none;
+  }
+
+  .inkpen-editor.is-block-dragging .ProseMirror > * {
+    transition: none;
+  }
+}
+
+/* ==========================================================================
+   Print Styles
+   ========================================================================== */
+
+@media print {
+  .inkpen-drop-indicator,
+  .inkpen-drag-ghost {
+    display: none !important;
+  }
+}

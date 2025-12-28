@@ -53,6 +53,8 @@ module Inkpen
       task_list
       section
       preformatted
+      block_gutter
+      drag_handle
     ].freeze
 
     def initialize

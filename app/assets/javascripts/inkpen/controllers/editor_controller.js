@@ -29,6 +29,7 @@ import { Section } from "inkpen/extensions/section"
 import { Preformatted } from "inkpen/extensions/preformatted"
 import { SlashCommands } from "inkpen/extensions/slash_commands"
 import { BlockGutter } from "inkpen/extensions/block_gutter"
+import { DragHandle } from "inkpen/extensions/drag_handle"
 
 /**
  * Inkpen Editor Controller
@@ -413,6 +414,17 @@ export default class extends Controller {
           showPlusButton: gutterConfig.showPlusButton !== false,
           skipTypes: gutterConfig.skipTypes || undefined,
           skipParentTypes: gutterConfig.skipParentTypes || undefined
+        })
+      )
+    }
+
+    // Drag Handle extension (block reordering via drag & drop)
+    if (enabledExtensions.includes("drag_handle")) {
+      const dragConfig = config.drag_handle || {}
+      extensions.push(
+        DragHandle.configure({
+          scrollSpeed: dragConfig.scrollSpeed || 10,
+          scrollThreshold: dragConfig.scrollThreshold || 80
         })
       )
     }

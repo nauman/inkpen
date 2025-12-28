@@ -11,6 +11,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Drag & Drop Extension (v0.3.2)
+- Block reordering via drag and drop from gutter handles
+- Visual drop indicator showing insertion point
+- Keyboard shortcuts: `Cmd+Shift+Arrow` to move blocks up/down
+- Edge scrolling when dragging near viewport edges
+- Custom drag ghost showing block preview
+- Commands: `moveBlockUp`, `moveBlockDown`, `moveBlockToPosition`
+- Works with Block Gutter extension
+- Dark mode support
+- Mobile and reduced motion support
+
 #### Block Gutter Extension (v0.3.1)
 - Left-side gutter with drag handles and plus buttons for each block
 - Drag handle (⋮⋮) for block reordering (prepares for drag & drop)
@@ -66,8 +77,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Updated sticky toolbar with Section and Preformatted buttons
-- Editor controller now configures Section and Preformatted extensions
-- Added `section` and `preformatted` to ADVANCED_EXTENSIONS in configuration.rb
+- Editor controller now configures Section, Preformatted, Block Gutter, and Drag Handle extensions
+- Added `section`, `preformatted`, `block_gutter`, and `drag_handle` to ADVANCED_EXTENSIONS in configuration.rb
+- Block Gutter now creates custom drag ghost on drag start
 
 ---
 
@@ -97,6 +109,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## File Reference
+
+### Drag & Drop Extension
+- JavaScript: `app/assets/javascripts/inkpen/extensions/drag_handle.js`
+- CSS: `app/assets/stylesheets/inkpen/drag_drop.css`
 
 ### Block Gutter Extension
 - JavaScript: `app/assets/javascripts/inkpen/extensions/block_gutter.js`

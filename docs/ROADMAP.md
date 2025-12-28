@@ -188,10 +188,12 @@ Legend:
 
 ---
 
-## Phase 1: Drag & Drop (v0.3.2)
+## Phase 1: Drag & Drop (v0.3.2) ✅
 
 ### Goal
 Enable visual block reordering via drag and drop.
+
+**Status:** Complete
 
 ### Components
 
@@ -729,13 +731,12 @@ app/assets/javascripts/inkpen/
 │   ├── preformatted.js                ✅ DONE
 │   ├── slash_commands.js              ✅ DONE
 │   ├── block_gutter.js                ✅ DONE
-│   ├── drag_handle.js                 ← v0.3.2
+│   ├── drag_handle.js                 ✅ DONE
 │   ├── toggle_block.js                ← v0.3.3
 │   ├── columns.js                     ← v0.3.3
 │   └── callout.js                     ← v0.3.3
 ├── helpers/
-│   ├── block_helpers.js               ← v0.3.1
-│   └── drag_helpers.js                ← v0.3.2
+│   └── block_helpers.js               ← future
 └── index.js
 
 app/assets/stylesheets/inkpen/
@@ -746,7 +747,7 @@ app/assets/stylesheets/inkpen/
 ├── preformatted.css                   ✅ DONE
 ├── slash_menu.css                     ✅ DONE
 ├── block_gutter.css                   ✅ DONE
-├── drag_drop.css                      ← v0.3.2
+├── drag_drop.css                      ✅ DONE
 ├── toggle.css                         ← v0.3.3
 ├── columns.css                        ← v0.3.3
 └── animations.css                     ← v0.4.0

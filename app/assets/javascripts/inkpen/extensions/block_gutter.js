@@ -119,6 +119,18 @@ export const BlockGutter = Extension.create({
                   type: nodeAtPos?.type.name
                 }))
 
+                // Create custom drag image (ghost)
+                const ghost = document.createElement("div")
+                ghost.className = "inkpen-drag-ghost"
+                ghost.textContent = nodeAtPos?.textContent?.slice(0, 50) || nodeAtPos?.type.name || "Block"
+                document.body.appendChild(ghost)
+                e.dataTransfer.setDragImage(ghost, 0, 0)
+
+                // Remove ghost after drag starts
+                requestAnimationFrame(() => {
+                  ghost.remove()
+                })
+
                 // Add dragging class
                 gutter.classList.add("is-dragging")
                 editorView.dom.classList.add("is-block-dragging")
