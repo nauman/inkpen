@@ -65,6 +65,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Success and error message styles
 - CSS: `app/assets/stylesheets/inkpen/export.css`
 
+#### Sticky Toolbar Export Integration
+- Optional export dropdown button in sticky toolbar
+- Configure via `data-inkpen--sticky-toolbar-show-export-value="true"`
+- Customizable export formats via `data-inkpen--sticky-toolbar-export-formats-value='["markdown","html","pdf"]'`
+- Download options: Markdown, HTML, PDF
+- Copy options: Copy as Markdown, Copy as HTML
+- Events: `inkpen:export-success`, `inkpen:export-error`
+
 ---
 
 ## [0.6.0] - 2024-12-XX

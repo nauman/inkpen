@@ -25,8 +25,12 @@ export default class extends Controller {
     position: { type: String, default: "bottom" },
     buttons: { type: Array, default: [] },
     widgetTypes: { type: Array, default: [] },
-    vertical: { type: Boolean, default: false }
+    vertical: { type: Boolean, default: false },
+    showExport: { type: Boolean, default: false },
+    exportFormats: { type: Array, default: ["markdown", "html", "pdf"] }
   }
+
+  #exportMenuOpen = false
 
   connect() {
     this.editorController = null
@@ -38,12 +42,18 @@ export default class extends Controller {
       this.buildToolbar()
       this.applyLayout()
     }
+
+    // Bind document click to close export menu
+    this.#boundCloseExportMenu = this.#closeExportMenuOnClickOutside.bind(this)
+    document.addEventListener("click", this.#boundCloseExportMenu)
   }
 
   disconnect() {
     this.closeWidgetModal()
+    this.#closeExportMenu()
     this.removeToolbarElement()
     this.removeModalElement()
+    document.removeEventListener("click", this.#boundCloseExportMenu)
   }
 
   // --- Toolbar Element Management ---
@@ -127,6 +137,7 @@ export default class extends Controller {
     this.toolbarElement.innerHTML = `
       <div class="inkpen-sticky-toolbar__buttons">
         ${buttons.map(btn => this.renderButton(btn)).join("")}
+        ${this.showExportValue ? this.#renderExportButton() : ""}
       </div>
     `
 
@@ -144,6 +155,22 @@ export default class extends Controller {
     this.toolbarElement.querySelectorAll("[data-command]").forEach(btn => {
       btn.addEventListener("mousedown", (e) => e.preventDefault())
       btn.addEventListener("click", (e) => this.executeCommand(e))
+    })
+
+    // Export menu toggle
+    const exportToggle = this.toolbarElement.querySelector("[data-export-toggle]")
+    if (exportToggle) {
+      exportToggle.addEventListener("mousedown", (e) => e.preventDefault())
+      exportToggle.addEventListener("click", (e) => {
+        e.stopPropagation()
+        this.#toggleExportMenu()
+      })
+    }
+
+    // Export menu item handlers
+    this.toolbarElement.querySelectorAll("[data-export-format]").forEach(btn => {
+      btn.addEventListener("mousedown", (e) => e.preventDefault())
+      btn.addEventListener("click", (e) => this.#handleExport(e))
     })
   }
 
@@ -212,10 +239,51 @@ export default class extends Controller {
       preformatted: {
         title: "Preformatted Text (ASCII)",
         icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><text x="6" y="10" font-size="5" font-family="monospace" fill="currentColor">┌──┐</text><text x="6" y="15" font-size="5" font-family="monospace" fill="currentColor">│  │</text><text x="6" y="20" font-size="5" font-family="monospace" fill="currentColor">└──┘</text></svg>'
+      },
+      export: {
+        title: "Export",
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>'
       }
     }
 
     return configs[name] || { title: name, icon: name }
+  }
+
+  #exportFormatConfig(format) {
+    const configs = {
+      markdown: {
+        label: "Markdown",
+        description: "Export as .md file",
+        icon: "M↓",
+        shortcut: "⌘⇧M"
+      },
+      html: {
+        label: "HTML",
+        description: "Export as .html file",
+        icon: "<>",
+        shortcut: "⌘⇧H"
+      },
+      pdf: {
+        label: "PDF",
+        description: "Export as .pdf file",
+        icon: "📄",
+        shortcut: "⌘⇧P"
+      },
+      copy_markdown: {
+        label: "Copy as Markdown",
+        description: "Copy content to clipboard",
+        icon: "📋",
+        shortcut: ""
+      },
+      copy_html: {
+        label: "Copy as HTML",
+        description: "Copy HTML to clipboard",
+        icon: "📋",
+        shortcut: ""
+      }
+    }
+
+    return configs[format] || { label: format, description: "", icon: "", shortcut: "" }
   }
 
   // --- Widget Modal ---
@@ -382,6 +450,142 @@ export default class extends Controller {
       new CustomEvent("inkpen:request-embed", {
         bubbles: true,
         detail: { controller: this }
+      })
+    )
+  }
+
+  // --- Export Menu ---
+
+  #renderExportButton() {
+    const config = this.buttonConfig("export")
+    const formats = this.exportFormatsValue
+
+    return `
+      <span class="inkpen-sticky-toolbar__divider"></span>
+      <div class="inkpen-export-dropdown">
+        <button type="button"
+                class="inkpen-sticky-toolbar__btn inkpen-export-dropdown__toggle"
+                data-export-toggle
+                title="${config.title}">
+          ${config.icon}
+          <span class="inkpen-export-dropdown__caret">▾</span>
+        </button>
+        <div class="inkpen-export-dropdown__menu">
+          <div class="inkpen-export-dropdown__header">Download</div>
+          ${formats.map(format => this.#renderExportMenuItem(format)).join("")}
+          <div class="inkpen-export-dropdown__divider"></div>
+          <div class="inkpen-export-dropdown__header">Copy</div>
+          ${this.#renderExportMenuItem("copy_markdown")}
+          ${this.#renderExportMenuItem("copy_html")}
+        </div>
+      </div>
+    `
+  }
+
+  #renderExportMenuItem(format) {
+    const config = this.#exportFormatConfig(format)
+    return `
+      <button type="button"
+              class="inkpen-export-dropdown__item"
+              data-export-format="${format}">
+        <span class="inkpen-export-dropdown__icon">${config.icon}</span>
+        <span class="inkpen-export-dropdown__label">${config.label}</span>
+        ${config.shortcut ? `<span class="inkpen-export-dropdown__shortcut">${config.shortcut}</span>` : ""}
+      </button>
+    `
+  }
+
+  #toggleExportMenu() {
+    this.#exportMenuOpen = !this.#exportMenuOpen
+    const menu = this.toolbarElement?.querySelector(".inkpen-export-dropdown__menu")
+    const toggle = this.toolbarElement?.querySelector("[data-export-toggle]")
+
+    if (menu) {
+      menu.classList.toggle("is-open", this.#exportMenuOpen)
+    }
+    if (toggle) {
+      toggle.classList.toggle("is-active", this.#exportMenuOpen)
+    }
+  }
+
+  #closeExportMenu() {
+    this.#exportMenuOpen = false
+    const menu = this.toolbarElement?.querySelector(".inkpen-export-dropdown__menu")
+    const toggle = this.toolbarElement?.querySelector("[data-export-toggle]")
+
+    if (menu) {
+      menu.classList.remove("is-open")
+    }
+    if (toggle) {
+      toggle.classList.remove("is-active")
+    }
+  }
+
+  #closeExportMenuOnClickOutside(event) {
+    if (!this.#exportMenuOpen) return
+
+    const dropdown = this.toolbarElement?.querySelector(".inkpen-export-dropdown")
+    if (dropdown && !dropdown.contains(event.target)) {
+      this.#closeExportMenu()
+    }
+  }
+
+  async #handleExport(event) {
+    const format = event.currentTarget.dataset.exportFormat
+    this.#closeExportMenu()
+
+    if (!this.editorController) {
+      this.findEditorController()
+    }
+    if (!this.editorController) return
+
+    try {
+      switch (format) {
+        case "markdown":
+          this.editorController.downloadAsMarkdown()
+          this.#showExportSuccess("Downloaded as Markdown")
+          break
+        case "html":
+          this.editorController.downloadAsHTML()
+          this.#showExportSuccess("Downloaded as HTML")
+          break
+        case "pdf":
+          await this.editorController.downloadAsPDF()
+          this.#showExportSuccess("Downloaded as PDF")
+          break
+        case "copy_markdown":
+          const mdSuccess = await this.editorController.copyAsMarkdown()
+          if (mdSuccess) {
+            this.#showExportSuccess("Copied as Markdown")
+          }
+          break
+        case "copy_html":
+          const htmlSuccess = await this.editorController.copyAsHTML()
+          if (htmlSuccess) {
+            this.#showExportSuccess("Copied as HTML")
+          }
+          break
+      }
+    } catch (error) {
+      console.error("Export failed:", error)
+      this.#showExportError("Export failed")
+    }
+  }
+
+  #showExportSuccess(message) {
+    this.element.dispatchEvent(
+      new CustomEvent("inkpen:export-success", {
+        bubbles: true,
+        detail: { message, controller: this }
+      })
+    )
+  }
+
+  #showExportError(message) {
+    this.element.dispatchEvent(
+      new CustomEvent("inkpen:export-error", {
+        bubbles: true,
+        detail: { message, controller: this }
       })
     )
   }

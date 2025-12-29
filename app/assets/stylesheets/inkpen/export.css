@@ -4,6 +4,117 @@
  * Styles for export menu and export-related UI elements.
  */
 
+/* Export Dropdown in Sticky Toolbar */
+.inkpen-export-dropdown {
+  position: relative;
+  display: inline-flex;
+}
+
+.inkpen-export-dropdown__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.inkpen-export-dropdown__toggle.is-active {
+  background: var(--inkpen-color-bg-hover);
+}
+
+.inkpen-export-dropdown__caret {
+  font-size: 0.625rem;
+  opacity: 0.6;
+  margin-left: 0.125rem;
+}
+
+.inkpen-export-dropdown__menu {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  min-width: 200px;
+  padding: 0.375rem;
+  background: var(--inkpen-toolbar-bg);
+  border: 1px solid var(--inkpen-color-border);
+  border-radius: var(--inkpen-radius);
+  box-shadow: var(--inkpen-shadow-lg);
+  z-index: 100;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(4px);
+  transition: opacity 150ms, transform 150ms, visibility 150ms;
+}
+
+.inkpen-export-dropdown__menu.is-open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* Position menu above for bottom toolbar, below for other positions */
+[data-position="left"] .inkpen-export-dropdown__menu,
+[data-position="right"] .inkpen-export-dropdown__menu {
+  bottom: auto;
+  top: 0;
+  right: calc(100% + 8px);
+  left: auto;
+}
+
+.inkpen-export-dropdown__header {
+  padding: 0.375rem 0.625rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--inkpen-color-text-muted);
+}
+
+.inkpen-export-dropdown__divider {
+  height: 1px;
+  margin: 0.375rem 0;
+  background: var(--inkpen-color-border);
+}
+
+.inkpen-export-dropdown__item {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  width: 100%;
+  padding: 0.5rem 0.625rem;
+  border: none;
+  border-radius: var(--inkpen-radius-sm);
+  background: transparent;
+  color: var(--inkpen-color-text);
+  font-size: 0.875rem;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 100ms;
+}
+
+.inkpen-export-dropdown__item:hover {
+  background: var(--inkpen-color-bg-hover);
+}
+
+.inkpen-export-dropdown__item:focus {
+  outline: none;
+  background: var(--inkpen-color-bg-hover);
+}
+
+.inkpen-export-dropdown__icon {
+  flex-shrink: 0;
+  width: 1.25rem;
+  text-align: center;
+  font-size: 0.875rem;
+}
+
+.inkpen-export-dropdown__label {
+  flex: 1;
+}
+
+.inkpen-export-dropdown__shortcut {
+  font-size: 0.6875rem;
+  color: var(--inkpen-color-text-muted);
+  font-family: var(--inkpen-font-mono);
+}
+
 /* Export Menu Button */
 .inkpen-export-button {
   display: inline-flex;
