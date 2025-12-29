@@ -23,6 +23,23 @@ import { AdvancedTable, AdvancedTableRow, AdvancedTableCell, AdvancedTableHeader
 import { TableOfContents } from "inkpen/extensions/table_of_contents"
 import { Database } from "inkpen/extensions/database"
 
+// Export modules
+import {
+  exportToMarkdown,
+  importFromMarkdown,
+  downloadMarkdown,
+  copyMarkdownToClipboard,
+  exportToHTML,
+  downloadHTML,
+  copyHTMLToClipboard,
+  getExportStylesheet,
+  exportToPDF,
+  loadHtml2Pdf,
+  isPDFExportAvailable,
+  getPageSizes,
+  getDefaultPDFOptions
+} from "inkpen/export"
+
 // Auto-register controllers if Stimulus application exists
 const application = window.Stimulus || Application.start()
 
@@ -55,4 +72,24 @@ export {
   AdvancedTableHeader,
   TableOfContents,
   Database
+}
+
+// Export utilities
+export {
+  // Markdown
+  exportToMarkdown,
+  importFromMarkdown,
+  downloadMarkdown,
+  copyMarkdownToClipboard,
+  // HTML
+  exportToHTML,
+  downloadHTML,
+  copyHTMLToClipboard,
+  getExportStylesheet,
+  // PDF
+  exportToPDF,
+  loadHtml2Pdf,
+  isPDFExportAvailable,
+  getPageSizes,
+  getDefaultPDFOptions
 }

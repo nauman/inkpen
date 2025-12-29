@@ -40,6 +40,19 @@ import { Embed } from "inkpen/extensions/embed"
 import { AdvancedTable, AdvancedTableRow, AdvancedTableCell, AdvancedTableHeader } from "inkpen/extensions/advanced_table"
 import { TableOfContents } from "inkpen/extensions/table_of_contents"
 import { Database } from "inkpen/extensions/database"
+// Export modules
+import {
+  exportToMarkdown,
+  importFromMarkdown,
+  downloadMarkdown,
+  copyMarkdownToClipboard,
+  exportToHTML,
+  downloadHTML,
+  copyHTMLToClipboard,
+  exportToPDF,
+  loadHtml2Pdf,
+  isPDFExportAvailable
+} from "inkpen/export"
 
 /**
  * Inkpen Editor Controller
@@ -925,6 +938,119 @@ export default class extends Controller {
   // Check if format is active
   isActive(name, attributes = {}) {
     return this.editor?.isActive(name, attributes) || false
+  }
+
+  // Export Methods
+
+  /**
+   * Export document to Markdown
+   * @param {Object} options - Export options
+   * @returns {string} Markdown content
+   */
+  exportMarkdown(options = {}) {
+    if (!this.editor) return ""
+    return exportToMarkdown(this.editor.getJSON(), options)
+  }
+
+  /**
+   * Download document as Markdown file
+   * @param {string} filename - Filename for download
+   * @param {Object} options - Export options
+   */
+  downloadAsMarkdown(filename = "document.md", options = {}) {
+    const markdown = this.exportMarkdown(options)
+    downloadMarkdown(markdown, filename)
+  }
+
+  /**
+   * Copy document as Markdown to clipboard
+   * @param {Object} options - Export options
+   * @returns {Promise<boolean>} Success status
+   */
+  async copyAsMarkdown(options = {}) {
+    const markdown = this.exportMarkdown(options)
+    return copyMarkdownToClipboard(markdown)
+  }
+
+  /**
+   * Import Markdown content into editor
+   * @param {string} markdown - Markdown content
+   * @param {Object} options - Import options
+   * @returns {Object} { frontmatter } - Parsed frontmatter if present
+   */
+  importMarkdown(markdown, options = {}) {
+    if (!this.editor) return {}
+    const result = importFromMarkdown(markdown, this.editor.schema, options)
+    if (result.html) {
+      this.editor.commands.setContent(result.html)
+    }
+    return { frontmatter: result.frontmatter }
+  }
+
+  /**
+   * Export document to HTML
+   * @param {Object} options - Export options
+   * @returns {string} HTML content
+   */
+  exportHTML(options = {}) {
+    if (!this.editor) return ""
+    return exportToHTML(this.editor, options)
+  }
+
+  /**
+   * Download document as HTML file
+   * @param {string} filename - Filename for download
+   * @param {Object} options - Export options
+   */
+  downloadAsHTML(filename = "document.html", options = {}) {
+    const html = this.exportHTML(options)
+    downloadHTML(html, filename)
+  }
+
+  /**
+   * Copy document as HTML to clipboard
+   * @param {Object} options - Export options
+   * @returns {Promise<boolean>} Success status
+   */
+  async copyAsHTML(options = {}) {
+    const html = this.exportHTML({ ...options, includeWrapper: false, includeStyles: false })
+    return copyHTMLToClipboard(html)
+  }
+
+  /**
+   * Export document to PDF
+   * @param {Object} options - Export options
+   * @returns {Promise<void>}
+   */
+  async exportPDF(options = {}) {
+    if (!this.editor) return
+    await exportToPDF(this.editor, options)
+  }
+
+  /**
+   * Download document as PDF file
+   * @param {string} filename - Filename for download
+   * @param {Object} options - Export options
+   * @returns {Promise<void>}
+   */
+  async downloadAsPDF(filename = "document.pdf", options = {}) {
+    await this.exportPDF({ ...options, filename })
+  }
+
+  /**
+   * Load html2pdf.js library for better PDF support
+   * @returns {Promise<boolean>} Whether library was loaded
+   */
+  async loadPDFLibrary() {
+    return loadHtml2Pdf()
+  }
+
+  /**
+   * Check if PDF export with full features is available
+   * @returns {boolean}
+   */
+  isPDFExportAvailable() {
+    return isPDFExportAvailable()
   }
 
   // Forced Document helpers

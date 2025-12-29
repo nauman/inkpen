@@ -9,32 +9,65 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Planned (v0.7.0)
+---
+
+## [0.7.0] - 2024-12-29
+
+### Added
+
+#### Export/Import Module (v0.7.0)
+- Complete export system for Markdown, HTML, and PDF formats
+- Export utility functions accessible via editor controller
 
 #### Markdown Export/Import
 - Export to GitHub-Flavored Markdown (GFM)
-- Import from Markdown files
-- Frontmatter support (YAML metadata)
-- Table conversion (GFM tables)
+- Import from Markdown files with HTML conversion
+- Frontmatter support (YAML metadata parsing and serialization)
+- Table conversion to GFM table syntax
 - Code block language preservation
-- Callout to blockquote mapping
-- Commands: `exportMarkdown`, `importMarkdown`, `downloadMarkdown`
+- Task list serialization with checkbox syntax
+- Callout to GFM alert syntax mapping (`> [!NOTE]`)
+- Toggle block to HTML `<details>` conversion
+- Image captions and alt text preservation
+- Commands: `exportMarkdown`, `importMarkdown`, `downloadAsMarkdown`, `copyAsMarkdown`
+- Utility functions: `exportToMarkdown`, `importFromMarkdown`, `downloadMarkdown`, `copyMarkdownToClipboard`
 
 #### HTML Export
 - Clean semantic HTML5 output
-- Optional inline CSS styling
-- Configurable class prefixes
-- Print-optimized output
-- Commands: `exportHTML`, `downloadHTML`, `copyHTML`
+- Full document wrapper with `<!DOCTYPE html>` and proper structure
+- Optional inline CSS styling (all styles embedded in `<style>` tag)
+- Configurable class prefixes for custom styling
+- Theme support (light/dark/auto)
+- Print-optimized styles with proper page breaks
+- Dark mode CSS with `@media (prefers-color-scheme: dark)`
+- Styles for all Inkpen block types (callouts, tables, TOC, etc.)
+- Commands: `exportHTML`, `downloadAsHTML`, `copyAsHTML`
+- Utility functions: `exportToHTML`, `downloadHTML`, `copyHTMLToClipboard`, `getExportStylesheet`
 
 #### PDF Export
-- Client-side PDF generation
-- Page size options (A4, Letter, Legal)
-- Margins and orientation settings
-- Fallback to print dialog
-- Commands: `exportPDF`, `downloadPDF`
+- Client-side PDF generation using html2pdf.js (optional dependency)
+- Automatic fallback to print dialog when library not available
+- Page size options: A4, Letter, Legal, A3, A5
+- Portrait and landscape orientation
+- Configurable margins (top, right, bottom, left in mm)
+- Footer with page numbers
+- PDF metadata support (title, author, subject)
+- Quality settings for image rendering
+- Dynamic library loading: `loadHtml2Pdf()` function
+- Commands: `exportPDF`, `downloadAsPDF`, `loadPDFLibrary`, `isPDFExportAvailable`
+- Utility functions: `exportToPDF`, `loadHtml2Pdf`, `isPDFExportAvailable`, `getPageSizes`, `getDefaultPDFOptions`
+
+#### Export UI Components
+- Export menu dropdown styles
+- Export dialog/modal styles
+- PDF options form with page size, orientation, margins
+- Progress indicator with spinner animation
+- Success and error message styles
+- CSS: `app/assets/stylesheets/inkpen/export.css`
 
 ---
+
+## [0.6.0] - 2024-12-XX
 
 ### Added
 
@@ -356,3 +389,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Ruby: `lib/inkpen/extensions/preformatted.rb`
 - JavaScript: `app/assets/javascripts/inkpen/extensions/preformatted.js`
 - CSS: `app/assets/stylesheets/inkpen/preformatted.css`
+
+### Export Module
+- JavaScript: `app/assets/javascripts/inkpen/export/index.js`
+- Markdown: `app/assets/javascripts/inkpen/export/markdown.js`
+- HTML: `app/assets/javascripts/inkpen/export/html.js`
+- PDF: `app/assets/javascripts/inkpen/export/pdf.js`
+- CSS: `app/assets/stylesheets/inkpen/export.css`
