@@ -22,6 +22,7 @@ import { Embed } from "inkpen/extensions/embed"
 import { AdvancedTable, AdvancedTableRow, AdvancedTableCell, AdvancedTableHeader } from "inkpen/extensions/advanced_table"
 import { TableOfContents } from "inkpen/extensions/table_of_contents"
 import { Database } from "inkpen/extensions/database"
+import { ExportCommands } from "inkpen/extensions/export_commands"
 
 // Export modules
 import {
@@ -71,7 +72,8 @@ export {
   AdvancedTableCell,
   AdvancedTableHeader,
   TableOfContents,
-  Database
+  Database,
+  ExportCommands
 }
 
 // Export utilities

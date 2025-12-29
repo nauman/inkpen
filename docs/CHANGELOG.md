@@ -73,6 +73,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Copy options: Copy as Markdown, Copy as HTML
 - Events: `inkpen:export-success`, `inkpen:export-error`
 
+#### Export Commands Extension
+- TipTap extension for export keyboard shortcuts
+- Keyboard shortcuts:
+  - `Cmd+Alt+M`: Download as Markdown
+  - `Cmd+Alt+H`: Download as HTML
+  - `Cmd+Alt+P`: Download as PDF
+  - `Cmd+Alt+Shift+M`: Copy as Markdown
+  - `Cmd+Alt+Shift+H`: Copy as HTML
+- Commands: `downloadMarkdown`, `downloadHTML`, `downloadPDF`, `copyMarkdown`, `copyHTML`, `getMarkdown`, `getHTML`
+- Configurable default filename and export options
+- Callback hooks: `onExportSuccess`, `onExportError`
+- JavaScript: `app/assets/javascripts/inkpen/extensions/export_commands.js`
+
 ---
 
 ## [0.6.0] - 2024-12-XX

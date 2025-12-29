@@ -40,6 +40,7 @@ import { Embed } from "inkpen/extensions/embed"
 import { AdvancedTable, AdvancedTableRow, AdvancedTableCell, AdvancedTableHeader } from "inkpen/extensions/advanced_table"
 import { TableOfContents } from "inkpen/extensions/table_of_contents"
 import { Database } from "inkpen/extensions/database"
+import { ExportCommands } from "inkpen/extensions/export_commands"
 // Export modules
 import {
   exportToMarkdown,
@@ -578,6 +579,21 @@ export default class extends Controller {
         Database.configure({
           defaultTitle: dbConfig.title || "Untitled Database",
           defaultView: dbConfig.view || "table"
+        })
+      )
+    }
+
+    // Export Commands extension (keyboard shortcuts for export)
+    if (enabledExtensions.includes("export_commands")) {
+      const exportConfig = config.export_commands || {}
+      extensions.push(
+        ExportCommands.configure({
+          defaultFilename: exportConfig.defaultFilename || "document",
+          markdownOptions: exportConfig.markdownOptions || {},
+          htmlOptions: exportConfig.htmlOptions || {},
+          pdfOptions: exportConfig.pdfOptions || {},
+          onExportSuccess: exportConfig.onExportSuccess || null,
+          onExportError: exportConfig.onExportError || null
         })
       )
     }

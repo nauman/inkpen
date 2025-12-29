@@ -65,6 +65,7 @@ module Inkpen
       embed
       table_of_contents
       database
+      export_commands
     ].freeze
 
     def initialize

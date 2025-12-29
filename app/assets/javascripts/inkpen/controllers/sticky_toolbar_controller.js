@@ -255,31 +255,31 @@ export default class extends Controller {
         label: "Markdown",
         description: "Export as .md file",
         icon: "M↓",
-        shortcut: "⌘⇧M"
+        shortcut: "⌘⌥M"
       },
       html: {
         label: "HTML",
         description: "Export as .html file",
         icon: "<>",
-        shortcut: "⌘⇧H"
+        shortcut: "⌘⌥H"
       },
       pdf: {
         label: "PDF",
         description: "Export as .pdf file",
         icon: "📄",
-        shortcut: "⌘⇧P"
+        shortcut: "⌘⌥P"
       },
       copy_markdown: {
         label: "Copy as Markdown",
         description: "Copy content to clipboard",
         icon: "📋",
-        shortcut: ""
+        shortcut: "⌘⌥⇧M"
       },
       copy_html: {
         label: "Copy as HTML",
         description: "Copy HTML to clipboard",
         icon: "📋",
-        shortcut: ""
+        shortcut: "⌘⌥⇧H"
       }
     }
 
