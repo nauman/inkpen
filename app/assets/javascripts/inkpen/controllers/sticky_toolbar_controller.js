@@ -31,6 +31,7 @@ export default class extends Controller {
   }
 
   #exportMenuOpen = false
+  #boundCloseExportMenu = null
 
   connect() {
     this.editorController = null

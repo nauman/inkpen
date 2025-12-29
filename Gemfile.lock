@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    inkpen (0.5.0)
+    inkpen (0.7.0)
       importmap-rails (>= 1.0)
       rails (>= 7.0)
 
@@ -190,6 +190,7 @@ GEM
       erb
       psych (>= 4.0.0)
       tsort
+    redcarpet (3.6.1)
     regexp_parser (2.11.3)
     reline (0.6.3)
       io-console (~> 0.5)
@@ -224,6 +225,7 @@ GEM
       base64
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
+    yard (0.9.38)
     zeitwerk (2.7.4)
 
 PLATFORMS
@@ -234,7 +236,9 @@ DEPENDENCIES
   irb
   minitest (~> 5.16)
   rake (~> 13.0)
+  redcarpet (~> 3.6)
   rubocop (~> 1.21)
+  yard (~> 0.9)
 
 BUNDLED WITH
    2.6.9

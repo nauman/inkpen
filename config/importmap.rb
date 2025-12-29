@@ -122,3 +122,9 @@ pin "highlight.js/lib/languages/markdown", to: "https://esm.sh/highlight.js@11.9
 # Inkpen controllers and extensions
 pin "inkpen", to: "inkpen/index.js"
 pin_all_from File.expand_path("../app/assets/javascripts/inkpen", __dir__), under: "inkpen"
+
+# Export modules - explicit pins for relative import resolution
+pin "inkpen/export", to: "inkpen/export/index.js"
+pin "inkpen/export/markdown", to: "inkpen/export/markdown.js"
+pin "inkpen/export/html", to: "inkpen/export/html.js"
+pin "inkpen/export/pdf", to: "inkpen/export/pdf.js"

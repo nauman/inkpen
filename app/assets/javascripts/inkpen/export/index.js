@@ -10,7 +10,7 @@ export {
   importFromMarkdown,
   downloadMarkdown,
   copyMarkdownToClipboard
-} from "./markdown"
+} from "inkpen/export/markdown"
 
 // HTML export
 export {
@@ -18,7 +18,7 @@ export {
   downloadHTML,
   copyHTMLToClipboard,
   getExportStylesheet
-} from "./html"
+} from "inkpen/export/html"
 
 // PDF export
 export {
@@ -27,4 +27,4 @@ export {
   isPDFExportAvailable,
   getPageSizes,
   getDefaultPDFOptions
-} from "./pdf"
+} from "inkpen/export/pdf"

@@ -40,20 +40,34 @@ import { Embed } from "inkpen/extensions/embed"
 import { AdvancedTable, AdvancedTableRow, AdvancedTableCell, AdvancedTableHeader } from "inkpen/extensions/advanced_table"
 import { TableOfContents } from "inkpen/extensions/table_of_contents"
 import { Database } from "inkpen/extensions/database"
-import { ExportCommands } from "inkpen/extensions/export_commands"
-// Export modules
-import {
-  exportToMarkdown,
-  importFromMarkdown,
-  downloadMarkdown,
-  copyMarkdownToClipboard,
-  exportToHTML,
-  downloadHTML,
-  copyHTMLToClipboard,
-  exportToPDF,
-  loadHtml2Pdf,
-  isPDFExportAvailable
-} from "inkpen/export"
+
+// Export modules are loaded lazily when export_commands extension is enabled
+// This prevents 404 errors for apps that don't use export functionality
+let ExportCommands = null
+let exportModules = null
+
+async function loadExportModules() {
+  if (exportModules) return exportModules
+  try {
+    exportModules = await import("inkpen/export")
+    return exportModules
+  } catch (e) {
+    console.warn("Inkpen export modules not available:", e.message)
+    return null
+  }
+}
+
+async function loadExportCommands() {
+  if (ExportCommands) return ExportCommands
+  try {
+    const module = await import("inkpen/extensions/export_commands")
+    ExportCommands = module.ExportCommands
+    return ExportCommands
+  } catch (e) {
+    console.warn("Inkpen ExportCommands extension not available:", e.message)
+    return null
+  }
+}
 
 /**
  * Inkpen Editor Controller
@@ -93,8 +107,8 @@ export default class extends Controller {
     this.destroyEditor()
   }
 
-  initializeEditor() {
-    const extensions = this.buildExtensions()
+  async initializeEditor() {
+    const extensions = await this.buildExtensions()
 
     this.editor = new Editor({
       element: this.contentTarget,
@@ -142,7 +156,7 @@ export default class extends Controller {
     }
   }
 
-  buildExtensions() {
+  async buildExtensions() {
     const config = this.extensionConfigValue
     const enabledExtensions = this.extensionsValue
 
@@ -584,18 +598,24 @@ export default class extends Controller {
     }
 
     // Export Commands extension (keyboard shortcuts for export)
+    // Loaded lazily to avoid 404s for apps that don't use export
     if (enabledExtensions.includes("export_commands")) {
-      const exportConfig = config.export_commands || {}
-      extensions.push(
-        ExportCommands.configure({
-          defaultFilename: exportConfig.defaultFilename || "document",
-          markdownOptions: exportConfig.markdownOptions || {},
-          htmlOptions: exportConfig.htmlOptions || {},
-          pdfOptions: exportConfig.pdfOptions || {},
-          onExportSuccess: exportConfig.onExportSuccess || null,
-          onExportError: exportConfig.onExportError || null
-        })
-      )
+      const ExportCommandsExt = await loadExportCommands()
+      if (ExportCommandsExt) {
+        const exportConfig = config.export_commands || {}
+        extensions.push(
+          ExportCommandsExt.configure({
+            defaultFilename: exportConfig.defaultFilename || "document",
+            markdownOptions: exportConfig.markdownOptions || {},
+            htmlOptions: exportConfig.htmlOptions || {},
+            pdfOptions: exportConfig.pdfOptions || {},
+            onExportSuccess: exportConfig.onExportSuccess || null,
+            onExportError: exportConfig.onExportError || null
+          })
+        )
+        // Pre-load export modules for methods
+        await loadExportModules()
+      }
     }
 
     return extensions
@@ -956,16 +976,21 @@ export default class extends Controller {
     return this.editor?.isActive(name, attributes) || false
   }
 
-  // Export Methods
+  // Export Methods (require export_commands extension to be enabled)
 
   /**
    * Export document to Markdown
    * @param {Object} options - Export options
-   * @returns {string} Markdown content
+   * @returns {Promise<string>} Markdown content
    */
-  exportMarkdown(options = {}) {
+  async exportMarkdown(options = {}) {
     if (!this.editor) return ""
-    return exportToMarkdown(this.editor.getJSON(), options)
+    const modules = await loadExportModules()
+    if (!modules) {
+      console.warn("Export modules not available. Enable export_commands extension.")
+      return ""
+    }
+    return modules.exportToMarkdown(this.editor.getJSON(), options)
   }
 
   /**
@@ -973,9 +998,11 @@ export default class extends Controller {
    * @param {string} filename - Filename for download
    * @param {Object} options - Export options
    */
-  downloadAsMarkdown(filename = "document.md", options = {}) {
-    const markdown = this.exportMarkdown(options)
-    downloadMarkdown(markdown, filename)
+  async downloadAsMarkdown(filename = "document.md", options = {}) {
+    const modules = await loadExportModules()
+    if (!modules) return
+    const markdown = await this.exportMarkdown(options)
+    modules.downloadMarkdown(markdown, filename)
   }
 
   /**
@@ -984,19 +1011,23 @@ export default class extends Controller {
    * @returns {Promise<boolean>} Success status
    */
   async copyAsMarkdown(options = {}) {
-    const markdown = this.exportMarkdown(options)
-    return copyMarkdownToClipboard(markdown)
+    const modules = await loadExportModules()
+    if (!modules) return false
+    const markdown = await this.exportMarkdown(options)
+    return modules.copyMarkdownToClipboard(markdown)
   }
 
   /**
    * Import Markdown content into editor
    * @param {string} markdown - Markdown content
    * @param {Object} options - Import options
-   * @returns {Object} { frontmatter } - Parsed frontmatter if present
+   * @returns {Promise<Object>} { frontmatter } - Parsed frontmatter if present
    */
-  importMarkdown(markdown, options = {}) {
+  async importMarkdown(markdown, options = {}) {
     if (!this.editor) return {}
-    const result = importFromMarkdown(markdown, this.editor.schema, options)
+    const modules = await loadExportModules()
+    if (!modules) return {}
+    const result = modules.importFromMarkdown(markdown, this.editor.schema, options)
     if (result.html) {
       this.editor.commands.setContent(result.html)
     }
@@ -1006,11 +1037,16 @@ export default class extends Controller {
   /**
    * Export document to HTML
    * @param {Object} options - Export options
-   * @returns {string} HTML content
+   * @returns {Promise<string>} HTML content
    */
-  exportHTML(options = {}) {
+  async exportHTML(options = {}) {
     if (!this.editor) return ""
-    return exportToHTML(this.editor, options)
+    const modules = await loadExportModules()
+    if (!modules) {
+      console.warn("Export modules not available. Enable export_commands extension.")
+      return ""
+    }
+    return modules.exportToHTML(this.editor, options)
   }
 
   /**
@@ -1018,9 +1054,11 @@ export default class extends Controller {
    * @param {string} filename - Filename for download
    * @param {Object} options - Export options
    */
-  downloadAsHTML(filename = "document.html", options = {}) {
-    const html = this.exportHTML(options)
-    downloadHTML(html, filename)
+  async downloadAsHTML(filename = "document.html", options = {}) {
+    const modules = await loadExportModules()
+    if (!modules) return
+    const html = await this.exportHTML(options)
+    modules.downloadHTML(html, filename)
   }
 
   /**
@@ -1029,8 +1067,10 @@ export default class extends Controller {
    * @returns {Promise<boolean>} Success status
    */
   async copyAsHTML(options = {}) {
-    const html = this.exportHTML({ ...options, includeWrapper: false, includeStyles: false })
-    return copyHTMLToClipboard(html)
+    const modules = await loadExportModules()
+    if (!modules) return false
+    const html = await this.exportHTML({ ...options, includeWrapper: false, includeStyles: false })
+    return modules.copyHTMLToClipboard(html)
   }
 
   /**
@@ -1040,7 +1080,9 @@ export default class extends Controller {
    */
   async exportPDF(options = {}) {
     if (!this.editor) return
-    await exportToPDF(this.editor, options)
+    const modules = await loadExportModules()
+    if (!modules) return
+    await modules.exportToPDF(this.editor, options)
   }
 
   /**
@@ -1058,15 +1100,19 @@ export default class extends Controller {
    * @returns {Promise<boolean>} Whether library was loaded
    */
   async loadPDFLibrary() {
-    return loadHtml2Pdf()
+    const modules = await loadExportModules()
+    if (!modules) return false
+    return modules.loadHtml2Pdf()
   }
 
   /**
    * Check if PDF export with full features is available
-   * @returns {boolean}
+   * @returns {Promise<boolean>}
    */
-  isPDFExportAvailable() {
-    return isPDFExportAvailable()
+  async isPDFExportAvailable() {
+    const modules = await loadExportModules()
+    if (!modules) return false
+    return modules.isPDFExportAvailable()
   }
 
   // Forced Document helpers

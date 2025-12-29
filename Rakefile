@@ -9,4 +9,11 @@ require "rubocop/rake_task"
 
 RuboCop::RakeTask.new
 
+require "yard"
+
+YARD::Rake::YardocTask.new do |t|
+  t.files = ["lib/**/*.rb", "app/helpers/**/*.rb"]
+  t.options = ["--title", "Inkpen - TipTap Rich Text Editor for Rails"]
+end
+
 task default: %i[test rubocop]

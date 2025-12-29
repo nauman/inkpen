@@ -1,0 +1,11 @@
+--readme README.md
+--title "Inkpen - TipTap Rich Text Editor for Rails"
+--markup rdoc
+--output-dir doc
+--protected
+--no-private
+--hide-void-return
+--exclude test/
+--exclude spec/
+lib/**/*.rb
+app/helpers/**/*.rb

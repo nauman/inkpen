@@ -102,10 +102,10 @@ export const ExportCommands = Extension.create({
           const exportOptions = { ...this.options.markdownOptions, ...options }
           const markdown = exportToMarkdown(editor.getJSON(), exportOptions)
           downloadMarkdown(markdown, filename)
-          this.#notifySuccess("markdown", "download")
+          this._notifySuccess("markdown", "download")
           return true
         } catch (error) {
-          this.#notifyError("markdown", error)
+          this._notifyError("markdown", error)
           return false
         }
       },
@@ -120,12 +120,12 @@ export const ExportCommands = Extension.create({
           const markdown = exportToMarkdown(editor.getJSON(), exportOptions)
           copyMarkdownToClipboard(markdown).then(success => {
             if (success) {
-              this.#notifySuccess("markdown", "copy")
+              this._notifySuccess("markdown", "copy")
             }
           })
           return true
         } catch (error) {
-          this.#notifyError("markdown", error)
+          this._notifyError("markdown", error)
           return false
         }
       },
@@ -145,10 +145,10 @@ export const ExportCommands = Extension.create({
           const exportOptions = { ...this.options.htmlOptions, ...options }
           const html = exportToHTML(editor, exportOptions)
           downloadHTML(html, filename)
-          this.#notifySuccess("html", "download")
+          this._notifySuccess("html", "download")
           return true
         } catch (error) {
-          this.#notifyError("html", error)
+          this._notifyError("html", error)
           return false
         }
       },
@@ -168,12 +168,12 @@ export const ExportCommands = Extension.create({
           const html = exportToHTML(editor, exportOptions)
           copyHTMLToClipboard(html).then(success => {
             if (success) {
-              this.#notifySuccess("html", "copy")
+              this._notifySuccess("html", "copy")
             }
           })
           return true
         } catch (error) {
-          this.#notifyError("html", error)
+          this._notifyError("html", error)
           return false
         }
       },
@@ -191,13 +191,13 @@ export const ExportCommands = Extension.create({
           const filename = options.filename || `${this.options.defaultFilename}.pdf`
           const exportOptions = { ...this.options.pdfOptions, ...options, filename }
           exportToPDF(editor, exportOptions).then(() => {
-            this.#notifySuccess("pdf", "download")
+            this._notifySuccess("pdf", "download")
           }).catch(error => {
-            this.#notifyError("pdf", error)
+            this._notifyError("pdf", error)
           })
           return true
         } catch (error) {
-          this.#notifyError("pdf", error)
+          this._notifyError("pdf", error)
           return false
         }
       },
@@ -239,9 +239,9 @@ export const ExportCommands = Extension.create({
     }
   },
 
-  // Private Helpers
+  // Helpers (underscore prefix for internal methods in TipTap extensions)
 
-  #notifySuccess(format, action) {
+  _notifySuccess(format, action) {
     if (this.options.onExportSuccess) {
       this.options.onExportSuccess(format, action)
     }
@@ -254,7 +254,7 @@ export const ExportCommands = Extension.create({
     this.editor.view.dom.dispatchEvent(event)
   },
 
-  #notifyError(format, error) {
+  _notifyError(format, error) {
     console.error(`Export to ${format} failed:`, error)
 
     if (this.options.onExportError) {

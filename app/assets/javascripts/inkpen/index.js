@@ -22,24 +22,6 @@ import { Embed } from "inkpen/extensions/embed"
 import { AdvancedTable, AdvancedTableRow, AdvancedTableCell, AdvancedTableHeader } from "inkpen/extensions/advanced_table"
 import { TableOfContents } from "inkpen/extensions/table_of_contents"
 import { Database } from "inkpen/extensions/database"
-import { ExportCommands } from "inkpen/extensions/export_commands"
-
-// Export modules
-import {
-  exportToMarkdown,
-  importFromMarkdown,
-  downloadMarkdown,
-  copyMarkdownToClipboard,
-  exportToHTML,
-  downloadHTML,
-  copyHTMLToClipboard,
-  getExportStylesheet,
-  exportToPDF,
-  loadHtml2Pdf,
-  isPDFExportAvailable,
-  getPageSizes,
-  getDefaultPDFOptions
-} from "inkpen/export"
 
 // Auto-register controllers if Stimulus application exists
 const application = window.Stimulus || Application.start()
@@ -72,26 +54,9 @@ export {
   AdvancedTableCell,
   AdvancedTableHeader,
   TableOfContents,
-  Database,
-  ExportCommands
+  Database
 }
 
-// Export utilities
-export {
-  // Markdown
-  exportToMarkdown,
-  importFromMarkdown,
-  downloadMarkdown,
-  copyMarkdownToClipboard,
-  // HTML
-  exportToHTML,
-  downloadHTML,
-  copyHTMLToClipboard,
-  getExportStylesheet,
-  // PDF
-  exportToPDF,
-  loadHtml2Pdf,
-  isPDFExportAvailable,
-  getPageSizes,
-  getDefaultPDFOptions
-}
+// Export functionality is available separately:
+// import { ExportCommands } from "inkpen/extensions/export_commands"
+// import { exportToMarkdown, ... } from "inkpen/export"

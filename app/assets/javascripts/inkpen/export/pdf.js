@@ -5,7 +5,7 @@
  * Uses html2pdf.js if available, otherwise falls back to print dialog.
  */
 
-import { exportToHTML, getExportStylesheet } from "./html"
+import { exportToHTML, getExportStylesheet } from "inkpen/export/html"
 
 /**
  * Check if html2pdf.js is available
