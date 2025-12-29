@@ -9,6 +9,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Planned (v0.7.0)
+
+#### Markdown Export/Import
+- Export to GitHub-Flavored Markdown (GFM)
+- Import from Markdown files
+- Frontmatter support (YAML metadata)
+- Table conversion (GFM tables)
+- Code block language preservation
+- Callout to blockquote mapping
+- Commands: `exportMarkdown`, `importMarkdown`, `downloadMarkdown`
+
+#### HTML Export
+- Clean semantic HTML5 output
+- Optional inline CSS styling
+- Configurable class prefixes
+- Print-optimized output
+- Commands: `exportHTML`, `downloadHTML`, `copyHTML`
+
+#### PDF Export
+- Client-side PDF generation
+- Page size options (A4, Letter, Legal)
+- Margins and orientation settings
+- Fallback to print dialog
+- Commands: `exportPDF`, `downloadPDF`
+
+---
+
 ### Added
 
 #### Advanced Tables Extension (v0.6.0)

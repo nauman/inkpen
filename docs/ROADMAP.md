@@ -1973,6 +1973,528 @@ app/assets/stylesheets/inkpen/
 
 ---
 
+## Phase 6: Export & Import (v0.7.0)
+
+### Goal
+Enable seamless content portability with Markdown import/export, clean HTML export, and PDF generation.
+
+---
+
+### 6.1 Markdown Export/Import (v0.7.0-alpha)
+
+Convert editor content to/from Markdown with full fidelity.
+
+**Features:**
+- Export to GitHub-Flavored Markdown (GFM)
+- Import from Markdown files
+- Frontmatter support (YAML metadata)
+- Table conversion (GFM tables)
+- Code block language preservation
+- Image handling (inline or reference style)
+- Task list conversion
+- Callout to blockquote mapping
+- Custom block fallbacks (HTML comments)
+
+**Implementation:**
+```javascript
+// app/assets/javascripts/inkpen/export/markdown.js
+
+/**
+ * Markdown Exporter
+ *
+ * Converts TipTap/ProseMirror document to Markdown.
+ * Uses custom serializers for Inkpen-specific nodes.
+ */
+
+const NODE_SERIALIZERS = {
+  paragraph: (node) => node.textContent + '\n\n',
+  heading: (node) => '#'.repeat(node.attrs.level) + ' ' + node.textContent + '\n\n',
+  bulletList: (node, serialize) => serializeList(node, serialize, '-'),
+  orderedList: (node, serialize) => serializeList(node, serialize, '1.'),
+  taskList: (node, serialize) => serializeTaskList(node, serialize),
+  blockquote: (node, serialize) => node.content.map(n => '> ' + serialize(n)).join(''),
+  codeBlock: (node) => '```' + (node.attrs.language || '') + '\n' + node.textContent + '\n```\n\n',
+  horizontalRule: () => '---\n\n',
+  image: (node) => `![${node.attrs.alt || ''}](${node.attrs.src})\n\n`,
+  table: (node, serialize) => serializeTable(node, serialize),
+  callout: (node, serialize) => serializeCallout(node, serialize),
+  toggleBlock: (node, serialize) => serializeToggle(node, serialize),
+}
+
+const MARK_SERIALIZERS = {
+  bold: (text) => `**${text}**`,
+  italic: (text) => `_${text}_`,
+  strike: (text) => `~~${text}~~`,
+  code: (text) => `\`${text}\``,
+  link: (text, mark) => `[${text}](${mark.attrs.href})`,
+}
+
+export function exportToMarkdown(doc, options = {}) {
+  const { includeFrontmatter = true, imageStyle = 'inline' } = options
+  let markdown = ''
+
+  if (includeFrontmatter && options.frontmatter) {
+    markdown += '---\n'
+    markdown += Object.entries(options.frontmatter)
+      .map(([key, value]) => `${key}: ${JSON.stringify(value)}`)
+      .join('\n')
+    markdown += '\n---\n\n'
+  }
+
+  markdown += serializeNode(doc)
+  return markdown
+}
+
+export function importFromMarkdown(markdown, options = {}) {
+  // Parse frontmatter
+  const { content, frontmatter } = parseFrontmatter(markdown)
+
+  // Convert Markdown to ProseMirror document
+  const doc = parseMarkdown(content)
+
+  return { doc, frontmatter }
+}
+
+function serializeTable(node, serialize) {
+  const rows = []
+  let headerRow = null
+
+  node.content.forEach((row, index) => {
+    const cells = row.content.map(cell => serialize(cell).trim())
+    if (index === 0) {
+      headerRow = '| ' + cells.join(' | ') + ' |'
+      rows.push(headerRow)
+      rows.push('| ' + cells.map(() => '---').join(' | ') + ' |')
+    } else {
+      rows.push('| ' + cells.join(' | ') + ' |')
+    }
+  })
+
+  return rows.join('\n') + '\n\n'
+}
+
+function serializeCallout(node, serialize) {
+  const type = node.attrs.type || 'info'
+  const emoji = node.attrs.emoji || ''
+  const content = serialize(node.content)
+
+  // Convert to blockquote with type indicator
+  return `> [!${type.toUpperCase()}] ${emoji}\n> ${content.replace(/\n/g, '\n> ')}\n\n`
+}
+```
+
+**Commands:**
+```javascript
+// Added to editor_controller.js
+
+exportMarkdown(options = {}) {
+  const markdown = exportToMarkdown(this.editor.state.doc, options)
+  return markdown
+}
+
+importMarkdown(markdown, options = {}) {
+  const { doc, frontmatter } = importFromMarkdown(markdown, options)
+  this.editor.commands.setContent(doc)
+  return frontmatter
+}
+
+downloadMarkdown(filename = 'document.md') {
+  const markdown = this.exportMarkdown()
+  downloadFile(markdown, filename, 'text/markdown')
+}
+```
+
+---
+
+### 6.2 HTML Export (v0.7.0-beta)
+
+Export clean, semantic HTML with optional styling.
+
+**Features:**
+- Clean semantic HTML5 output
+- Optional inline CSS styling
+- Optional external stylesheet link
+- Configurable class prefixes
+- Image embedding (base64) or external URLs
+- Table accessibility attributes
+- Print-optimized output
+- Dark mode CSS variant
+
+**Implementation:**
+```javascript
+// app/assets/javascripts/inkpen/export/html.js
+
+/**
+ * HTML Exporter
+ *
+ * Generates clean, semantic HTML from editor content.
+ */
+
+export function exportToHTML(doc, options = {}) {
+  const {
+    includeStyles = true,
+    inlineStyles = false,
+    classPrefix = 'inkpen-',
+    embedImages = false,
+    includeWrapper = true,
+    title = 'Document'
+  } = options
+
+  let html = ''
+
+  // Document wrapper
+  if (includeWrapper) {
+    html += `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${escapeHtml(title)}</title>
+  ${includeStyles ? getStyleTag(inlineStyles, classPrefix) : ''}
+</head>
+<body>
+  <article class="${classPrefix}document">
+`
+  }
+
+  // Serialize content
+  html += serializeToHTML(doc, { classPrefix, embedImages })
+
+  if (includeWrapper) {
+    html += `  </article>
+</body>
+</html>`
+  }
+
+  return html
+}
+
+function getStyleTag(inline, prefix) {
+  if (inline) {
+    return `<style>${getExportStyles(prefix)}</style>`
+  }
+  return `<link rel="stylesheet" href="inkpen-export.css">`
+}
+
+function getExportStyles(prefix) {
+  return `
+    .${prefix}document {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 2rem;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      color: #1a1a1a;
+    }
+    .${prefix}document h1 { font-size: 2rem; margin: 2rem 0 1rem; }
+    .${prefix}document h2 { font-size: 1.5rem; margin: 1.5rem 0 0.75rem; }
+    .${prefix}document h3 { font-size: 1.25rem; margin: 1.25rem 0 0.5rem; }
+    .${prefix}document p { margin: 0 0 1rem; }
+    .${prefix}document blockquote {
+      margin: 1rem 0;
+      padding-left: 1rem;
+      border-left: 3px solid #e0e0e0;
+      color: #666;
+    }
+    .${prefix}document pre {
+      background: #f5f5f5;
+      padding: 1rem;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+    .${prefix}document code {
+      background: #f0f0f0;
+      padding: 0.125rem 0.25rem;
+      border-radius: 2px;
+      font-size: 0.875em;
+    }
+    .${prefix}document table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+    .${prefix}document th, .${prefix}document td {
+      border: 1px solid #e0e0e0;
+      padding: 0.5rem;
+      text-align: left;
+    }
+    .${prefix}document img {
+      max-width: 100%;
+      height: auto;
+    }
+    .${prefix}callout {
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 4px;
+      border-left: 4px solid;
+    }
+    .${prefix}callout--info { background: #e3f2fd; border-color: #2196f3; }
+    .${prefix}callout--warning { background: #fff3e0; border-color: #ff9800; }
+    .${prefix}callout--tip { background: #e8f5e9; border-color: #4caf50; }
+    @media print {
+      .${prefix}document { max-width: none; padding: 0; }
+    }
+  `
+}
+```
+
+**Commands:**
+```javascript
+exportHTML(options = {}) {
+  return exportToHTML(this.editor.state.doc, options)
+}
+
+downloadHTML(filename = 'document.html', options = {}) {
+  const html = this.exportHTML(options)
+  downloadFile(html, filename, 'text/html')
+}
+
+copyHTML() {
+  const html = this.exportHTML({ includeWrapper: false, includeStyles: false })
+  navigator.clipboard.writeText(html)
+}
+```
+
+---
+
+### 6.3 PDF Export (v0.7.0-rc)
+
+Generate PDF documents from editor content.
+
+**Features:**
+- Client-side PDF generation (no server required)
+- Page size options (A4, Letter, Legal)
+- Margins and orientation
+- Header/footer with page numbers
+- Table of contents generation
+- Cover page option
+- Custom fonts
+- Image quality settings
+- Watermark support
+
+**Implementation:**
+```javascript
+// app/assets/javascripts/inkpen/export/pdf.js
+
+/**
+ * PDF Exporter
+ *
+ * Generates PDF using html2pdf.js or jsPDF.
+ * Falls back to print dialog if libraries unavailable.
+ */
+
+import { exportToHTML } from './html'
+
+export async function exportToPDF(doc, options = {}) {
+  const {
+    filename = 'document.pdf',
+    pageSize = 'a4',
+    orientation = 'portrait',
+    margins = { top: 20, right: 20, bottom: 20, left: 20 },
+    includeHeader = false,
+    includeFooter = true,
+    includeTOC = false,
+    coverPage = null,
+    watermark = null,
+    quality = 2
+  } = options
+
+  // Generate HTML first
+  const html = exportToHTML(doc, {
+    includeStyles: true,
+    inlineStyles: true,
+    includeWrapper: false
+  })
+
+  // Check for html2pdf library
+  if (typeof html2pdf !== 'undefined') {
+    return generateWithHtml2Pdf(html, {
+      filename,
+      pageSize,
+      orientation,
+      margins,
+      quality
+    })
+  }
+
+  // Fallback to print dialog
+  return printToPDF(html, options)
+}
+
+async function generateWithHtml2Pdf(html, options) {
+  const { filename, pageSize, orientation, margins, quality } = options
+
+  const element = document.createElement('div')
+  element.innerHTML = html
+  element.style.width = '210mm' // A4 width
+  document.body.appendChild(element)
+
+  const opt = {
+    margin: [margins.top, margins.right, margins.bottom, margins.left],
+    filename,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: quality, useCORS: true },
+    jsPDF: { unit: 'mm', format: pageSize, orientation }
+  }
+
+  try {
+    await html2pdf().set(opt).from(element).save()
+  } finally {
+    document.body.removeChild(element)
+  }
+}
+
+function printToPDF(html, options) {
+  // Open print dialog as fallback
+  const printWindow = window.open('', '_blank')
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>${options.filename || 'Document'}</title>
+      <style>
+        @page {
+          size: ${options.pageSize || 'A4'} ${options.orientation || 'portrait'};
+          margin: ${options.margins?.top || 20}mm ${options.margins?.right || 20}mm
+                  ${options.margins?.bottom || 20}mm ${options.margins?.left || 20}mm;
+        }
+        body {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          line-height: 1.6;
+        }
+        @media print {
+          .no-print { display: none; }
+        }
+      </style>
+    </head>
+    <body>
+      ${html}
+      <script>window.onload = function() { window.print(); window.close(); }</script>
+    </body>
+    </html>
+  `)
+  printWindow.document.close()
+}
+```
+
+**Commands:**
+```javascript
+async exportPDF(options = {}) {
+  await exportToPDF(this.editor.state.doc, options)
+}
+
+async downloadPDF(filename = 'document.pdf', options = {}) {
+  await this.exportPDF({ ...options, filename })
+}
+```
+
+---
+
+### 6.4 Export Toolbar/Menu
+
+Add export options to the UI.
+
+**Features:**
+- Export dropdown menu in toolbar
+- Keyboard shortcuts for quick export
+- Recent exports history
+- Export presets (save favorite settings)
+
+**Implementation:**
+```javascript
+// Added to sticky_toolbar_controller.js or separate export_controller.js
+
+const EXPORT_MENU = [
+  { id: 'markdown', label: 'Markdown (.md)', icon: 'M↓', shortcut: 'Cmd+Shift+M' },
+  { id: 'html', label: 'HTML (.html)', icon: '<>', shortcut: 'Cmd+Shift+H' },
+  { id: 'pdf', label: 'PDF (.pdf)', icon: '📄', shortcut: 'Cmd+Shift+P' },
+  { divider: true },
+  { id: 'copy-html', label: 'Copy as HTML', icon: '📋' },
+  { id: 'copy-markdown', label: 'Copy as Markdown', icon: '📋' }
+]
+```
+
+**CSS:**
+```css
+/* app/assets/stylesheets/inkpen/export.css */
+
+.inkpen-export-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  min-width: 200px;
+  padding: 0.5rem;
+  background: var(--inkpen-toolbar-bg);
+  border: 1px solid var(--inkpen-color-border);
+  border-radius: var(--inkpen-radius);
+  box-shadow: var(--inkpen-shadow-lg);
+  z-index: 100;
+}
+
+.inkpen-export-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-radius: var(--inkpen-radius-sm);
+  background: transparent;
+  color: var(--inkpen-color-text);
+  font-size: 0.875rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.inkpen-export-menu__item:hover {
+  background: var(--inkpen-color-bg-subtle);
+}
+
+.inkpen-export-menu__shortcut {
+  margin-left: auto;
+  font-size: 0.75rem;
+  color: var(--inkpen-color-text-muted);
+}
+
+.inkpen-export-menu__divider {
+  height: 1px;
+  margin: 0.5rem 0;
+  background: var(--inkpen-color-border);
+}
+```
+
+---
+
+### Implementation Priority
+
+| Feature | Priority | Complexity | Files |
+|---------|----------|------------|-------|
+| Markdown Export | High | Medium | markdown.js |
+| Markdown Import | High | High | markdown.js |
+| HTML Export | High | Low | html.js |
+| PDF Export | Medium | Medium | pdf.js |
+| Export Menu | Medium | Low | export_menu.js, export.css |
+
+---
+
+### Files to Create (v0.7.0)
+
+```
+app/assets/javascripts/inkpen/export/
+├── markdown.js                ← v0.7.0-alpha
+├── html.js                    ← v0.7.0-beta
+├── pdf.js                     ← v0.7.0-rc
+└── index.js                   ← exports all
+
+app/assets/stylesheets/inkpen/
+└── export.css                 ← v0.7.0
+
+lib/inkpen/
+└── export.rb                  ← Ruby helpers for server-side export (optional)
+```
+
+---
+
 ## Technical References
 
 ### TipTap/ProseMirror
