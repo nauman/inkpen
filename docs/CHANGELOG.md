@@ -86,6 +86,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Callback hooks: `onExportSuccess`, `onExportError`
 - JavaScript: `app/assets/javascripts/inkpen/extensions/export_commands.js`
 
+#### Export Slash Commands
+- New "Export" group in slash commands menu
+- Commands appear only when `export_commands` extension is enabled
+- Slash commands:
+  - `/export` - Shows all export options
+  - `/export markdown` or `/md` - Download as Markdown
+  - `/export html` - Download as HTML
+  - `/export pdf` - Download as PDF
+  - `/copy markdown` - Copy as Markdown
+  - `/copy html` - Copy as HTML
+- Uses `requiresCommand` property for conditional visibility
+
 ---
 
 ## [0.6.0] - 2024-12-XX

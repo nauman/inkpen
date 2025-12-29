@@ -68,7 +68,14 @@ const DEFAULT_COMMANDS = [
   { id: "embedFigma", title: "Figma", description: "Embed Figma design", icon: "◈", keywords: ["figma", "design", "prototype"], group: "Media" },
   { id: "embedLoom", title: "Loom", description: "Embed Loom video", icon: "🎥", keywords: ["loom", "video", "recording"], group: "Media" },
   { id: "embedCodePen", title: "CodePen", description: "Embed CodePen", icon: "⌨", keywords: ["codepen", "code", "demo"], group: "Media" },
-  { id: "embedSpotify", title: "Spotify", description: "Embed Spotify track", icon: "🎵", keywords: ["spotify", "music", "audio"], group: "Media" }
+  { id: "embedSpotify", title: "Spotify", description: "Embed Spotify track", icon: "🎵", keywords: ["spotify", "music", "audio"], group: "Media" },
+
+  // Export (v0.7.0) - requires export_commands extension
+  { id: "exportMarkdown", title: "Export Markdown", description: "Download as .md file", icon: "↓", keywords: ["export", "download", "markdown", "md"], group: "Export", requiresCommand: "downloadMarkdown" },
+  { id: "exportHTML", title: "Export HTML", description: "Download as .html file", icon: "↓", keywords: ["export", "download", "html"], group: "Export", requiresCommand: "downloadHTML" },
+  { id: "exportPDF", title: "Export PDF", description: "Download as .pdf file", icon: "↓", keywords: ["export", "download", "pdf", "print"], group: "Export", requiresCommand: "downloadPDF" },
+  { id: "copyMarkdown", title: "Copy as Markdown", description: "Copy content to clipboard", icon: "📋", keywords: ["copy", "clipboard", "markdown"], group: "Export", requiresCommand: "copyMarkdown" },
+  { id: "copyHTML", title: "Copy as HTML", description: "Copy HTML to clipboard", icon: "📋", keywords: ["copy", "clipboard", "html"], group: "Export", requiresCommand: "copyHTML" }
 ]
 
 export const SlashCommands = Extension.create({
@@ -77,7 +84,7 @@ export const SlashCommands = Extension.create({
   addOptions() {
     return {
       commands: DEFAULT_COMMANDS,
-      groups: ["Basic", "Lists", "Blocks", "Media", "Data", "Advanced"],
+      groups: ["Basic", "Lists", "Blocks", "Media", "Data", "Advanced", "Export"],
       maxSuggestions: 10,
       char: "/",
       startOfLine: false,
@@ -273,18 +280,27 @@ export const SlashCommands = Extension.create({
     ]
   },
 
-  // Filter commands based on query
+  // Filter commands based on query and availability
   filterCommands(query) {
     const commands = this.options.commands
     const maxSuggestions = this.options.maxSuggestions
+    const editor = this.editor
+
+    // Filter out commands that require unavailable editor commands
+    const availableCommands = commands.filter(cmd => {
+      if (cmd.requiresCommand) {
+        return editor.commands[cmd.requiresCommand] !== undefined
+      }
+      return true
+    })
 
     if (!query) {
-      return commands.slice(0, maxSuggestions)
+      return availableCommands.slice(0, maxSuggestions)
     }
 
     const q = query.toLowerCase()
 
-    return commands
+    return availableCommands
       .filter(cmd => {
         const titleMatch = cmd.title.toLowerCase().includes(q)
         const keywordMatch = cmd.keywords?.some(k => k.toLowerCase().includes(q))
@@ -522,6 +538,33 @@ export const SlashCommands = Extension.create({
       case "databaseGallery":
         if (editor.commands.insertDatabase) {
           chain.insertDatabase({ view: "gallery" }).run()
+        }
+        break
+
+      // Export (v0.7.0)
+      case "exportMarkdown":
+        if (editor.commands.downloadMarkdown) {
+          editor.commands.downloadMarkdown()
+        }
+        break
+      case "exportHTML":
+        if (editor.commands.downloadHTML) {
+          editor.commands.downloadHTML()
+        }
+        break
+      case "exportPDF":
+        if (editor.commands.downloadPDF) {
+          editor.commands.downloadPDF()
+        }
+        break
+      case "copyMarkdown":
+        if (editor.commands.copyMarkdown) {
+          editor.commands.copyMarkdown()
+        }
+        break
+      case "copyHTML":
+        if (editor.commands.copyHTML) {
+          editor.commands.copyHTML()
         }
         break
 
