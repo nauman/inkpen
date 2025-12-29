@@ -429,3 +429,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - HTML: `app/assets/javascripts/inkpen/export/html.js`
 - PDF: `app/assets/javascripts/inkpen/export/pdf.js`
 - CSS: `app/assets/stylesheets/inkpen/export.css`
+
+### Export Commands Extension
+- JavaScript: `app/assets/javascripts/inkpen/extensions/export_commands.js`
+
+### Advanced Tables Extension
+- JavaScript: `app/assets/javascripts/inkpen/extensions/advanced_table.js`
+- CSS: `app/assets/stylesheets/inkpen/advanced_table.css`
+
+### Database Block Extension
+- JavaScript: `app/assets/javascripts/inkpen/extensions/database.js`
+- CSS: `app/assets/stylesheets/inkpen/database.css`
+
+### Table of Contents Extension
+- JavaScript: `app/assets/javascripts/inkpen/extensions/table_of_contents.js`
+- CSS: `app/assets/stylesheets/inkpen/toc.css`

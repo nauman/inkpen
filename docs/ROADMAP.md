@@ -630,12 +630,14 @@ app/assets/stylesheets/inkpen/animations.css
 
 ---
 
-## Phase 4: Media & Embeds (v0.5.0)
+## Phase 4: Media & Embeds (v0.5.0) ✅
 
 ### Goal
 Transform Inkpen into a rich media editor with enhanced image handling, file attachments, and social embeds.
 
-### 4.1 Enhanced Image Extension (v0.5.0-alpha)
+**Status:** Complete
+
+### 4.1 Enhanced Image Extension (v0.5.0-alpha) ✅
 
 **Features:**
 - Resizable images with drag handles
@@ -1056,14 +1058,16 @@ lib/inkpen/extensions/
 
 ---
 
-## Phase 5: Tables & Data (v0.6.0)
+## Phase 5: Tables & Data (v0.6.0) ✅
 
 ### Goal
 Transform Inkpen into a data-rich editor with advanced table features, Notion-style database blocks, and automatic table of contents generation.
 
+**Status:** Complete
+
 ---
 
-### 5.1 Advanced Tables Extension (v0.6.0-alpha)
+### 5.1 Advanced Tables Extension (v0.6.0-alpha) ✅
 
 Enhance the existing TipTap table with professional features.
 
@@ -1973,14 +1977,16 @@ app/assets/stylesheets/inkpen/
 
 ---
 
-## Phase 6: Export & Import (v0.7.0)
+## Phase 6: Export & Import (v0.7.0) ✅
 
 ### Goal
 Enable seamless content portability with Markdown import/export, clean HTML export, and PDF generation.
 
+**Status:** Complete
+
 ---
 
-### 6.1 Markdown Export/Import (v0.7.0-alpha)
+### 6.1 Markdown Export/Import (v0.7.0-alpha) ✅
 
 Convert editor content to/from Markdown with full fidelity.
 
