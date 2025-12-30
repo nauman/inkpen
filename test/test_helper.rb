@@ -2,6 +2,8 @@
 
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 
+require "json"
+
 # Mock Rails for unit tests (no Rails dependency needed for pure Ruby tests)
 unless defined?(Rails)
   module Rails

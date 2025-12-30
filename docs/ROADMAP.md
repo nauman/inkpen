@@ -2590,3 +2590,423 @@ lib/inkpen/extensions/
 ├── code_block_syntax.rb
 └── forced_document.rb
 ```
+
+---
+
+## Phase 7: Document Sections (v0.8.0) — PLANNED
+
+### Goal
+Add true "content grouping" sections that group blocks under a heading, enabling Notion-style document structure, collapsible sections, and outline navigation.
+
+**Status:** Planned
+
+> **Note**: This is different from our existing `Section` extension, which controls layout (width/spacing). Document sections are **container nodes** that group related content.
+
+---
+
+### 7.1 Understanding the Difference
+
+| Feature | Layout Section (v0.2.2) | Document Section (v0.8.0) |
+|---------|------------------------|---------------------------|
+| Purpose | Visual presentation | Content organization |
+| Contains | Any blocks | Title + blocks |
+| Schema | `content: 'block+'` | `content: 'sectionTitle block*'` |
+| Use case | Page builder widths | Document outline |
+| Collapsible | No | Yes |
+| Drag behavior | Single block | Group of blocks |
+
+---
+
+### 7.2 Document Section Extension
+
+A container node with explicit title + content structure.
+
+**Features:**
+- Section title (sectionTitle node, renders as H2)
+- Collapsible content (toggle visibility)
+- Drag entire section as a group
+- Outline navigation integration
+- Nesting support (sections within sections)
+- Keyboard shortcuts for navigation
+
+**Schema:**
+```javascript
+// Document Section container
+const DocumentSection = Node.create({
+  name: 'documentSection',
+  group: 'block',
+  content: 'sectionTitle block*',  // Title + any blocks
+  defining: true,
+  isolating: true,
+  draggable: true,
+
+  addAttributes() {
+    return {
+      collapsed: { default: false },
+      id: { default: null }  // For deep linking
+    }
+  }
+})
+
+// Section Title (always first child)
+const SectionTitle = Node.create({
+  name: 'sectionTitle',
+  content: 'inline*',
+  defining: true,
+
+  parseHTML() {
+    return [{ tag: 'h2[data-section-title]' }]
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return ['h2', { ...HTMLAttributes, 'data-section-title': 'true' }, 0]
+  }
+})
+```
+
+**NodeView:**
+```javascript
+// Section wrapper with collapse UI
+const DocumentSectionView = ({ node, editor, getPos }) => {
+  const dom = document.createElement('div')
+  dom.className = 'inkpen-doc-section'
+
+  // Collapse toggle
+  const toggle = document.createElement('button')
+  toggle.className = 'inkpen-doc-section__toggle'
+  toggle.innerHTML = node.attrs.collapsed ? '▶' : '▼'
+  toggle.onclick = () => toggleCollapsed(editor, getPos())
+
+  // Section chrome
+  const header = document.createElement('div')
+  header.className = 'inkpen-doc-section__header'
+  header.appendChild(toggle)
+
+  // Content area (ProseMirror renders children here)
+  const contentDOM = document.createElement('div')
+  contentDOM.className = 'inkpen-doc-section__content'
+  if (node.attrs.collapsed) contentDOM.style.display = 'none'
+
+  dom.appendChild(header)
+  dom.appendChild(contentDOM)
+
+  return { dom, contentDOM }
+}
+```
+
+**Commands:**
+- `insertDocumentSection()` - Insert new section with title
+- `toggleSectionCollapsed()` - Expand/collapse section
+- `wrapInDocumentSection()` - Wrap selected blocks in section
+- `unwrapDocumentSection()` - Remove section wrapper, keep content
+- `moveSectionUp()` / `moveSectionDown()` - Reorder sections
+- `goToNextSection()` / `goToPreviousSection()` - Navigation
+
+**Keyboard Shortcuts:**
+| Shortcut | Action |
+|----------|--------|
+| `Cmd+Shift+Enter` | Insert document section |
+| `Cmd+.` | Toggle section collapsed |
+| `Cmd+Alt+↑` | Go to previous section |
+| `Cmd+Alt+↓` | Go to next section |
+
+---
+
+### 7.3 Section Outline Panel
+
+A sidebar/panel showing document structure.
+
+**Features:**
+- Tree view of all document sections
+- Click to navigate to section
+- Drag to reorder sections
+- Collapse/expand from outline
+- Search/filter sections
+- Section word count
+
+**Implementation:**
+```javascript
+// Get all sections as tree
+function getSectionOutline(editor) {
+  const sections = []
+  let index = 0
+
+  editor.state.doc.descendants((node, pos) => {
+    if (node.type.name === 'documentSection') {
+      const title = node.firstChild?.textContent || 'Untitled'
+      sections.push({
+        id: node.attrs.id || `section-${index++}`,
+        title,
+        pos,
+        collapsed: node.attrs.collapsed,
+        depth: getDepth(node, editor.state.doc)
+      })
+    }
+  })
+
+  return sections
+}
+```
+
+---
+
+### 7.4 Ruby Layer
+
+**Block Registry (optional, for validation):**
+```ruby
+# lib/inkpen/block_registry.rb
+module Inkpen
+  class BlockRegistry
+    ALLOWED_NODES = %w[
+      doc paragraph text heading bulletList orderedList listItem
+      blockquote codeBlock horizontalRule hardBreak
+      documentSection sectionTitle
+      callout toggleBlock columns section
+      enhancedImage fileAttachment embed
+      database tableOfContents
+    ].freeze
+
+    def self.validate!(doc_json)
+      walk_nodes(doc_json) do |node|
+        type = node['type']
+        raise InvalidNodeError, "Unknown node: #{type}" unless valid_type?(type)
+      end
+    end
+
+    def self.valid_type?(type)
+      ALLOWED_NODES.include?(type) || core_type?(type)
+    end
+  end
+end
+```
+
+**Document Section Extension PORO:**
+```ruby
+# lib/inkpen/extensions/document_section.rb
+module Inkpen
+  module Extensions
+    class DocumentSection < Base
+      def name
+        :document_section
+      end
+
+      def default_collapsed
+        options.fetch(:default_collapsed, false)
+      end
+
+      def nesting_enabled?
+        options.fetch(:nesting, true)
+      end
+
+      def max_depth
+        options.fetch(:max_depth, 3)
+      end
+
+      def to_config
+        {
+          defaultCollapsed: default_collapsed,
+          nestingEnabled: nesting_enabled?,
+          maxDepth: max_depth
+        }
+      end
+    end
+  end
+end
+```
+
+---
+
+### 7.5 CSS
+
+```css
+/* app/assets/stylesheets/inkpen/document_section.css */
+
+.inkpen-doc-section {
+  position: relative;
+  margin: 1.5rem 0;
+  padding-left: 1.5rem;
+  border-left: 2px solid var(--inkpen-color-border);
+}
+
+.inkpen-doc-section__header {
+  position: absolute;
+  left: -0.75rem;
+  top: 0;
+}
+
+.inkpen-doc-section__toggle {
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: var(--inkpen-toolbar-bg);
+  border-radius: var(--inkpen-radius-sm);
+  cursor: pointer;
+  font-size: 0.75rem;
+  color: var(--inkpen-color-text-muted);
+}
+
+.inkpen-doc-section__toggle:hover {
+  background: var(--inkpen-color-bg-subtle);
+  color: var(--inkpen-color-text);
+}
+
+.inkpen-doc-section__content {
+  /* Content area */
+}
+
+.inkpen-doc-section.is-collapsed .inkpen-doc-section__content {
+  display: none;
+}
+
+/* Nested sections */
+.inkpen-doc-section .inkpen-doc-section {
+  margin-left: 1rem;
+  border-left-color: var(--inkpen-color-border-light);
+}
+
+/* Drag state */
+.inkpen-doc-section.is-dragging {
+  opacity: 0.5;
+}
+
+/* Selected section */
+.inkpen-doc-section.is-selected {
+  border-left-color: var(--inkpen-color-primary);
+  background: rgba(var(--inkpen-color-primary-rgb), 0.05);
+}
+```
+
+---
+
+### 7.6 Integration Points
+
+**Table of Contents:**
+- TOC extension should recognize documentSection nodes
+- Show section titles in outline
+- Navigate to section on click
+
+**Export:**
+- Markdown: Use heading + content pattern
+- HTML: Use `<section>` + `<h2>` structure
+- PDF: Respect collapsed state (expand for export)
+
+**Slash Commands:**
+```javascript
+{
+  id: 'documentSection',
+  title: 'Section',
+  description: 'Create a collapsible section with title',
+  icon: '📑',
+  group: 'Structure',
+  keywords: ['section', 'group', 'collapse', 'outline']
+}
+```
+
+---
+
+### Implementation Priority
+
+| Feature | Priority | Complexity | Notes |
+|---------|----------|------------|-------|
+| DocumentSection node | High | Medium | Core functionality |
+| SectionTitle node | High | Low | Simple inline node |
+| Collapse/expand | High | Low | Toggle attribute |
+| NodeView with chrome | Medium | Medium | UI wrapper |
+| Outline panel | Medium | High | Separate component |
+| Nesting support | Low | Medium | Recursive schema |
+| Block registry | Low | Low | Optional validation |
+
+---
+
+### Files to Create (v0.8.0)
+
+```
+lib/inkpen/extensions/
+└── document_section.rb
+
+app/assets/javascripts/inkpen/extensions/
+├── document_section.js
+└── section_title.js
+
+app/assets/stylesheets/inkpen/
+└── document_section.css
+```
+
+---
+
+## Phase 8: Collaboration (v0.9.0) — FUTURE
+
+### Goal
+Real-time collaborative editing with presence awareness.
+
+**Potential Features:**
+- Y.js or Hocuspocus integration
+- Cursor presence (see where others are typing)
+- User avatars and names
+- Conflict resolution
+- Offline support with sync
+
+---
+
+## Phase 9: AI Integration (v1.0.0) — FUTURE
+
+### Goal
+AI-assisted writing and editing capabilities.
+
+**Potential Features:**
+- AI writing suggestions
+- Grammar and style checking
+- Content summarization
+- Translation
+- Image generation prompts
+
+---
+
+## Architecture Notes
+
+### Block Types Taxonomy
+
+```
+Inkpen Node Types
+├── Core (from TipTap)
+│   ├── doc
+│   ├── paragraph
+│   ├── text
+│   ├── heading
+│   ├── bulletList / orderedList / listItem
+│   ├── blockquote
+│   ├── codeBlock
+│   ├── horizontalRule
+│   └── hardBreak
+├── Layout Blocks
+│   ├── section (width/spacing)
+│   ├── columns / column
+│   └── documentSection (content grouping) ← v0.8.0
+├── Content Blocks
+│   ├── callout
+│   ├── toggleBlock
+│   ├── preformatted
+│   └── database
+├── Media Blocks
+│   ├── enhancedImage
+│   ├── fileAttachment
+│   ├── embed
+│   └── youtube
+└── Navigation Blocks
+    └── tableOfContents
+```
+
+### When to Use What
+
+| Need | Use |
+|------|-----|
+| Different content widths | `section` (layout) |
+| Collapsible single block | `toggleBlock` |
+| Collapsible group of blocks | `documentSection` |
+| Side-by-side content | `columns` |
+| Highlighted message | `callout` |
+| Structured data | `database` |
+| Document navigation | `tableOfContents` |

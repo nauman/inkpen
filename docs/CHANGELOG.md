@@ -9,6 +9,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- VISION.md documenting architecture philosophy and blocks vs sections distinction
+- Phase 7+ roadmap for Document Sections (true content grouping)
+- Phase 8-9 roadmap for Collaboration and AI Integration
+
+---
+
+## [0.7.1] - 2024-12-30
+
+### Added
+- Comprehensive test suite for Ruby classes:
+  - `test/test_configuration.rb` - Configuration class tests
+  - `test/test_editor.rb` - Editor class tests
+  - `test/test_toolbar.rb` - Toolbar class tests
+  - `test/test_sticky_toolbar.rb` - StickyToolbar class tests
+- JSDoc documentation for all JavaScript files
+
+### Changed
+- Export modules now lazy-load via dynamic `import()` to prevent 404s when not used
+- Export functionality is optional - apps that don't use exports won't load export code
+- Made `initializeEditor()` and `buildExtensions()` async in editor_controller.js
+
+### Fixed
+- Fixed export module 404 errors in MadeMySite integration
+- Fixed file permissions for export directory (755) and files (644)
+- Added `require 'json'` to test_helper.rb for `to_json` support in tests
+- Fixed import paths from relative (`./markdown`) to absolute (`inkpen/export/markdown`)
+
 ---
 
 ## [0.7.0] - 2024-12-29
