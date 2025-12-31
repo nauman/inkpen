@@ -41,12 +41,46 @@ import { AdvancedTable, AdvancedTableRow, AdvancedTableCell, AdvancedTableHeader
 import { TableOfContents } from "inkpen/extensions/table_of_contents"
 import { Database } from "inkpen/extensions/database"
 import { DocumentSection } from "inkpen/extensions/document_section"
-// Emoji replacer for :emoji: shortcode support
-import { EmojiReplacer } from "@tiptap-extend/emoji-replacer"
-// Search and Replace extension
-import SearchNReplace from "@sereneinserenade/tiptap-search-and-replace"
-// Footnotes extension
-import { Footnotes, Footnote, FootnoteReference } from "tiptap-footnotes"
+
+// Third-party extensions are loaded lazily to prevent CDN failures from breaking the editor
+let EmojiReplacer = null
+let SearchNReplace = null
+let FootnotesModule = null
+
+async function loadEmojiReplacer() {
+  if (EmojiReplacer) return EmojiReplacer
+  try {
+    const module = await import("@tiptap-extend/emoji-replacer")
+    EmojiReplacer = module.EmojiReplacer
+    return EmojiReplacer
+  } catch (e) {
+    console.warn("Inkpen: EmojiReplacer extension not available:", e.message)
+    return null
+  }
+}
+
+async function loadSearchNReplace() {
+  if (SearchNReplace) return SearchNReplace
+  try {
+    const module = await import("@sereneinserenade/tiptap-search-and-replace")
+    SearchNReplace = module.default
+    return SearchNReplace
+  } catch (e) {
+    console.warn("Inkpen: SearchNReplace extension not available:", e.message)
+    return null
+  }
+}
+
+async function loadFootnotes() {
+  if (FootnotesModule) return FootnotesModule
+  try {
+    FootnotesModule = await import("tiptap-footnotes")
+    return FootnotesModule
+  } catch (e) {
+    console.warn("Inkpen: Footnotes extension not available:", e.message)
+    return null
+  }
+}
 
 // Export modules are loaded lazily when export_commands extension is enabled
 // This prevents 404 errors for apps that don't use export functionality
@@ -422,32 +456,44 @@ export default class extends Controller {
     }
 
     // Emoji replacer (auto-converts :emoji: shortcodes to emojis)
+    // Loaded lazily to prevent CDN failures from breaking editor
     if (enabledExtensions.includes("emoji")) {
-      const emojiConfig = config.emoji || {}
-      extensions.push(
-        EmojiReplacer.configure({
-          ruleConfigs: emojiConfig.customEmojis || [],
-          shouldUseExtraLookupSpace: emojiConfig.requireSpace !== false,
-          shouldUseExtraReplacementSpace: emojiConfig.addSpaceAfter !== false
-        })
-      )
+      const EmojiExt = await loadEmojiReplacer()
+      if (EmojiExt) {
+        const emojiConfig = config.emoji || {}
+        extensions.push(
+          EmojiExt.configure({
+            ruleConfigs: emojiConfig.customEmojis || [],
+            shouldUseExtraLookupSpace: emojiConfig.requireSpace !== false,
+            shouldUseExtraReplacementSpace: emojiConfig.addSpaceAfter !== false
+          })
+        )
+      }
     }
 
     // Search and Replace extension (find & replace text)
+    // Loaded lazily to prevent CDN failures from breaking editor
     if (enabledExtensions.includes("search_replace")) {
-      const searchConfig = config.search_replace || {}
-      extensions.push(
-        SearchNReplace.configure({
-          searchResultClass: searchConfig.resultClass || "inkpen-search-result",
-          caseSensitive: searchConfig.caseSensitive || false,
-          disableRegex: searchConfig.disableRegex || false
-        })
-      )
+      const SearchExt = await loadSearchNReplace()
+      if (SearchExt) {
+        const searchConfig = config.search_replace || {}
+        extensions.push(
+          SearchExt.configure({
+            searchResultClass: searchConfig.resultClass || "inkpen-search-result",
+            caseSensitive: searchConfig.caseSensitive || false,
+            disableRegex: searchConfig.disableRegex || false
+          })
+        )
+      }
     }
 
     // Footnotes extension (academic footnotes)
+    // Loaded lazily to prevent CDN failures from breaking editor
     if (enabledExtensions.includes("footnotes")) {
-      extensions.push(Footnotes, Footnote, FootnoteReference)
+      const FootnotesExt = await loadFootnotes()
+      if (FootnotesExt) {
+        extensions.push(FootnotesExt.Footnotes, FootnotesExt.Footnote, FootnotesExt.FootnoteReference)
+      }
     }
 
     // Section extension (page-builder style width/spacing control)
