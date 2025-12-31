@@ -1,0 +1,58 @@
+/**
+ * Search and Replace Styles for Inkpen Editor
+ *
+ * Highlights search results in the editor.
+ *
+ * @since 0.8.0
+ */
+
+/* ==========================================================================
+   CSS Custom Properties
+   ========================================================================== */
+
+:root {
+  --inkpen-search-result-bg: #fef08a;
+  --inkpen-search-result-color: inherit;
+  --inkpen-search-current-bg: #fb923c;
+  --inkpen-search-current-color: #000;
+}
+
+/* Dark mode */
+[data-theme="dark"],
+.dark {
+  --inkpen-search-result-bg: #854d0e;
+  --inkpen-search-result-color: #fef9c3;
+  --inkpen-search-current-bg: #ea580c;
+  --inkpen-search-current-color: #fff;
+}
+
+/* ==========================================================================
+   Search Result Highlighting
+   ========================================================================== */
+
+.inkpen-search-result {
+  background-color: var(--inkpen-search-result-bg);
+  color: var(--inkpen-search-result-color);
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+/* Current/active search result */
+.inkpen-search-result.is-current,
+.inkpen-search-result:focus {
+  background-color: var(--inkpen-search-current-bg);
+  color: var(--inkpen-search-current-color);
+  outline: 2px solid var(--inkpen-search-current-bg);
+  outline-offset: 1px;
+}
+
+/* ==========================================================================
+   Print Styles
+   ========================================================================== */
+
+@media print {
+  .inkpen-search-result {
+    background-color: transparent;
+    border-bottom: 2px solid #000;
+  }
+}

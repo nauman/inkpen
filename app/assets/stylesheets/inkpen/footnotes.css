@@ -1,0 +1,136 @@
+/**
+ * Footnotes Styles for Inkpen Editor
+ *
+ * Academic-style footnotes with inline references.
+ *
+ * @since 0.8.0
+ */
+
+/* ==========================================================================
+   CSS Custom Properties
+   ========================================================================== */
+
+:root {
+  --inkpen-footnote-color: var(--inkpen-color-primary, #3b82f6);
+  --inkpen-footnote-border: #e5e7eb;
+  --inkpen-footnote-bg: #f9fafb;
+  --inkpen-footnote-text: #6b7280;
+}
+
+/* Dark mode */
+[data-theme="dark"],
+.dark {
+  --inkpen-footnote-border: #374151;
+  --inkpen-footnote-bg: #1f2937;
+  --inkpen-footnote-text: #9ca3af;
+}
+
+/* ==========================================================================
+   Footnote Reference (inline superscript)
+   ========================================================================== */
+
+.inkpen-footnote-ref,
+[data-type="footnoteReference"] {
+  color: var(--inkpen-footnote-color);
+  font-size: 0.75em;
+  vertical-align: super;
+  text-decoration: none;
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0 2px;
+  border-radius: 2px;
+  transition: background-color 150ms ease;
+}
+
+.inkpen-footnote-ref:hover,
+[data-type="footnoteReference"]:hover {
+  background-color: rgba(59, 130, 246, 0.1);
+  text-decoration: underline;
+}
+
+/* ==========================================================================
+   Footnotes Container (at bottom of document)
+   ========================================================================== */
+
+.inkpen-footnotes,
+ol.footnotes,
+[data-type="footnotes"] {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--inkpen-footnote-border);
+  font-size: 0.875rem;
+  color: var(--inkpen-footnote-text);
+}
+
+.inkpen-footnotes:empty,
+ol.footnotes:empty,
+[data-type="footnotes"]:empty {
+  display: none;
+}
+
+/* ==========================================================================
+   Individual Footnote
+   ========================================================================== */
+
+.inkpen-footnote,
+li.footnote,
+[data-type="footnote"] {
+  margin-bottom: 0.75rem;
+  padding-left: 0.5rem;
+  line-height: 1.5;
+}
+
+.inkpen-footnote:last-child,
+li.footnote:last-child,
+[data-type="footnote"]:last-child {
+  margin-bottom: 0;
+}
+
+/* Footnote number */
+.inkpen-footnote::marker,
+li.footnote::marker {
+  color: var(--inkpen-footnote-color);
+  font-weight: 600;
+}
+
+/* Back reference link */
+.inkpen-footnote-backref {
+  color: var(--inkpen-footnote-color);
+  text-decoration: none;
+  margin-left: 0.25rem;
+  font-size: 0.875em;
+}
+
+.inkpen-footnote-backref:hover {
+  text-decoration: underline;
+}
+
+/* ==========================================================================
+   Focus States
+   ========================================================================== */
+
+.inkpen-footnote:focus-within,
+[data-type="footnote"]:focus-within {
+  background-color: var(--inkpen-footnote-bg);
+  border-radius: 4px;
+  outline: 2px solid var(--inkpen-footnote-color);
+  outline-offset: 2px;
+}
+
+/* ==========================================================================
+   Print Styles
+   ========================================================================== */
+
+@media print {
+  .inkpen-footnotes,
+  ol.footnotes,
+  [data-type="footnotes"] {
+    border-top: 1px solid #000;
+    page-break-inside: avoid;
+  }
+
+  .inkpen-footnote-ref,
+  [data-type="footnoteReference"] {
+    color: #000;
+  }
+}

@@ -1,0 +1,305 @@
+/**
+ * Document Section Styles for Inkpen Editor
+ *
+ * Collapsible content-grouping sections with left-gutter toggle.
+ * Notion-style document structure with semantic H2 titles.
+ *
+ * @since 0.8.0
+ */
+
+/* ==========================================================================
+   CSS Custom Properties
+   ========================================================================== */
+
+:root {
+  --inkpen-doc-section-border: #e5e7eb;
+  --inkpen-doc-section-border-hover: #d1d5db;
+  --inkpen-doc-section-bg: transparent;
+  --inkpen-doc-section-gutter-width: 1.75rem;
+  --inkpen-doc-section-toggle-size: 1.25rem;
+  --inkpen-doc-section-toggle-bg: #f3f4f6;
+  --inkpen-doc-section-toggle-bg-hover: #e5e7eb;
+  --inkpen-doc-section-toggle-color: #6b7280;
+  --inkpen-doc-section-toggle-color-hover: #374151;
+  --inkpen-doc-section-title-size: 1.25rem;
+  --inkpen-doc-section-title-weight: 600;
+  --inkpen-doc-section-title-color: inherit;
+  --inkpen-doc-section-radius: 4px;
+  --inkpen-doc-section-spacing: 1.5rem;
+}
+
+/* Dark mode */
+[data-theme="dark"],
+.dark {
+  --inkpen-doc-section-border: #374151;
+  --inkpen-doc-section-border-hover: #4b5563;
+  --inkpen-doc-section-toggle-bg: #1f2937;
+  --inkpen-doc-section-toggle-bg-hover: #374151;
+  --inkpen-doc-section-toggle-color: #9ca3af;
+  --inkpen-doc-section-toggle-color-hover: #e5e7eb;
+}
+
+/* ==========================================================================
+   Document Section Container
+   ========================================================================== */
+
+.inkpen-doc-section {
+  position: relative;
+  margin: var(--inkpen-doc-section-spacing) 0;
+  padding-left: var(--inkpen-doc-section-gutter-width);
+  border-left: 2px solid var(--inkpen-doc-section-border);
+  background: var(--inkpen-doc-section-bg);
+  transition: border-color 150ms ease;
+}
+
+.inkpen-doc-section:hover {
+  border-left-color: var(--inkpen-doc-section-border-hover);
+}
+
+/* First section - no top margin */
+.ProseMirror > .inkpen-doc-section:first-child {
+  margin-top: 0;
+}
+
+/* ==========================================================================
+   Left Gutter with Collapse Toggle
+   ========================================================================== */
+
+.inkpen-doc-section__gutter {
+  position: absolute;
+  left: calc(-1 * var(--inkpen-doc-section-toggle-size) / 2 - 1px);
+  top: 0;
+  width: var(--inkpen-doc-section-toggle-size);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 10;
+}
+
+.inkpen-doc-section__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--inkpen-doc-section-toggle-size);
+  height: var(--inkpen-doc-section-toggle-size);
+  padding: 0;
+  border: none;
+  background: var(--inkpen-doc-section-toggle-bg);
+  border-radius: var(--inkpen-doc-section-radius);
+  cursor: pointer;
+  color: var(--inkpen-doc-section-toggle-color);
+  transition: background 150ms ease, color 150ms ease, transform 150ms ease;
+}
+
+.inkpen-doc-section__toggle:hover {
+  background: var(--inkpen-doc-section-toggle-bg-hover);
+  color: var(--inkpen-doc-section-toggle-color-hover);
+}
+
+.inkpen-doc-section__toggle:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+}
+
+.inkpen-doc-section__toggle svg {
+  width: 12px;
+  height: 12px;
+  transition: transform 150ms ease;
+}
+
+/* ==========================================================================
+   Section Title (H2)
+   ========================================================================== */
+
+.inkpen-doc-section__title {
+  font-size: var(--inkpen-doc-section-title-size);
+  font-weight: var(--inkpen-doc-section-title-weight);
+  color: var(--inkpen-doc-section-title-color);
+  line-height: 1.4;
+  margin: 0 0 0.5rem 0;
+  padding: 0;
+  outline: none;
+}
+
+/* Placeholder for empty title */
+.inkpen-doc-section__title:empty::before {
+  content: "Section title...";
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+[data-theme="dark"] .inkpen-doc-section__title:empty::before,
+.dark .inkpen-doc-section__title:empty::before {
+  color: #6b7280;
+}
+
+/* ==========================================================================
+   Section Content
+   ========================================================================== */
+
+.inkpen-doc-section__content {
+  position: relative;
+}
+
+/* Content spacing */
+.inkpen-doc-section__content > * + * {
+  margin-top: 0.75rem;
+}
+
+/* Title is first child, no margin */
+.inkpen-doc-section__content > .inkpen-doc-section__title:first-child {
+  margin-top: 0;
+}
+
+/* ==========================================================================
+   Collapsed State
+   ========================================================================== */
+
+.inkpen-doc-section[data-collapsed="true"] .inkpen-doc-section__content > *:not(.inkpen-doc-section__title) {
+  display: none;
+}
+
+/* Collapsed border style - dashed */
+.inkpen-doc-section[data-collapsed="true"] {
+  border-left-style: dashed;
+}
+
+/* ==========================================================================
+   Nesting (Depth Levels)
+   ========================================================================== */
+
+/* Level 2 - indented */
+.inkpen-doc-section[data-depth="2"] {
+  margin-left: 0.5rem;
+}
+
+.inkpen-doc-section[data-depth="2"] .inkpen-doc-section__title {
+  font-size: 1.125rem;
+}
+
+/* Level 3 - further indented */
+.inkpen-doc-section[data-depth="3"] {
+  margin-left: 1rem;
+}
+
+.inkpen-doc-section[data-depth="3"] .inkpen-doc-section__title {
+  font-size: 1rem;
+}
+
+/* Nested sections have less vertical spacing */
+.inkpen-doc-section .inkpen-doc-section {
+  margin: 1rem 0;
+}
+
+/* ==========================================================================
+   Focus States
+   ========================================================================== */
+
+.inkpen-doc-section:focus-within {
+  border-left-color: var(--inkpen-color-primary, #3b82f6);
+}
+
+/* ==========================================================================
+   Drag Handle Integration
+   ========================================================================== */
+
+/* When dragging, show visual feedback */
+.inkpen-doc-section.is-dragging {
+  opacity: 0.5;
+}
+
+.inkpen-doc-section.is-drop-target {
+  border-left-color: var(--inkpen-color-primary, #3b82f6);
+  box-shadow: inset 2px 0 0 var(--inkpen-color-primary, #3b82f6);
+}
+
+/* ==========================================================================
+   Animations
+   ========================================================================== */
+
+/* Content reveal animation */
+.inkpen-doc-section[data-collapsed="false"] .inkpen-doc-section__content > *:not(.inkpen-doc-section__title) {
+  animation: inkpen-doc-section-reveal 150ms ease-out;
+}
+
+@keyframes inkpen-doc-section-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================================================
+   Mobile Optimizations
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  :root {
+    --inkpen-doc-section-gutter-width: 1.5rem;
+    --inkpen-doc-section-toggle-size: 1.5rem;
+    --inkpen-doc-section-title-size: 1.125rem;
+  }
+
+  .inkpen-doc-section[data-depth="2"],
+  .inkpen-doc-section[data-depth="3"] {
+    margin-left: 0.25rem;
+  }
+}
+
+/* Touch-friendly: larger tap targets */
+@media (pointer: coarse) {
+  .inkpen-doc-section__toggle {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+}
+
+/* ==========================================================================
+   Reduced Motion
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .inkpen-doc-section,
+  .inkpen-doc-section__toggle,
+  .inkpen-doc-section__toggle svg {
+    transition: none;
+  }
+
+  .inkpen-doc-section[data-collapsed="false"] .inkpen-doc-section__content > *:not(.inkpen-doc-section__title) {
+    animation: none;
+  }
+}
+
+/* ==========================================================================
+   Print Styles
+   ========================================================================== */
+
+@media print {
+  /* Always show content when printing */
+  .inkpen-doc-section {
+    border-left: 2px solid #ccc;
+    page-break-inside: avoid;
+  }
+
+  .inkpen-doc-section[data-collapsed="true"] .inkpen-doc-section__content > *:not(.inkpen-doc-section__title) {
+    display: block !important;
+  }
+
+  .inkpen-doc-section__gutter {
+    display: none;
+  }
+
+  .inkpen-doc-section {
+    padding-left: 1rem;
+  }
+
+  .inkpen-doc-section[data-depth="2"],
+  .inkpen-doc-section[data-depth="3"] {
+    margin-left: 0;
+    padding-left: 2rem;
+  }
+}

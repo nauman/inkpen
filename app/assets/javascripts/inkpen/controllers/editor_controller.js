@@ -40,6 +40,13 @@ import { Embed } from "inkpen/extensions/embed"
 import { AdvancedTable, AdvancedTableRow, AdvancedTableCell, AdvancedTableHeader } from "inkpen/extensions/advanced_table"
 import { TableOfContents } from "inkpen/extensions/table_of_contents"
 import { Database } from "inkpen/extensions/database"
+import { DocumentSection } from "inkpen/extensions/document_section"
+// Emoji replacer for :emoji: shortcode support
+import { EmojiReplacer } from "@tiptap-extend/emoji-replacer"
+// Search and Replace extension
+import SearchNReplace from "@sereneinserenade/tiptap-search-and-replace"
+// Footnotes extension
+import { Footnotes, Footnote, FootnoteReference } from "tiptap-footnotes"
 
 // Export modules are loaded lazily when export_commands extension is enabled
 // This prevents 404 errors for apps that don't use export functionality
@@ -414,6 +421,35 @@ export default class extends Controller {
       )
     }
 
+    // Emoji replacer (auto-converts :emoji: shortcodes to emojis)
+    if (enabledExtensions.includes("emoji")) {
+      const emojiConfig = config.emoji || {}
+      extensions.push(
+        EmojiReplacer.configure({
+          ruleConfigs: emojiConfig.customEmojis || [],
+          shouldUseExtraLookupSpace: emojiConfig.requireSpace !== false,
+          shouldUseExtraReplacementSpace: emojiConfig.addSpaceAfter !== false
+        })
+      )
+    }
+
+    // Search and Replace extension (find & replace text)
+    if (enabledExtensions.includes("search_replace")) {
+      const searchConfig = config.search_replace || {}
+      extensions.push(
+        SearchNReplace.configure({
+          searchResultClass: searchConfig.resultClass || "inkpen-search-result",
+          caseSensitive: searchConfig.caseSensitive || false,
+          disableRegex: searchConfig.disableRegex || false
+        })
+      )
+    }
+
+    // Footnotes extension (academic footnotes)
+    if (enabledExtensions.includes("footnotes")) {
+      extensions.push(Footnotes, Footnote, FootnoteReference)
+    }
+
     // Section extension (page-builder style width/spacing control)
     if (enabledExtensions.includes("section")) {
       const sectionConfig = config.section || {}
@@ -424,6 +460,19 @@ export default class extends Controller {
           showControls: sectionConfig.showControls !== false,
           widthPresets: sectionConfig.widthPresets || undefined,
           spacingPresets: sectionConfig.spacingPresets || undefined
+        })
+      )
+    }
+
+    // Document Section extension (collapsible content-grouping with semantic title)
+    if (enabledExtensions.includes("document_section")) {
+      const docSectionConfig = config.document_section || {}
+      extensions.push(
+        DocumentSection.configure({
+          maxDepth: docSectionConfig.maxDepth || 3,
+          showControls: docSectionConfig.showControls !== false,
+          defaultCollapsed: docSectionConfig.defaultCollapsed || false,
+          allowNesting: docSectionConfig.allowNesting !== false
         })
       )
     }

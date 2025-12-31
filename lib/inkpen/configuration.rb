@@ -91,7 +91,9 @@ module Inkpen
       advanced_table
       slash_commands
       mention
-      hashtags
+      emoji
+      search_replace
+      footnotes
       placeholder
       typography
       highlight
@@ -103,6 +105,7 @@ module Inkpen
       code_block_syntax
       task_list
       section
+      document_section
       preformatted
       block_gutter
       drag_handle

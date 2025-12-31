@@ -48,6 +48,7 @@ const DEFAULT_COMMANDS = [
 
   // Advanced
   { id: "section", title: "Section", description: "Page section with width control", icon: "▢", keywords: ["layout", "container", "wrapper"], group: "Advanced" },
+  { id: "documentSection", title: "Document Section", description: "Collapsible section with title", icon: "📑", keywords: ["section", "group", "collapse", "outline", "heading"], group: "Advanced" },
   { id: "toggle", title: "Toggle", description: "Collapsible content block", icon: "▸", keywords: ["collapse", "expand", "accordion", "details"], group: "Advanced" },
   { id: "columns2", title: "2 Columns", description: "Side-by-side columns", icon: "▥", keywords: ["layout", "grid", "split", "two"], group: "Advanced" },
   { id: "columns3", title: "3 Columns", description: "Three column layout", icon: "▦", keywords: ["layout", "grid", "three"], group: "Advanced" },
@@ -56,6 +57,7 @@ const DEFAULT_COMMANDS = [
   { id: "calloutTip", title: "Tip Callout", description: "Helpful tip", icon: "💡", keywords: ["callout", "tip", "hint", "idea"], group: "Advanced" },
 
   // Data (v0.6.0)
+  { id: "footnote", title: "Footnote", description: "Add a footnote reference", icon: "¹", keywords: ["footnote", "reference", "citation", "note", "academic"], group: "Data" },
   { id: "toc", title: "Table of Contents", description: "Auto-generated navigation", icon: "📑", keywords: ["toc", "contents", "navigation", "index", "outline"], group: "Data" },
   { id: "database", title: "Database", description: "Inline database with views", icon: "🗃️", keywords: ["database", "notion", "table", "kanban", "board"], group: "Data" },
   { id: "databaseBoard", title: "Kanban Board", description: "Database with board view", icon: "▣", keywords: ["kanban", "board", "trello", "tasks"], group: "Data" },
@@ -430,6 +432,11 @@ export const SlashCommands = Extension.create({
           chain.insertSection().run()
         }
         break
+      case "documentSection":
+        if (editor.commands.insertDocumentSection) {
+          chain.insertDocumentSection().run()
+        }
+        break
       case "toggle":
         if (editor.commands.insertToggle) {
           chain.insertToggle().run()
@@ -520,6 +527,11 @@ export const SlashCommands = Extension.create({
         break
 
       // Data (v0.6.0)
+      case "footnote":
+        if (editor.commands.insertFootnoteReference) {
+          chain.insertFootnoteReference().run()
+        }
+        break
       case "toc":
         if (editor.commands.insertTableOfContents) {
           chain.insertTableOfContents().run()

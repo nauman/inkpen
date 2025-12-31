@@ -22,6 +22,8 @@ import { Embed } from "inkpen/extensions/embed"
 import { AdvancedTable, AdvancedTableRow, AdvancedTableCell, AdvancedTableHeader } from "inkpen/extensions/advanced_table"
 import { TableOfContents } from "inkpen/extensions/table_of_contents"
 import { Database } from "inkpen/extensions/database"
+import { DocumentSection } from "inkpen/extensions/document_section"
+import { SectionTitle } from "inkpen/extensions/section_title"
 
 // Auto-register controllers if Stimulus application exists
 const application = window.Stimulus || Application.start()
@@ -36,6 +38,8 @@ export { EditorController, ToolbarController, StickyToolbarController }
 // Export extensions for custom use
 export {
   Section,
+  DocumentSection,
+  SectionTitle,
   Preformatted,
   SlashCommands,
   BlockGutter,
