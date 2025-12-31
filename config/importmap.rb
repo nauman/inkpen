@@ -126,7 +126,7 @@ pin "@tiptap-extend/emoji-replacer", to: "https://esm.sh/@tiptap-extend/emoji-re
 pin "@sereneinserenade/tiptap-search-and-replace", to: "https://esm.sh/@sereneinserenade/tiptap-search-and-replace@1.1.0?deps=@tiptap/core@2.10.3"
 
 # Footnotes extension
-pin "tiptap-footnotes", to: "https://esm.sh/tiptap-footnotes@1.0.6?deps=@tiptap/core@2.10.3,@tiptap/pm@2.10.3"
+pin "tiptap-footnotes", to: "https://esm.sh/tiptap-footnotes@2.0.4?deps=@tiptap/core@2.10.3,@tiptap/pm@2.10.3"
 
 # Inkpen controllers and extensions
 pin "inkpen", to: "inkpen/index.js"
