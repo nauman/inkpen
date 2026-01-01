@@ -89,6 +89,7 @@ module Inkpen
       image
       table
       advanced_table
+      inkpen_table
       slash_commands
       mention
       emoji

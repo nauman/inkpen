@@ -38,6 +38,7 @@ import { EnhancedImage } from "inkpen/extensions/enhanced_image"
 import { FileAttachment } from "inkpen/extensions/file_attachment"
 import { Embed } from "inkpen/extensions/embed"
 import { AdvancedTable, AdvancedTableRow, AdvancedTableCell, AdvancedTableHeader } from "inkpen/extensions/advanced_table"
+import { InkpenTable, InkpenTableRow, InkpenTableCell, InkpenTableHeader } from "inkpen/extensions/inkpen_table"
 import { TableOfContents } from "inkpen/extensions/table_of_contents"
 import { Database } from "inkpen/extensions/database"
 import { DocumentSection } from "inkpen/extensions/document_section"
@@ -322,8 +323,27 @@ export default class extends Controller {
       )
     }
 
-    // Table extension (use AdvancedTable if advanced_table is enabled)
-    if (enabledExtensions.includes("advanced_table")) {
+    // Table extension (use InkpenTable for enhanced Notion-style tables)
+    if (enabledExtensions.includes("inkpen_table")) {
+      const tableConfig = config.inkpen_table || config.table || {}
+      extensions.push(
+        InkpenTable.configure({
+          resizable: tableConfig.resizable !== false,
+          showHandles: tableConfig.showHandles !== false,
+          showAddButtons: tableConfig.showAddButtons !== false,
+          showCaption: tableConfig.showCaption !== false,
+          stickyHeader: tableConfig.stickyHeader || false,
+          defaultVariant: tableConfig.defaultVariant || "default",
+          HTMLAttributes: {
+            class: "inkpen-table"
+          }
+        }),
+        InkpenTableRow,
+        InkpenTableHeader,
+        InkpenTableCell
+      )
+    } else if (enabledExtensions.includes("advanced_table")) {
+      // Legacy: Use AdvancedTable (deprecated, use inkpen_table instead)
       const tableConfig = config.advanced_table || config.table || {}
       extensions.push(
         AdvancedTable.configure({

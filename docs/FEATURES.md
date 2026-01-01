@@ -1,6 +1,6 @@
 # Inkpen Features
 
-> **Version:** 0.7.0
+> **Version:** 0.8.0
 > **A Notion-style block editor for Rails**
 
 Inkpen is a TipTap-based rich text editor gem that provides Notion-like editing capabilities for Rails applications.
@@ -100,7 +100,7 @@ Inkpen is a TipTap-based rich text editor gem that provides Notion-like editing 
 | Block | Slash Command | Description |
 |-------|---------------|-------------|
 | Table | `/table` | Basic table |
-| Advanced Table | - | Tables with alignment, colors, variants |
+| InkpenTable | `/table` | Notion-style tables with handles, menus, colors |
 | Database | `/database` | Notion-style inline database |
 | Kanban Board | `/kanban` | Database with board view |
 | Gallery | `/gallery` | Database with gallery view |
@@ -110,7 +110,7 @@ Inkpen is a TipTap-based rich text editor gem that provides Notion-like editing 
 
 ## Extensions
 
-### 16 Custom Extensions
+### 17 Custom Extensions
 
 | Extension | Version | Description |
 |-----------|---------|-------------|
@@ -126,10 +126,11 @@ Inkpen is a TipTap-based rich text editor gem that provides Notion-like editing 
 | Enhanced Image | v0.5.0 | Resizable images with captions |
 | File Attachment | v0.5.0 | File uploads with type icons |
 | Embed | v0.5.0 | Social media embeds |
-| Advanced Table | v0.6.0 | Professional table features |
+| Advanced Table | v0.6.0 | Professional table features (deprecated) |
 | Table of Contents | v0.6.0 | Auto-generated heading navigation |
 | Database | v0.6.0 | Notion-style inline databases |
 | Export Commands | v0.7.0 | Export keyboard shortcuts |
+| **InkpenTable** | v0.8.0 | Notion-style tables with handles & menus |
 
 ### Database Features
 - **Property Types:** Text, Number, Select, Date, Checkbox, URL
@@ -137,13 +138,19 @@ Inkpen is a TipTap-based rich text editor gem that provides Notion-like editing 
 - **Operations:** Add/edit/delete rows, add properties
 - **Styling:** Color-coded select tags
 
-### Advanced Table Features
+### InkpenTable Features (v0.8.0+)
+- **Row/Column handles** with context menus
+- **Quick add buttons** ("+ New row", "+")
+- **Text colors** (9 options: gray, red, orange, yellow, green, blue, purple, pink)
+- **Background colors** (9 matching options)
 - Column alignment (left, center, right)
 - Table caption/title
-- Striped rows option
 - Border style variants (default, striped, borderless, minimal)
-- Cell background colors (7 options)
 - Sticky header behavior
+- Dark mode support
+
+> **Note:** InkpenTable replaces both `table` and `advanced_table` extensions.
+> See [InkpenTable Documentation](extensions/INKPEN_TABLE.md) for details.
 
 ---
 
@@ -331,10 +338,19 @@ app/assets/javascripts/inkpen/
 │   ├── enhanced_image.js
 │   ├── file_attachment.js
 │   ├── embed.js
-│   ├── advanced_table.js
+│   ├── advanced_table.js          # deprecated
 │   ├── table_of_contents.js
 │   ├── database.js
-│   └── export_commands.js
+│   ├── document_section.js
+│   ├── export_commands.js
+│   └── inkpen_table/              # v0.8.0 - Notion-style tables
+│       ├── index.js
+│       ├── inkpen_table.js
+│       ├── inkpen_table_cell.js
+│       ├── inkpen_table_header.js
+│       ├── table_menu.js
+│       ├── table_helpers.js
+│       └── table_constants.js
 ├── export/
 │   ├── index.js
 │   ├── markdown.js
@@ -357,9 +373,11 @@ app/assets/stylesheets/inkpen/
 ├── enhanced_image.css
 ├── file_attachment.css
 ├── embed.css
-├── advanced_table.css
+├── advanced_table.css             # deprecated
+├── inkpen_table.css               # v0.8.0
 ├── toc.css
 ├── database.css
+├── document_section.css
 └── export.css
 ```
 

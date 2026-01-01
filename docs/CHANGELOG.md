@@ -16,6 +16,63 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.8.0] - 2025-01-02
+
+### Added
+
+#### InkpenTable Extension (v0.8.0)
+- **Notion-style enhanced tables** - unified replacement for `table` and `advanced_table`
+- **Row/Column handles** - grip icons (⋮⋮) with context menus for table operations
+- **Context menus** with full row/column operations:
+  - Add row above/below, duplicate row, delete row
+  - Add column left/right, duplicate column, delete column
+  - Move row up/down, move column left/right
+  - Toggle header row
+  - Alignment submenu (left, center, right)
+  - Text color picker (9 colors)
+  - Background color picker (9 colors)
+- **Quick add buttons** - "+ New row" button and "+" for columns
+- **Text colors** - 9 Notion-style color options (gray, red, orange, yellow, green, blue, purple, pink)
+- **Background colors** - 9 matching background color options
+- **Table variants** - default, striped, borderless, minimal
+- **Caption** - editable table title
+- **Sticky header** - optional fixed header on scroll
+- **Dark mode** - full theme support with CSS custom properties
+- **Fizzy patterns** - follows 37signals code style with `#privateFields`, section comments, named exports
+- Commands: `setCellTextColor`, `clearCellTextColor` (plus all advanced_table commands)
+- Configuration: `showHandles`, `showAddButtons`, `showCaption`, `stickyHeader`, `defaultVariant`
+
+#### Third-party Extensions
+- **Emoji Replacer** - auto-converts `:emoji:` shortcodes (lazy-loaded from CDN)
+- **Search & Replace** - find and replace text in document (lazy-loaded)
+- **Footnotes** - academic-style footnotes with references (lazy-loaded)
+
+#### Documentation
+- `docs/extensions/INKPEN_TABLE.md` - comprehensive InkpenTable documentation with ASCII architecture
+
+### Changed
+- Third-party extensions now lazy-load via dynamic `import()` to prevent CDN failures from breaking editor
+- Updated FEATURES.md with InkpenTable documentation
+- Updated file structure documentation
+
+### Deprecated
+- `advanced_table` extension - use `inkpen_table` instead (still works for backwards compatibility)
+
+### Files Added
+- `app/assets/javascripts/inkpen/extensions/inkpen_table/index.js`
+- `app/assets/javascripts/inkpen/extensions/inkpen_table/inkpen_table.js`
+- `app/assets/javascripts/inkpen/extensions/inkpen_table/inkpen_table_cell.js`
+- `app/assets/javascripts/inkpen/extensions/inkpen_table/inkpen_table_header.js`
+- `app/assets/javascripts/inkpen/extensions/inkpen_table/table_menu.js`
+- `app/assets/javascripts/inkpen/extensions/inkpen_table/table_helpers.js`
+- `app/assets/javascripts/inkpen/extensions/inkpen_table/table_constants.js`
+- `app/assets/stylesheets/inkpen/inkpen_table.css`
+- `app/assets/stylesheets/inkpen/search_replace.css`
+- `app/assets/stylesheets/inkpen/footnotes.css`
+- `docs/extensions/INKPEN_TABLE.md`
+
+---
+
 ## [0.7.1] - 2024-12-30
 
 ### Added
@@ -472,3 +529,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Table of Contents Extension
 - JavaScript: `app/assets/javascripts/inkpen/extensions/table_of_contents.js`
 - CSS: `app/assets/stylesheets/inkpen/toc.css`
+
+### InkpenTable Extension (v0.8.0)
+- JavaScript: `app/assets/javascripts/inkpen/extensions/inkpen_table/index.js`
+- JavaScript: `app/assets/javascripts/inkpen/extensions/inkpen_table/inkpen_table.js`
+- JavaScript: `app/assets/javascripts/inkpen/extensions/inkpen_table/inkpen_table_cell.js`
+- JavaScript: `app/assets/javascripts/inkpen/extensions/inkpen_table/inkpen_table_header.js`
+- JavaScript: `app/assets/javascripts/inkpen/extensions/inkpen_table/table_menu.js`
+- JavaScript: `app/assets/javascripts/inkpen/extensions/inkpen_table/table_helpers.js`
+- JavaScript: `app/assets/javascripts/inkpen/extensions/inkpen_table/table_constants.js`
+- CSS: `app/assets/stylesheets/inkpen/inkpen_table.css`
+- Documentation: `docs/extensions/INKPEN_TABLE.md`

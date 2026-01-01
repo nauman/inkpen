@@ -1,0 +1,608 @@
+/**
+ * InkpenTable Styles
+ *
+ * Notion/Airtable-style enhanced table with handles and context menus.
+ *
+ * @since 0.8.0
+ */
+
+/* ==========================================================================
+   CSS Custom Properties
+   ========================================================================== */
+
+:root {
+  /* Selection colors (Notion-style blue) */
+  --inkpen-table-selection: rgba(35, 131, 226, 0.14);
+  --inkpen-table-selection-border: rgba(35, 131, 226, 0.5);
+
+  /* Text colors */
+  --inkpen-table-text-default: inherit;
+  --inkpen-table-text-gray: #787774;
+  --inkpen-table-text-red: #d44c47;
+  --inkpen-table-text-orange: #d9730d;
+  --inkpen-table-text-yellow: #cb912f;
+  --inkpen-table-text-green: #448361;
+  --inkpen-table-text-blue: #337ea9;
+  --inkpen-table-text-purple: #9065b0;
+  --inkpen-table-text-pink: #c14c8a;
+
+  /* Background colors */
+  --inkpen-table-bg-default: transparent;
+  --inkpen-table-bg-gray: rgba(120, 120, 120, 0.12);
+  --inkpen-table-bg-red: rgba(239, 68, 68, 0.15);
+  --inkpen-table-bg-orange: rgba(249, 115, 22, 0.15);
+  --inkpen-table-bg-yellow: rgba(234, 179, 8, 0.15);
+  --inkpen-table-bg-green: rgba(34, 197, 94, 0.15);
+  --inkpen-table-bg-blue: rgba(59, 130, 246, 0.15);
+  --inkpen-table-bg-purple: rgba(168, 85, 247, 0.15);
+  --inkpen-table-bg-pink: rgba(236, 72, 153, 0.15);
+
+  /* Handle styling */
+  --inkpen-table-handle-size: 24px;
+  --inkpen-table-handle-color: #9ca3af;
+  --inkpen-table-handle-hover: #374151;
+  --inkpen-table-handle-active: #3b82f6;
+
+  /* Menu styling */
+  --inkpen-table-menu-bg: #ffffff;
+  --inkpen-table-menu-border: #e5e7eb;
+  --inkpen-table-menu-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --inkpen-table-menu-hover: #f3f4f6;
+  --inkpen-table-menu-text: #374151;
+  --inkpen-table-menu-text-muted: #6b7280;
+  --inkpen-table-menu-danger: #dc2626;
+
+  /* Table styling */
+  --inkpen-table-border: #e5e7eb;
+  --inkpen-table-header-bg: #f9fafb;
+  --inkpen-table-cell-padding: 8px 12px;
+  --inkpen-table-stripe-bg: #f9fafb;
+}
+
+/* Dark mode */
+[data-theme="dark"],
+.dark {
+  --inkpen-table-text-gray: #9ca3af;
+  --inkpen-table-text-red: #f87171;
+  --inkpen-table-text-orange: #fb923c;
+  --inkpen-table-text-yellow: #fbbf24;
+  --inkpen-table-text-green: #4ade80;
+  --inkpen-table-text-blue: #60a5fa;
+  --inkpen-table-text-purple: #c084fc;
+  --inkpen-table-text-pink: #f472b6;
+
+  --inkpen-table-bg-gray: rgba(156, 163, 175, 0.15);
+  --inkpen-table-bg-red: rgba(248, 113, 113, 0.2);
+  --inkpen-table-bg-orange: rgba(251, 146, 60, 0.2);
+  --inkpen-table-bg-yellow: rgba(251, 191, 36, 0.2);
+  --inkpen-table-bg-green: rgba(74, 222, 128, 0.2);
+  --inkpen-table-bg-blue: rgba(96, 165, 250, 0.2);
+  --inkpen-table-bg-purple: rgba(192, 132, 252, 0.2);
+  --inkpen-table-bg-pink: rgba(244, 114, 182, 0.2);
+
+  --inkpen-table-handle-color: #6b7280;
+  --inkpen-table-handle-hover: #d1d5db;
+
+  --inkpen-table-menu-bg: #1f2937;
+  --inkpen-table-menu-border: #374151;
+  --inkpen-table-menu-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --inkpen-table-menu-hover: #374151;
+  --inkpen-table-menu-text: #e5e7eb;
+  --inkpen-table-menu-text-muted: #9ca3af;
+
+  --inkpen-table-border: #374151;
+  --inkpen-table-header-bg: #1f2937;
+  --inkpen-table-stripe-bg: rgba(255, 255, 255, 0.02);
+}
+
+/* ==========================================================================
+   Table Wrapper
+   ========================================================================== */
+
+.inkpen-table-wrapper {
+  position: relative;
+  margin: 1.5rem 0;
+  padding-left: 32px;
+  padding-top: 28px;
+}
+
+.inkpen-table-wrapper--sticky-header {
+  /* Handled by table container overflow */
+}
+
+/* ==========================================================================
+   Caption
+   ========================================================================== */
+
+.inkpen-table__caption {
+  margin-bottom: 0.5rem;
+  margin-left: -32px;
+  padding: 4px 8px;
+  font-size: 0.875rem;
+  color: var(--inkpen-table-menu-text-muted);
+  border-radius: 4px;
+  min-height: 1.5em;
+  outline: none;
+}
+
+.inkpen-table__caption:empty::before {
+  content: attr(placeholder);
+  color: var(--inkpen-table-menu-text-muted);
+  opacity: 0.5;
+}
+
+.inkpen-table__caption:focus {
+  background-color: var(--inkpen-table-menu-hover);
+}
+
+/* ==========================================================================
+   Column Handles
+   ========================================================================== */
+
+.inkpen-table__col-handles {
+  position: absolute;
+  top: 0;
+  left: 32px;
+  right: 0;
+  display: flex;
+  gap: 0;
+  opacity: 0;
+  transition: opacity 150ms ease;
+  pointer-events: none;
+}
+
+.inkpen-table-wrapper:hover .inkpen-table__col-handles,
+.inkpen-table-wrapper:focus-within .inkpen-table__col-handles {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.inkpen-table__col-handles .inkpen-table__handle {
+  flex: 1;
+  min-width: 60px;
+}
+
+/* ==========================================================================
+   Row Handles
+   ========================================================================== */
+
+.inkpen-table__row-handles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  opacity: 0;
+  transition: opacity 150ms ease;
+  pointer-events: none;
+}
+
+.inkpen-table-wrapper:hover .inkpen-table__row-handles,
+.inkpen-table-wrapper:focus-within .inkpen-table__row-handles {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ==========================================================================
+   Handle Button
+   ========================================================================== */
+
+.inkpen-table__handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--inkpen-table-handle-size);
+  height: var(--inkpen-table-handle-size);
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  color: var(--inkpen-table-handle-color);
+  font-size: 10px;
+  letter-spacing: -2px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 150ms ease;
+}
+
+.inkpen-table__handle:hover {
+  color: var(--inkpen-table-handle-hover);
+  background-color: var(--inkpen-table-menu-hover);
+}
+
+.inkpen-table__handle:active,
+.inkpen-table__handle--active {
+  color: var(--inkpen-table-handle-active);
+  background-color: var(--inkpen-table-selection);
+}
+
+/* Row handle sizing */
+.inkpen-table__row-handles .inkpen-table__handle {
+  width: 28px;
+  height: 36px;
+}
+
+/* Column handle sizing */
+.inkpen-table__col-handles .inkpen-table__handle {
+  height: 24px;
+}
+
+/* ==========================================================================
+   Add Buttons
+   ========================================================================== */
+
+.inkpen-table__add-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 32px;
+  margin-top: 4px;
+  margin-left: -32px;
+  padding: 0 12px;
+  border: 1px dashed var(--inkpen-table-border);
+  background: transparent;
+  color: var(--inkpen-table-menu-text-muted);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  border-radius: 4px;
+  opacity: 0;
+  transition: all 150ms ease;
+}
+
+.inkpen-table-wrapper:hover .inkpen-table__add-row {
+  opacity: 1;
+}
+
+.inkpen-table__add-row:hover {
+  border-color: var(--inkpen-table-handle-active);
+  color: var(--inkpen-table-handle-active);
+  background-color: var(--inkpen-table-selection);
+}
+
+.inkpen-table__add-col {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 24px;
+  padding: 0;
+  margin-left: 4px;
+  border: 1px dashed var(--inkpen-table-border);
+  background: transparent;
+  color: var(--inkpen-table-menu-text-muted);
+  font-size: 1rem;
+  font-weight: 300;
+  cursor: pointer;
+  border-radius: 4px;
+  flex-shrink: 0;
+  transition: all 150ms ease;
+}
+
+.inkpen-table__add-col:hover {
+  border-color: var(--inkpen-table-handle-active);
+  color: var(--inkpen-table-handle-active);
+  background-color: var(--inkpen-table-selection);
+}
+
+/* ==========================================================================
+   Table Body
+   ========================================================================== */
+
+.inkpen-table__body {
+  position: relative;
+  display: flex;
+}
+
+.inkpen-table__content {
+  flex: 1;
+  overflow-x: auto;
+}
+
+/* ==========================================================================
+   Table Element
+   ========================================================================== */
+
+.inkpen-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  table-layout: fixed;
+}
+
+.inkpen-table td,
+.inkpen-table th {
+  border: 1px solid var(--inkpen-table-border);
+  padding: var(--inkpen-table-cell-padding);
+  vertical-align: top;
+  min-width: 60px;
+  position: relative;
+}
+
+.inkpen-table th {
+  background-color: var(--inkpen-table-header-bg);
+  font-weight: 600;
+  text-align: left;
+}
+
+/* Cell alignment */
+.inkpen-table td[data-align="left"],
+.inkpen-table th[data-align="left"] {
+  text-align: left;
+}
+
+.inkpen-table td[data-align="center"],
+.inkpen-table th[data-align="center"] {
+  text-align: center;
+}
+
+.inkpen-table td[data-align="right"],
+.inkpen-table th[data-align="right"] {
+  text-align: right;
+}
+
+/* ==========================================================================
+   Text Colors
+   ========================================================================== */
+
+.inkpen-table [data-text-color="gray"] { color: var(--inkpen-table-text-gray); }
+.inkpen-table [data-text-color="red"] { color: var(--inkpen-table-text-red); }
+.inkpen-table [data-text-color="orange"] { color: var(--inkpen-table-text-orange); }
+.inkpen-table [data-text-color="yellow"] { color: var(--inkpen-table-text-yellow); }
+.inkpen-table [data-text-color="green"] { color: var(--inkpen-table-text-green); }
+.inkpen-table [data-text-color="blue"] { color: var(--inkpen-table-text-blue); }
+.inkpen-table [data-text-color="purple"] { color: var(--inkpen-table-text-purple); }
+.inkpen-table [data-text-color="pink"] { color: var(--inkpen-table-text-pink); }
+
+/* ==========================================================================
+   Background Colors
+   ========================================================================== */
+
+.inkpen-table [data-background="gray"] { background-color: var(--inkpen-table-bg-gray); }
+.inkpen-table [data-background="red"] { background-color: var(--inkpen-table-bg-red); }
+.inkpen-table [data-background="orange"] { background-color: var(--inkpen-table-bg-orange); }
+.inkpen-table [data-background="yellow"] { background-color: var(--inkpen-table-bg-yellow); }
+.inkpen-table [data-background="green"] { background-color: var(--inkpen-table-bg-green); }
+.inkpen-table [data-background="blue"] { background-color: var(--inkpen-table-bg-blue); }
+.inkpen-table [data-background="purple"] { background-color: var(--inkpen-table-bg-purple); }
+.inkpen-table [data-background="pink"] { background-color: var(--inkpen-table-bg-pink); }
+
+/* ==========================================================================
+   Table Variants
+   ========================================================================== */
+
+/* Striped */
+.inkpen-table--striped .inkpen-table tbody tr:nth-child(even) {
+  background-color: var(--inkpen-table-stripe-bg);
+}
+
+/* Borderless */
+.inkpen-table--borderless .inkpen-table td,
+.inkpen-table--borderless .inkpen-table th {
+  border-left: none;
+  border-right: none;
+}
+
+.inkpen-table--borderless .inkpen-table tr:first-child td,
+.inkpen-table--borderless .inkpen-table tr:first-child th {
+  border-top: none;
+}
+
+.inkpen-table--borderless .inkpen-table tr:last-child td,
+.inkpen-table--borderless .inkpen-table tr:last-child th {
+  border-bottom: none;
+}
+
+/* Minimal */
+.inkpen-table--minimal .inkpen-table td,
+.inkpen-table--minimal .inkpen-table th {
+  border: none;
+  border-bottom: 1px solid var(--inkpen-table-border);
+}
+
+.inkpen-table--minimal .inkpen-table tr:last-child td {
+  border-bottom: none;
+}
+
+.inkpen-table--minimal .inkpen-table th {
+  background: transparent;
+  border-bottom-width: 2px;
+}
+
+/* ==========================================================================
+   Sticky Header
+   ========================================================================== */
+
+.inkpen-table-wrapper--sticky-header .inkpen-table__content {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.inkpen-table-wrapper--sticky-header .inkpen-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.inkpen-table-wrapper--sticky-header .inkpen-table th {
+  background-color: var(--inkpen-table-header-bg);
+}
+
+/* ==========================================================================
+   Selection Highlight
+   ========================================================================== */
+
+.inkpen-table td.selectedCell,
+.inkpen-table th.selectedCell {
+  background-color: var(--inkpen-table-selection);
+  outline: 2px solid var(--inkpen-table-selection-border);
+  outline-offset: -2px;
+}
+
+/* ==========================================================================
+   Context Menu
+   ========================================================================== */
+
+.inkpen-table-menu {
+  position: fixed;
+  z-index: 10000;
+  min-width: 200px;
+  padding: 6px;
+  background-color: var(--inkpen-table-menu-bg);
+  border: 1px solid var(--inkpen-table-menu-border);
+  border-radius: 8px;
+  box-shadow: var(--inkpen-table-menu-shadow);
+}
+
+.inkpen-table-menu--colors {
+  min-width: auto;
+  padding: 8px;
+}
+
+.inkpen-table-menu__color-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+}
+
+/* ==========================================================================
+   Menu Items
+   ========================================================================== */
+
+.inkpen-table-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  margin: 0;
+  border: none;
+  background: transparent;
+  color: var(--inkpen-table-menu-text);
+  font-size: 0.875rem;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 100ms ease;
+}
+
+.inkpen-table-menu__item:hover {
+  background-color: var(--inkpen-table-menu-hover);
+}
+
+.inkpen-table-menu__item--danger {
+  color: var(--inkpen-table-menu-danger);
+}
+
+.inkpen-table-menu__item--danger:hover {
+  background-color: rgba(220, 38, 38, 0.1);
+}
+
+.inkpen-table-menu__item--has-submenu {
+  justify-content: space-between;
+}
+
+.inkpen-table-menu__item__icon {
+  width: 16px;
+  text-align: center;
+  opacity: 0.7;
+}
+
+.inkpen-table-menu__item__label {
+  flex: 1;
+}
+
+.inkpen-table-menu__item__arrow {
+  opacity: 0.5;
+}
+
+/* ==========================================================================
+   Menu Separator
+   ========================================================================== */
+
+.inkpen-table-menu__separator {
+  height: 1px;
+  margin: 4px 6px;
+  background-color: var(--inkpen-table-menu-border);
+}
+
+/* ==========================================================================
+   Color Swatches
+   ========================================================================== */
+
+.inkpen-table-menu__color-swatch {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  margin: 0;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 100ms ease;
+}
+
+.inkpen-table-menu__color-swatch:hover {
+  transform: scale(1.1);
+  border-color: var(--inkpen-table-handle-active);
+}
+
+.inkpen-table-menu__color-swatch--none {
+  background-color: var(--inkpen-table-menu-hover);
+  color: var(--inkpen-table-menu-text-muted);
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ==========================================================================
+   Submenu
+   ========================================================================== */
+
+.inkpen-table-menu__submenu {
+  min-width: 160px;
+}
+
+/* ==========================================================================
+   Column Resize Handle (from TipTap tables)
+   ========================================================================== */
+
+.tableWrapper .column-resize-handle {
+  position: absolute;
+  right: -2px;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background-color: var(--inkpen-table-handle-active);
+  pointer-events: auto;
+  cursor: col-resize;
+}
+
+.tableWrapper .resize-cursor {
+  cursor: col-resize;
+}
+
+/* ==========================================================================
+   Print Styles
+   ========================================================================== */
+
+@media print {
+  .inkpen-table-wrapper {
+    padding-left: 0;
+    padding-top: 0;
+  }
+
+  .inkpen-table__col-handles,
+  .inkpen-table__row-handles,
+  .inkpen-table__add-row,
+  .inkpen-table__add-col {
+    display: none !important;
+  }
+
+  .inkpen-table td,
+  .inkpen-table th {
+    border-color: #000;
+  }
+}
