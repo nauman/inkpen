@@ -18,9 +18,9 @@ import {
   createElement,
   getTableDimensions,
   nextFrame
-} from "./table_helpers.js"
-import { TableMenu } from "./table_menu.js"
-import { CSS_CLASSES, DEFAULT_CONFIG, TABLE_VARIANTS } from "./table_constants.js"
+} from "inkpen/extensions/inkpen_table/table_helpers"
+import { TableMenu } from "inkpen/extensions/inkpen_table/table_menu"
+import { CSS_CLASSES, DEFAULT_CONFIG, TABLE_VARIANTS } from "inkpen/extensions/inkpen_table/table_constants"
 
 // =============================================================================
 // InkpenTableRow Extension

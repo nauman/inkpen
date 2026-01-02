@@ -23,10 +23,10 @@
  * })
  */
 
-export { InkpenTable, InkpenTableRow } from "./inkpen_table.js"
-export { InkpenTableCell } from "./inkpen_table_cell.js"
-export { InkpenTableHeader } from "./inkpen_table_header.js"
-export { TableMenu } from "./table_menu.js"
+export { InkpenTable, InkpenTableRow } from "inkpen/extensions/inkpen_table/inkpen_table"
+export { InkpenTableCell } from "inkpen/extensions/inkpen_table/inkpen_table_cell"
+export { InkpenTableHeader } from "inkpen/extensions/inkpen_table/inkpen_table_header"
+export { TableMenu } from "inkpen/extensions/inkpen_table/table_menu"
 
 // Re-export constants for customization
 export {
@@ -38,7 +38,7 @@ export {
   ALIGNMENT_OPTIONS,
   DEFAULT_CONFIG,
   CSS_CLASSES
-} from "./table_constants.js"
+} from "inkpen/extensions/inkpen_table/table_constants"
 
 // Re-export helpers for advanced usage
 export {
@@ -55,4 +55,4 @@ export {
   stopEvent,
   onClickOutside,
   onEscapeKey
-} from "./table_helpers.js"
+} from "inkpen/extensions/inkpen_table/table_helpers"

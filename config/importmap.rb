@@ -138,5 +138,11 @@ pin "inkpen/export/markdown", to: "inkpen/export/markdown.js"
 pin "inkpen/export/html", to: "inkpen/export/html.js"
 pin "inkpen/export/pdf", to: "inkpen/export/pdf.js"
 
-# InkpenTable module - explicit pin for directory import resolution
+# InkpenTable module - explicit pins for all sub-modules
 pin "inkpen/extensions/inkpen_table", to: "inkpen/extensions/inkpen_table/index.js"
+pin "inkpen/extensions/inkpen_table/inkpen_table", to: "inkpen/extensions/inkpen_table/inkpen_table.js"
+pin "inkpen/extensions/inkpen_table/inkpen_table_cell", to: "inkpen/extensions/inkpen_table/inkpen_table_cell.js"
+pin "inkpen/extensions/inkpen_table/inkpen_table_header", to: "inkpen/extensions/inkpen_table/inkpen_table_header.js"
+pin "inkpen/extensions/inkpen_table/table_menu", to: "inkpen/extensions/inkpen_table/table_menu.js"
+pin "inkpen/extensions/inkpen_table/table_helpers", to: "inkpen/extensions/inkpen_table/table_helpers.js"
+pin "inkpen/extensions/inkpen_table/table_constants", to: "inkpen/extensions/inkpen_table/table_constants.js"

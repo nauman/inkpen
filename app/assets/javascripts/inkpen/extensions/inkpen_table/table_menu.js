@@ -14,7 +14,7 @@ import {
   onClickOutside,
   onEscapeKey,
   stopEvent
-} from "./table_helpers.js"
+} from "inkpen/extensions/inkpen_table/table_helpers"
 
 import {
   CSS_CLASSES,
@@ -23,7 +23,7 @@ import {
   TEXT_COLORS,
   BACKGROUND_COLORS,
   ALIGNMENT_OPTIONS
-} from "./table_constants.js"
+} from "inkpen/extensions/inkpen_table/table_constants"
 
 // =============================================================================
 // TableMenu Class
