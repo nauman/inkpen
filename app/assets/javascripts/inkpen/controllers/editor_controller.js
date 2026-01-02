@@ -38,15 +38,15 @@ import { EnhancedImage } from "inkpen/extensions/enhanced_image"
 import { FileAttachment } from "inkpen/extensions/file_attachment"
 import { Embed } from "inkpen/extensions/embed"
 import { AdvancedTable, AdvancedTableRow, AdvancedTableCell, AdvancedTableHeader } from "inkpen/extensions/advanced_table"
-import { InkpenTable, InkpenTableRow, InkpenTableCell, InkpenTableHeader } from "inkpen/extensions/inkpen_table"
 import { TableOfContents } from "inkpen/extensions/table_of_contents"
 import { Database } from "inkpen/extensions/database"
 import { DocumentSection } from "inkpen/extensions/document_section"
 
-// Third-party extensions are loaded lazily to prevent CDN failures from breaking the editor
+// Extensions loaded lazily to prevent import failures from breaking the editor
 let EmojiReplacer = null
 let SearchNReplace = null
 let FootnotesModule = null
+let InkpenTableModule = null
 
 async function loadEmojiReplacer() {
   if (EmojiReplacer) return EmojiReplacer
@@ -79,6 +79,17 @@ async function loadFootnotes() {
     return FootnotesModule
   } catch (e) {
     console.warn("Inkpen: Footnotes extension not available:", e.message)
+    return null
+  }
+}
+
+async function loadInkpenTable() {
+  if (InkpenTableModule) return InkpenTableModule
+  try {
+    InkpenTableModule = await import("inkpen/extensions/inkpen_table")
+    return InkpenTableModule
+  } catch (e) {
+    console.warn("Inkpen: InkpenTable extension not available:", e.message)
     return null
   }
 }
@@ -324,24 +335,29 @@ export default class extends Controller {
     }
 
     // Table extension (use InkpenTable for enhanced Notion-style tables)
+    // Loaded lazily to prevent import failures from breaking the editor
     if (enabledExtensions.includes("inkpen_table")) {
-      const tableConfig = config.inkpen_table || config.table || {}
-      extensions.push(
-        InkpenTable.configure({
-          resizable: tableConfig.resizable !== false,
-          showHandles: tableConfig.showHandles !== false,
-          showAddButtons: tableConfig.showAddButtons !== false,
-          showCaption: tableConfig.showCaption !== false,
-          stickyHeader: tableConfig.stickyHeader || false,
-          defaultVariant: tableConfig.defaultVariant || "default",
-          HTMLAttributes: {
-            class: "inkpen-table"
-          }
-        }),
-        InkpenTableRow,
-        InkpenTableHeader,
-        InkpenTableCell
-      )
+      const inkpenTableMod = await loadInkpenTable()
+      if (inkpenTableMod) {
+        const { InkpenTable, InkpenTableRow, InkpenTableCell, InkpenTableHeader } = inkpenTableMod
+        const tableConfig = config.inkpen_table || config.table || {}
+        extensions.push(
+          InkpenTable.configure({
+            resizable: tableConfig.resizable !== false,
+            showHandles: tableConfig.showHandles !== false,
+            showAddButtons: tableConfig.showAddButtons !== false,
+            showCaption: tableConfig.showCaption !== false,
+            stickyHeader: tableConfig.stickyHeader || false,
+            defaultVariant: tableConfig.defaultVariant || "default",
+            HTMLAttributes: {
+              class: "inkpen-table"
+            }
+          }),
+          InkpenTableRow,
+          InkpenTableHeader,
+          InkpenTableCell
+        )
+      }
     } else if (enabledExtensions.includes("advanced_table")) {
       // Legacy: Use AdvancedTable (deprecated, use inkpen_table instead)
       const tableConfig = config.advanced_table || config.table || {}

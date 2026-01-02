@@ -20,11 +20,22 @@ import { EnhancedImage } from "inkpen/extensions/enhanced_image"
 import { FileAttachment } from "inkpen/extensions/file_attachment"
 import { Embed } from "inkpen/extensions/embed"
 import { AdvancedTable, AdvancedTableRow, AdvancedTableCell, AdvancedTableHeader } from "inkpen/extensions/advanced_table"
-import { InkpenTable, InkpenTableRow, InkpenTableCell, InkpenTableHeader } from "inkpen/extensions/inkpen_table"
 import { TableOfContents } from "inkpen/extensions/table_of_contents"
 import { Database } from "inkpen/extensions/database"
 import { DocumentSection } from "inkpen/extensions/document_section"
 import { SectionTitle } from "inkpen/extensions/section_title"
+
+// InkpenTable is loaded lazily to prevent import failures from breaking the library
+let InkpenTable, InkpenTableRow, InkpenTableCell, InkpenTableHeader
+try {
+  const mod = await import("inkpen/extensions/inkpen_table")
+  InkpenTable = mod.InkpenTable
+  InkpenTableRow = mod.InkpenTableRow
+  InkpenTableCell = mod.InkpenTableCell
+  InkpenTableHeader = mod.InkpenTableHeader
+} catch (e) {
+  console.warn("Inkpen: InkpenTable extension not available:", e.message)
+}
 
 // Auto-register controllers if Stimulus application exists
 const application = window.Stimulus || Application.start()
