@@ -1093,6 +1093,30 @@ export default class extends Controller {
     this.editor?.chain().focus().togglePreformatted().run()
   }
 
+  // Callout commands
+  insertCallout(type = "info") {
+    this.editor?.chain().focus().insertCallout({ type }).run()
+  }
+
+  setCalloutType(type) {
+    this.editor?.chain().focus().setCalloutType(type).run()
+  }
+
+  // Toggle block commands
+  insertToggle() {
+    this.editor?.chain().focus().insertToggle().run()
+  }
+
+  // Columns commands
+  insertColumns(count = 2) {
+    this.editor?.chain().focus().setColumns(count).run()
+  }
+
+  // Table of Contents commands
+  insertTableOfContents() {
+    this.editor?.chain().focus().insertTableOfContents().run()
+  }
+
   // Character count methods
   getCharacterCount() {
     return this.editor?.storage.characterCount?.characters() || 0

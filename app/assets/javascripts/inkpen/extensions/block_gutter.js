@@ -209,8 +209,8 @@ export const BlockGutter = Extension.create({
           const updateGutters = () => {
             const { doc } = editorView.state
             const newGutters = new Map()
-            const skipTypes = extension.options.skipTypes
-            const skipParentTypes = extension.options.skipParentTypes
+            const skipTypes = extension.options.skipTypes || []
+            const skipParentTypes = extension.options.skipParentTypes || []
 
             // Find all top-level blocks
             doc.forEach((node, pos) => {
@@ -262,16 +262,20 @@ export const BlockGutter = Extension.create({
               // Find which block we're hovering
               const pos = editorView.posAtCoords({ left: editorRect.left + 10, top: e.clientY })
               if (pos) {
-                const $pos = editorView.state.doc.resolve(pos.pos)
-                // Get the top-level block position
-                const blockPos = $pos.before($pos.depth) || 0
+                try {
+                  const $pos = editorView.state.doc.resolve(pos.pos)
+                  // Get the top-level block position (guard against depth 0)
+                  const blockPos = $pos.depth > 0 ? $pos.before($pos.depth) : 0
 
-                if (blockPos !== hoveredPos) {
-                  hoveredPos = blockPos
-                  // Show only the hovered gutter
-                  for (const [gpos, gutter] of gutters) {
-                    gutter.classList.toggle("is-visible", gpos === blockPos)
+                  if (blockPos !== hoveredPos) {
+                    hoveredPos = blockPos
+                    // Show only the hovered gutter
+                    for (const [gpos, gutter] of gutters) {
+                      gutter.classList.toggle("is-visible", gpos === blockPos)
+                    }
                   }
+                } catch (e) {
+                  // Invalid position, ignore
                 }
               }
             }

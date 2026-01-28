@@ -244,6 +244,26 @@ export default class extends Controller {
       export: {
         title: "Export",
         icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>'
+      },
+      callout: {
+        title: "Callout Block",
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>'
+      },
+      toggle: {
+        title: "Toggle Block",
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/><line x1="4" y1="12" x2="15" y2="12"/><line x1="4" y1="6" x2="11" y2="6"/><line x1="4" y1="18" x2="11" y2="18"/></svg>'
+      },
+      columns: {
+        title: "Multi-Column Layout",
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg>'
+      },
+      table_of_contents: {
+        title: "Table of Contents",
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="18" y2="18"/><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="12" r="1" fill="currentColor"/><circle cx="4" cy="18" r="1" fill="currentColor"/></svg>'
+      },
+      file_attachment: {
+        title: "Attach File",
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57a4 4 0 1 1 5.66 5.66l-8.58 8.58a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>'
       }
     }
 
@@ -425,7 +445,32 @@ export default class extends Controller {
       case "preformatted":
         this.editorController.insertPreformatted()
         break
+      case "callout":
+        this.editorController.insertCallout()
+        break
+      case "toggle":
+        this.editorController.insertToggle()
+        break
+      case "columns":
+        this.editorController.insertColumns()
+        break
+      case "table_of_contents":
+        this.editorController.insertTableOfContents()
+        break
+      case "file_attachment":
+        this.promptForFileAttachment()
+        break
     }
+  }
+
+  promptForFileAttachment() {
+    // Dispatch event for host app to handle file attachment
+    this.element.dispatchEvent(
+      new CustomEvent("inkpen:request-file", {
+        bubbles: true,
+        detail: { controller: this }
+      })
+    )
   }
 
   promptForImage() {
