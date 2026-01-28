@@ -1,5 +1,7 @@
 # Inkpen
 
+<a href="https://builtonrails.com/@nauman"><img src="https://builtonrails.com/badges/inkpen.svg" alt="Built on Rails"></a>
+
 A modern, TipTap-based rich text editor for Ruby on Rails applications. Inkpen provides a clean, extensible editor with a PORO-based architecture that seamlessly integrates with Rails forms and Hotwire/Stimulus.
 
 ## Features
@@ -16,7 +18,7 @@ A modern, TipTap-based rich text editor for Ruby on Rails applications. Inkpen p
 Add to your Gemfile:
 
 ```ruby
-gem "inkpen", github: "your-org/inkpen"
+gem "inkpen", github: "nauman/inkpen"
 ```
 
 Then run:
