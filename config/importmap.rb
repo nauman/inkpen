@@ -123,7 +123,7 @@ pin "highlight.js/lib/languages/markdown", to: "https://esm.sh/highlight.js@11.9
 pin "@tiptap-extend/emoji-replacer", to: "https://esm.sh/@tiptap-extend/emoji-replacer@2.1.6?deps=@tiptap/core@2.10.3"
 
 # Search and Replace extension
-pin "@sereneinserenade/tiptap-search-and-replace", to: "https://esm.sh/@sereneinserenade/tiptap-search-and-replace@1.1.0?deps=@tiptap/core@2.10.3"
+pin "@sereneinserenade/tiptap-search-and-replace", to: "https://esm.sh/@sereneinserenade/tiptap-search-and-replace@0.1.1"
 
 # Footnotes extension
 pin "tiptap-footnotes", to: "https://esm.sh/tiptap-footnotes@2.0.4?deps=@tiptap/core@2.10.3,@tiptap/pm@2.10.3"
