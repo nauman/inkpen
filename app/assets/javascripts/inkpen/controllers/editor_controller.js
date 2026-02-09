@@ -1,46 +1,156 @@
 import { Controller } from "@hotwired/stimulus"
-import { Editor } from "@tiptap/core"
-import { DOMSerializer } from "@tiptap/pm/model"
-import Document from "@tiptap/extension-document"
-import StarterKit from "@tiptap/starter-kit"
-import Link from "@tiptap/extension-link"
-import Placeholder from "@tiptap/extension-placeholder"
-import Image from "@tiptap/extension-image"
-import Table from "@tiptap/extension-table"
-import TableRow from "@tiptap/extension-table-row"
-import TableCell from "@tiptap/extension-table-cell"
-import TableHeader from "@tiptap/extension-table-header"
-import TaskList from "@tiptap/extension-task-list"
-import TaskItem from "@tiptap/extension-task-item"
-import Mention from "@tiptap/extension-mention"
-import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight"
-import { common, createLowlight } from "lowlight"
-// Additional extensions for enhanced editing
-import Typography from "@tiptap/extension-typography"
-import Highlight from "@tiptap/extension-highlight"
-import Underline from "@tiptap/extension-underline"
-import Subscript from "@tiptap/extension-subscript"
-import Superscript from "@tiptap/extension-superscript"
-import Youtube from "@tiptap/extension-youtube"
-import CharacterCount from "@tiptap/extension-character-count"
-import BubbleMenu from "@tiptap/extension-bubble-menu"
-// Inkpen custom extensions
-import { Section } from "inkpen/extensions/section"
-import { Preformatted } from "inkpen/extensions/preformatted"
-import { SlashCommands } from "inkpen/extensions/slash_commands"
-import { BlockGutter } from "inkpen/extensions/block_gutter"
-import { DragHandle } from "inkpen/extensions/drag_handle"
-import { ToggleBlock, ToggleSummary } from "inkpen/extensions/toggle_block"
-import { Columns, Column } from "inkpen/extensions/columns"
-import { Callout } from "inkpen/extensions/callout"
-import { BlockCommands } from "inkpen/extensions/block_commands"
-import { EnhancedImage } from "inkpen/extensions/enhanced_image"
-import { FileAttachment } from "inkpen/extensions/file_attachment"
-import { Embed } from "inkpen/extensions/embed"
-import { AdvancedTable, AdvancedTableRow, AdvancedTableCell, AdvancedTableHeader } from "inkpen/extensions/advanced_table"
-import { TableOfContents } from "inkpen/extensions/table_of_contents"
-import { Database } from "inkpen/extensions/database"
-import { DocumentSection } from "inkpen/extensions/document_section"
+
+// ============================================
+// LAZY LOADING
+// ============================================
+// All TipTap/ProseMirror modules are lazy-loaded when the editor connects.
+// This prevents 50+ CDN requests on pages that don't use the editor.
+// The modules are cached after first load for subsequent editor instances.
+
+let cachedModules = null
+
+async function loadEditorModules() {
+  if (cachedModules) return cachedModules
+
+  // Load all core modules in parallel
+  const [
+    tiptapCore,
+    tiptapPmModel,
+    documentExt,
+    starterKit,
+    linkExt,
+    placeholderExt,
+    imageExt,
+    tableExt,
+    tableRowExt,
+    tableCellExt,
+    tableHeaderExt,
+    taskListExt,
+    taskItemExt,
+    mentionExt,
+    codeBlockLowlightExt,
+    lowlightMod,
+    typographyExt,
+    highlightExt,
+    underlineExt,
+    subscriptExt,
+    superscriptExt,
+    youtubeExt,
+    characterCountExt,
+    bubbleMenuExt,
+    // Inkpen custom extensions
+    sectionMod,
+    preformattedMod,
+    slashCommandsMod,
+    blockGutterMod,
+    dragHandleMod,
+    toggleBlockMod,
+    columnsMod,
+    calloutMod,
+    blockCommandsMod,
+    enhancedImageMod,
+    fileAttachmentMod,
+    embedMod,
+    advancedTableMod,
+    tableOfContentsMod,
+    databaseMod,
+    documentSectionMod
+  ] = await Promise.all([
+    import("@tiptap/core"),
+    import("@tiptap/pm/model"),
+    import("@tiptap/extension-document"),
+    import("@tiptap/starter-kit"),
+    import("@tiptap/extension-link"),
+    import("@tiptap/extension-placeholder"),
+    import("@tiptap/extension-image"),
+    import("@tiptap/extension-table"),
+    import("@tiptap/extension-table-row"),
+    import("@tiptap/extension-table-cell"),
+    import("@tiptap/extension-table-header"),
+    import("@tiptap/extension-task-list"),
+    import("@tiptap/extension-task-item"),
+    import("@tiptap/extension-mention"),
+    import("@tiptap/extension-code-block-lowlight"),
+    import("lowlight"),
+    import("@tiptap/extension-typography"),
+    import("@tiptap/extension-highlight"),
+    import("@tiptap/extension-underline"),
+    import("@tiptap/extension-subscript"),
+    import("@tiptap/extension-superscript"),
+    import("@tiptap/extension-youtube"),
+    import("@tiptap/extension-character-count"),
+    import("@tiptap/extension-bubble-menu"),
+    // Inkpen custom extensions
+    import("inkpen/extensions/section"),
+    import("inkpen/extensions/preformatted"),
+    import("inkpen/extensions/slash_commands"),
+    import("inkpen/extensions/block_gutter"),
+    import("inkpen/extensions/drag_handle"),
+    import("inkpen/extensions/toggle_block"),
+    import("inkpen/extensions/columns"),
+    import("inkpen/extensions/callout"),
+    import("inkpen/extensions/block_commands"),
+    import("inkpen/extensions/enhanced_image"),
+    import("inkpen/extensions/file_attachment"),
+    import("inkpen/extensions/embed"),
+    import("inkpen/extensions/advanced_table"),
+    import("inkpen/extensions/table_of_contents"),
+    import("inkpen/extensions/database"),
+    import("inkpen/extensions/document_section")
+  ])
+
+  cachedModules = {
+    Editor: tiptapCore.Editor,
+    DOMSerializer: tiptapPmModel.DOMSerializer,
+    Document: documentExt.default,
+    StarterKit: starterKit.default,
+    Link: linkExt.default,
+    Placeholder: placeholderExt.default,
+    Image: imageExt.default,
+    Table: tableExt.default,
+    TableRow: tableRowExt.default,
+    TableCell: tableCellExt.default,
+    TableHeader: tableHeaderExt.default,
+    TaskList: taskListExt.default,
+    TaskItem: taskItemExt.default,
+    Mention: mentionExt.default,
+    CodeBlockLowlight: codeBlockLowlightExt.default,
+    common: lowlightMod.common,
+    createLowlight: lowlightMod.createLowlight,
+    Typography: typographyExt.default,
+    Highlight: highlightExt.default,
+    Underline: underlineExt.default,
+    Subscript: subscriptExt.default,
+    Superscript: superscriptExt.default,
+    Youtube: youtubeExt.default,
+    CharacterCount: characterCountExt.default,
+    BubbleMenu: bubbleMenuExt.default,
+    // Inkpen custom extensions
+    Section: sectionMod.Section,
+    Preformatted: preformattedMod.Preformatted,
+    SlashCommands: slashCommandsMod.SlashCommands,
+    BlockGutter: blockGutterMod.BlockGutter,
+    DragHandle: dragHandleMod.DragHandle,
+    ToggleBlock: toggleBlockMod.ToggleBlock,
+    ToggleSummary: toggleBlockMod.ToggleSummary,
+    Columns: columnsMod.Columns,
+    Column: columnsMod.Column,
+    Callout: calloutMod.Callout,
+    BlockCommands: blockCommandsMod.BlockCommands,
+    EnhancedImage: enhancedImageMod.EnhancedImage,
+    FileAttachment: fileAttachmentMod.FileAttachment,
+    Embed: embedMod.Embed,
+    AdvancedTable: advancedTableMod.AdvancedTable,
+    AdvancedTableRow: advancedTableMod.AdvancedTableRow,
+    AdvancedTableCell: advancedTableMod.AdvancedTableCell,
+    AdvancedTableHeader: advancedTableMod.AdvancedTableHeader,
+    TableOfContents: tableOfContentsMod.TableOfContents,
+    Database: databaseMod.Database,
+    DocumentSection: documentSectionMod.DocumentSection
+  }
+
+  return cachedModules
+}
 
 // Extensions loaded lazily to prevent import failures from breaking the editor
 let EmojiReplacer = null
@@ -161,6 +271,10 @@ export default class extends Controller {
   }
 
   async initializeEditor() {
+    // Lazy-load all TipTap modules
+    this.modules = await loadEditorModules()
+    const { Editor } = this.modules
+
     const extensions = await this.buildExtensions()
 
     this.editor = new Editor({
@@ -212,6 +326,21 @@ export default class extends Controller {
   async buildExtensions() {
     const config = this.extensionConfigValue
     const enabledExtensions = this.extensionsValue
+
+    // Destructure all modules from lazy-loaded cache
+    const {
+      StarterKit, Document, Placeholder, BubbleMenu, Link, Image,
+      Table, TableRow, TableCell, TableHeader,
+      TaskList, TaskItem, Mention,
+      CodeBlockLowlight, common, createLowlight,
+      Typography, Highlight, Underline, Subscript, Superscript,
+      Youtube, CharacterCount,
+      Section, Preformatted, SlashCommands, BlockGutter, DragHandle,
+      ToggleBlock, ToggleSummary, Columns, Column, Callout, BlockCommands,
+      EnhancedImage, FileAttachment, Embed,
+      AdvancedTable, AdvancedTableRow, AdvancedTableCell, AdvancedTableHeader,
+      TableOfContents, Database, DocumentSection
+    } = this.modules
 
     // Base StarterKit - disable codeBlock if we're using CodeBlockLowlight
     const starterKitConfig = {
@@ -1392,7 +1521,7 @@ export default class extends Controller {
 
     // Create a temporary document fragment and serialize
     const fragment = this.editor.state.schema.nodes.doc.create(null, bodyNodes)
-    const serializer = DOMSerializer.fromSchema(this.editor.state.schema)
+    const serializer = this.modules.DOMSerializer.fromSchema(this.editor.state.schema)
     const dom = serializer.serializeFragment(fragment.content)
     const div = document.createElement("div")
     div.appendChild(dom)
