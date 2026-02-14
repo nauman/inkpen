@@ -6,7 +6,17 @@ import EditorController from "inkpen/controllers/editor_controller"
 import ToolbarController from "inkpen/controllers/toolbar_controller"
 import StickyToolbarController from "inkpen/controllers/sticky_toolbar_controller"
 
-// TipTap extensions
+// ============================================
+// IMPORTANT: Register controllers IMMEDIATELY before any async code
+// This ensures controllers are available when Stimulus scans the DOM
+// ============================================
+const application = window.Stimulus || Application.start()
+
+application.register("inkpen--editor", EditorController)
+application.register("inkpen--toolbar", ToolbarController)
+application.register("inkpen--sticky-toolbar", StickyToolbarController)
+
+// TipTap extensions (static imports)
 import { Section } from "inkpen/extensions/section"
 import { Preformatted } from "inkpen/extensions/preformatted"
 import { SlashCommands } from "inkpen/extensions/slash_commands"
@@ -36,13 +46,6 @@ try {
 } catch (e) {
   console.warn("Inkpen: InkpenTable extension not available:", e.message)
 }
-
-// Auto-register controllers if Stimulus application exists
-const application = window.Stimulus || Application.start()
-
-application.register("inkpen--editor", EditorController)
-application.register("inkpen--toolbar", ToolbarController)
-application.register("inkpen--sticky-toolbar", StickyToolbarController)
 
 // Export controllers
 export { EditorController, ToolbarController, StickyToolbarController }
