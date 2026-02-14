@@ -132,6 +132,26 @@ pin "tiptap-footnotes", to: "https://esm.sh/tiptap-footnotes@2.0.4?deps=@tiptap/
 pin "inkpen", to: "inkpen/index.js"
 pin_all_from File.expand_path("../app/assets/javascripts/inkpen", __dir__), under: "inkpen"
 
+# Inkpen custom extensions - explicit pins required for nested directories
+pin "inkpen/extensions/section", to: "inkpen/extensions/section.js"
+pin "inkpen/extensions/preformatted", to: "inkpen/extensions/preformatted.js"
+pin "inkpen/extensions/slash_commands", to: "inkpen/extensions/slash_commands.js"
+pin "inkpen/extensions/block_gutter", to: "inkpen/extensions/block_gutter.js"
+pin "inkpen/extensions/drag_handle", to: "inkpen/extensions/drag_handle.js"
+pin "inkpen/extensions/toggle_block", to: "inkpen/extensions/toggle_block.js"
+pin "inkpen/extensions/columns", to: "inkpen/extensions/columns.js"
+pin "inkpen/extensions/callout", to: "inkpen/extensions/callout.js"
+pin "inkpen/extensions/block_commands", to: "inkpen/extensions/block_commands.js"
+pin "inkpen/extensions/enhanced_image", to: "inkpen/extensions/enhanced_image.js"
+pin "inkpen/extensions/file_attachment", to: "inkpen/extensions/file_attachment.js"
+pin "inkpen/extensions/embed", to: "inkpen/extensions/embed.js"
+pin "inkpen/extensions/advanced_table", to: "inkpen/extensions/advanced_table.js"
+pin "inkpen/extensions/table_of_contents", to: "inkpen/extensions/table_of_contents.js"
+pin "inkpen/extensions/database", to: "inkpen/extensions/database.js"
+pin "inkpen/extensions/document_section", to: "inkpen/extensions/document_section.js"
+pin "inkpen/extensions/section_title", to: "inkpen/extensions/section_title.js"
+pin "inkpen/extensions/export_commands", to: "inkpen/extensions/export_commands.js"
+
 # Export modules - explicit pins for relative import resolution
 pin "inkpen/export", to: "inkpen/export/index.js"
 pin "inkpen/export/markdown", to: "inkpen/export/markdown.js"
