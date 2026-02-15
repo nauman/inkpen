@@ -38,6 +38,9 @@
   line-height: var(--inkpen-line-height);
   color: var(--inkpen-color-text);
   background: var(--inkpen-color-background);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Content Area */
@@ -47,21 +50,30 @@
   padding: 1rem;
   overflow-y: auto;
   overflow-x: hidden;
+  flex: 1 1 auto;
+  /* Ensure content respects parent max-height */
+  max-height: inherit;
 }
 
-/* Ensure editor container has proper boundaries */
-.inkpen-editor {
-  overflow: hidden;
+/* ProseMirror editor element inside content area */
+.inkpen-editor__content .ProseMirror {
+  outline: none;
+  min-height: 100%;
 }
 
-/* Fixed toolbar layout needs content area with border */
+/* Fixed toolbar layout */
 .inkpen-editor--fixed-toolbar {
-  display: flex;
-  flex-direction: column;
+  border: 1px solid var(--inkpen-toolbar-border);
+  border-radius: var(--inkpen-radius);
+}
+
+.inkpen-editor--fixed-toolbar .inkpen-toolbar--fixed {
+  flex-shrink: 0;
 }
 
 .inkpen-editor--fixed-toolbar .inkpen-editor__content {
-  flex: 1;
+  flex: 1 1 0;
+  min-height: 0; /* Important: allows flex child to shrink below content size */
   overflow-y: auto;
 }
 
