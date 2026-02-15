@@ -67,6 +67,7 @@ module Inkpen
       italic
       strike
       underline
+      highlight
       link
       heading
       bullet_list
@@ -75,6 +76,7 @@ module Inkpen
       code_block
       horizontal_rule
       hard_break
+      typography
     ].freeze
 
     ##

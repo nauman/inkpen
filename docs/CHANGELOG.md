@@ -15,6 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Phase 8-9 roadmap for Collaboration and AI Integration
 - Fallback textarea editor when TipTap fails to initialize
 - Architecture Decision Record: `docs/decisions/001-esm-sh-cdn.md`
+- **Fixed toolbar mode** - New `:fixed` toolbar option for always-visible toolbar above editor
+  - Use `toolbar: :fixed` in editor configuration
+  - Toolbar stays visible at top of editor (not floating on selection)
+  - CSS: `.inkpen-toolbar--fixed` and `.inkpen-editor--fixed-toolbar`
+- **Highlight marks styling** - CSS for multicolor text highlights (yellow, green, blue, pink, purple, orange)
 
 ### Changed
 - **CDN Migration: jspm.io → esm.sh** (See ADR-001)
@@ -24,6 +29,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - No changes required in host applications - Inkpen remains drop-in
   - Third-party extensions with TipTap peer deps use `?deps=` parameter
   - Complex packages like lowlight use `?bundle` for cleaner imports
+- **CORE_EXTENSIONS now includes `highlight` and `typography`**
+  - `highlight` - text highlighting enabled by default
+  - `typography` - smart quotes and markdown shortcuts (## for headings, etc.) enabled by default
 
 ### Fixed
 - **Critical: Editor initialization in browsers** - jspm.io served Node.js builds that referenced `process.env` which doesn't exist in browsers. esm.sh automatically shims these globals.
@@ -32,6 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Users can now edit content even if the rich editor fails to load
 - Added proper error logging to console for debugging
 - Dispatches `inkpen:error` event when initialization fails
+- **Underline, highlight, and markdown shortcuts now work by default** - Previously required manual extension enablement
 
 ---
 

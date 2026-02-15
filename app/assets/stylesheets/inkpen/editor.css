@@ -92,6 +92,24 @@
   box-shadow: var(--inkpen-shadow);
 }
 
+/* Fixed Toolbar - always visible above editor */
+.inkpen-toolbar--fixed {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  background: var(--inkpen-toolbar-bg);
+  border: 1px solid var(--inkpen-toolbar-border);
+  border-bottom: none;
+  border-radius: var(--inkpen-radius) var(--inkpen-radius) 0 0;
+}
+
+/* Editor container with fixed toolbar */
+.inkpen-editor--fixed-toolbar .inkpen-editor__content {
+  border: 1px solid var(--inkpen-toolbar-border);
+  border-radius: 0 0 var(--inkpen-radius) var(--inkpen-radius);
+}
+
 /* Tippy.js theme for inkpen toolbar */
 .tippy-box[data-theme~='inkpen'] {
   background-color: var(--inkpen-toolbar-bg);
@@ -304,6 +322,45 @@
   a {
     color: var(--inkpen-color-primary);
     text-decoration: underline;
+  }
+
+  /* Highlight mark */
+  mark,
+  .inkpen-highlight {
+    background-color: #fef08a;
+    padding: 0.125em 0;
+    border-radius: 0.125rem;
+  }
+
+  /* Multicolor highlights */
+  mark[data-color="yellow"],
+  .inkpen-highlight[data-color="yellow"] {
+    background-color: #fef08a;
+  }
+
+  mark[data-color="green"],
+  .inkpen-highlight[data-color="green"] {
+    background-color: #bbf7d0;
+  }
+
+  mark[data-color="blue"],
+  .inkpen-highlight[data-color="blue"] {
+    background-color: #bfdbfe;
+  }
+
+  mark[data-color="pink"],
+  .inkpen-highlight[data-color="pink"] {
+    background-color: #fbcfe8;
+  }
+
+  mark[data-color="purple"],
+  .inkpen-highlight[data-color="purple"] {
+    background-color: #ddd6fe;
+  }
+
+  mark[data-color="orange"],
+  .inkpen-highlight[data-color="orange"] {
+    background-color: #fed7aa;
   }
 
   /* Horizontal Rule */

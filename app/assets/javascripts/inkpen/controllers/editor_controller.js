@@ -404,6 +404,7 @@ export default class extends Controller {
     ]
 
     // BubbleMenu (floating toolbar on text selection) - TipTap's native extension
+    // Only use BubbleMenu for "floating" mode, not for "fixed" mode
     if (this.hasToolbarTarget && this.toolbarValue === "floating") {
       const toolbarEl = this.toolbarTarget
       extensions.push(
@@ -421,6 +422,9 @@ export default class extends Controller {
         })
       )
     }
+
+    // Fixed toolbar - always visible, no BubbleMenu needed
+    // The toolbar is rendered in the DOM and controlled by toolbar_controller.js
 
     // Forced Document Structure (title + optional subtitle)
     if (enabledExtensions.includes("forced_document")) {
