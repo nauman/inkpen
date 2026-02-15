@@ -41,6 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added proper error logging to console for debugging
 - Dispatches `inkpen:error` event when initialization fails
 - **Underline, highlight, and markdown shortcuts now work by default** - Previously required manual extension enablement
+- **Editor content overflow** - Content no longer bleeds outside editor container with fixed toolbar mode. Added `overflow-y: auto` and flex layout for proper scrolling.
 
 ---
 
