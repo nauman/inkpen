@@ -426,3 +426,31 @@
 .inkpen-toolbar[data-context="image"] {
   min-width: 180px;
 }
+
+/* Fallback Textarea
+   Shown when TipTap fails to initialize (CDN issues, JS errors, etc.)
+   ========================================================================== */
+.inkpen-editor__fallback {
+  width: 100%;
+  min-height: 200px;
+  padding: 1rem;
+  border: 1px solid var(--inkpen-color-border);
+  border-radius: var(--inkpen-radius);
+  font-family: var(--inkpen-font-family);
+  font-size: var(--inkpen-font-size);
+  line-height: var(--inkpen-line-height);
+  color: var(--inkpen-color-text);
+  background: var(--inkpen-color-background);
+  resize: vertical;
+  outline: none;
+  transition: border-color 150ms ease;
+}
+
+.inkpen-editor__fallback:focus {
+  border-color: var(--inkpen-color-primary);
+  box-shadow: 0 0 0 3px var(--inkpen-color-selection);
+}
+
+.inkpen-editor__fallback::placeholder {
+  color: var(--inkpen-color-text-muted);
+}

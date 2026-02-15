@@ -1,36 +1,29 @@
-# frozen_string_literal: true
+# -*- encoding: utf-8 -*-
+# stub: inkpen 0.7.1 ruby lib
 
-require_relative "lib/inkpen/version"
+Gem::Specification.new do |s|
+  s.name = "inkpen".freeze
+  s.version = "0.7.1".freeze
 
-Gem::Specification.new do |spec|
-  spec.name = "inkpen"
-  spec.version = Inkpen::VERSION
-  spec.authors = ["Nauman Tariq"]
-  spec.email = ["nauman@intellectaco.com"]
+  s.required_rubygems_version = Gem::Requirement.new(">= 0".freeze) if s.respond_to? :required_rubygems_version=
+  s.metadata = { "changelog_uri" => "https://github.com/Intellectaco/inkpen/blob/main/CHANGELOG.md", "homepage_uri" => "https://github.com/Intellectaco/inkpen", "source_code_uri" => "https://github.com/Intellectaco/inkpen" } if s.respond_to? :metadata=
+  s.require_paths = ["lib".freeze]
+  s.authors = ["Nauman Tariq".freeze]
+  s.bindir = "exe".freeze
+  s.date = "1980-01-02"
+  s.description = "Inkpen provides a modern, extensible rich text editor built on TipTap/ProseMirror with Stimulus controllers for Rails applications.".freeze
+  s.email = ["nauman@intellectaco.com".freeze]
+  s.files = [".DS_Store".freeze, ".rubocop.yml".freeze, ".yardopts".freeze, "CLAUDE.md".freeze, "README.md".freeze, "Rakefile".freeze, "app/assets/javascripts/inkpen/controllers/editor_controller.js".freeze, "app/assets/javascripts/inkpen/controllers/sticky_toolbar_controller.js".freeze, "app/assets/javascripts/inkpen/controllers/toolbar_controller.js".freeze, "app/assets/javascripts/inkpen/export/html.js".freeze, "app/assets/javascripts/inkpen/export/index.js".freeze, "app/assets/javascripts/inkpen/export/markdown.js".freeze, "app/assets/javascripts/inkpen/export/pdf.js".freeze, "app/assets/javascripts/inkpen/extensions/advanced_table.js".freeze, "app/assets/javascripts/inkpen/extensions/block_commands.js".freeze, "app/assets/javascripts/inkpen/extensions/block_gutter.js".freeze, "app/assets/javascripts/inkpen/extensions/callout.js".freeze, "app/assets/javascripts/inkpen/extensions/columns.js".freeze, "app/assets/javascripts/inkpen/extensions/database.js".freeze, "app/assets/javascripts/inkpen/extensions/document_section.js".freeze, "app/assets/javascripts/inkpen/extensions/drag_handle.js".freeze, "app/assets/javascripts/inkpen/extensions/embed.js".freeze, "app/assets/javascripts/inkpen/extensions/enhanced_image.js".freeze, "app/assets/javascripts/inkpen/extensions/export_commands.js".freeze, "app/assets/javascripts/inkpen/extensions/file_attachment.js".freeze, "app/assets/javascripts/inkpen/extensions/inkpen_table/index.js".freeze, "app/assets/javascripts/inkpen/extensions/inkpen_table/inkpen_table.js".freeze, "app/assets/javascripts/inkpen/extensions/inkpen_table/inkpen_table_cell.js".freeze, "app/assets/javascripts/inkpen/extensions/inkpen_table/inkpen_table_header.js".freeze, "app/assets/javascripts/inkpen/extensions/inkpen_table/table_constants.js".freeze, "app/assets/javascripts/inkpen/extensions/inkpen_table/table_helpers.js".freeze, "app/assets/javascripts/inkpen/extensions/inkpen_table/table_menu.js".freeze, "app/assets/javascripts/inkpen/extensions/preformatted.js".freeze, "app/assets/javascripts/inkpen/extensions/section.js".freeze, "app/assets/javascripts/inkpen/extensions/section_title.js".freeze, "app/assets/javascripts/inkpen/extensions/slash_commands.js".freeze, "app/assets/javascripts/inkpen/extensions/table_of_contents.js".freeze, "app/assets/javascripts/inkpen/extensions/toggle_block.js".freeze, "app/assets/javascripts/inkpen/index.js".freeze, "app/assets/stylesheets/inkpen/advanced_table.css".freeze, "app/assets/stylesheets/inkpen/animations.css".freeze, "app/assets/stylesheets/inkpen/block_gutter.css".freeze, "app/assets/stylesheets/inkpen/callout.css".freeze, "app/assets/stylesheets/inkpen/columns.css".freeze, "app/assets/stylesheets/inkpen/database.css".freeze, "app/assets/stylesheets/inkpen/document_section.css".freeze, "app/assets/stylesheets/inkpen/drag_drop.css".freeze, "app/assets/stylesheets/inkpen/editor.css".freeze, "app/assets/stylesheets/inkpen/embed.css".freeze, "app/assets/stylesheets/inkpen/enhanced_image.css".freeze, "app/assets/stylesheets/inkpen/export.css".freeze, "app/assets/stylesheets/inkpen/file_attachment.css".freeze, "app/assets/stylesheets/inkpen/footnotes.css".freeze, "app/assets/stylesheets/inkpen/inkpen_table.css".freeze, "app/assets/stylesheets/inkpen/preformatted.css".freeze, "app/assets/stylesheets/inkpen/search_replace.css".freeze, "app/assets/stylesheets/inkpen/section.css".freeze, "app/assets/stylesheets/inkpen/slash_menu.css".freeze, "app/assets/stylesheets/inkpen/sticky_toolbar.css".freeze, "app/assets/stylesheets/inkpen/toc.css".freeze, "app/assets/stylesheets/inkpen/toggle.css".freeze, "app/helpers/inkpen/editor_helper.rb".freeze, "app/views/inkpen/_editor.html.erb".freeze, "config/importmap.rb".freeze, "docs/.DS_Store".freeze, "docs/CHANGELOG.md".freeze, "docs/FEATURES.md".freeze, "docs/ROADMAP.md".freeze, "docs/VISION.md".freeze, "docs/extensions/INKPEN_TABLE.md".freeze, "docs/thinking/CORRECTED_NO_VUE.md".freeze, "docs/thinking/EXECUTIVE_SUMMARY.md".freeze, "docs/thinking/INKPEN_CODE_SAMPLES.md".freeze, "docs/thinking/INKPEN_MASTER_GUIDE.md".freeze, "docs/thinking/README_START_HERE.md".freeze, "lib/inkpen.rb".freeze, "lib/inkpen/configuration.rb".freeze, "lib/inkpen/editor.rb".freeze, "lib/inkpen/engine.rb".freeze, "lib/inkpen/extensions/base.rb".freeze, "lib/inkpen/extensions/code_block_syntax.rb".freeze, "lib/inkpen/extensions/document_section.rb".freeze, "lib/inkpen/extensions/forced_document.rb".freeze, "lib/inkpen/extensions/mention.rb".freeze, "lib/inkpen/extensions/preformatted.rb".freeze, "lib/inkpen/extensions/section.rb".freeze, "lib/inkpen/extensions/slash_commands.rb".freeze, "lib/inkpen/extensions/table.rb".freeze, "lib/inkpen/extensions/task_list.rb".freeze, "lib/inkpen/sticky_toolbar.rb".freeze, "lib/inkpen/toolbar.rb".freeze, "lib/inkpen/version.rb".freeze, "sig/inkpen.rbs".freeze]
+  s.homepage = "https://github.com/Intellectaco/inkpen".freeze
+  s.licenses = ["MIT".freeze]
+  s.required_ruby_version = Gem::Requirement.new(">= 3.1.0".freeze)
+  s.rubygems_version = "3.6.9".freeze
+  s.summary = "A TipTap-based rich text editor for Rails".freeze
 
-  spec.summary = "A TipTap-based rich text editor for Rails"
-  spec.description = "Inkpen provides a modern, extensible rich text editor built on TipTap/ProseMirror with Stimulus controllers for Rails applications."
-  spec.homepage = "https://github.com/Intellectaco/inkpen"
-  spec.license = "MIT"
-  spec.required_ruby_version = ">= 3.1.0"
+  s.installed_by_version = "3.6.9".freeze
 
-  spec.metadata["homepage_uri"] = spec.homepage
-  spec.metadata["source_code_uri"] = "https://github.com/Intellectaco/inkpen"
-  spec.metadata["changelog_uri"] = "https://github.com/Intellectaco/inkpen/blob/main/CHANGELOG.md"
+  s.specification_version = 4
 
-  # Include all files tracked by git, excluding development files
-  gemspec = File.basename(__FILE__)
-  spec.files = IO.popen(%w[git ls-files -z], chdir: __dir__, err: IO::NULL) do |ls|
-    ls.readlines("\x0", chomp: true).reject do |f|
-      (f == gemspec) ||
-        f.start_with?(*%w[bin/ test/ spec/ features/ .git .github appveyor Gemfile])
-    end
-  end
-  spec.bindir = "exe"
-  spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
-  spec.require_paths = ["lib"]
-
-  # Runtime dependencies
-  spec.add_dependency "rails", ">= 7.0"
-  spec.add_dependency "importmap-rails", ">= 1.0"
+  s.add_runtime_dependency(%q<rails>.freeze, [">= 7.0".freeze])
+  s.add_runtime_dependency(%q<importmap-rails>.freeze, [">= 1.0".freeze])
 end

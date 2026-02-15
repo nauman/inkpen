@@ -263,11 +263,53 @@ export default class extends Controller {
   }
 
   connect() {
-    this.initializeEditor()
+    this.initializeEditor().catch(error => {
+      console.error("Inkpen: Failed to initialize editor:", error)
+      this.dispatchEvent("error", { error })
+      // Show fallback UI
+      this.showFallbackEditor()
+    })
   }
 
   disconnect() {
     this.destroyEditor()
+  }
+
+  /**
+   * Show a basic textarea fallback if the rich editor fails to load.
+   * This ensures users can still edit content even if TipTap fails.
+   */
+  showFallbackEditor() {
+    if (!this.hasContentTarget || !this.hasInputTarget) return
+
+    // Create a textarea with the same content
+    const textarea = document.createElement("textarea")
+    textarea.className = "inkpen-editor__fallback"
+    textarea.value = this.inputTarget.value || ""
+    textarea.placeholder = this.placeholderValue
+    textarea.style.cssText = `
+      width: 100%;
+      min-height: 200px;
+      padding: 1rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.375rem;
+      font-family: inherit;
+      font-size: 1rem;
+      line-height: 1.6;
+      resize: vertical;
+    `
+
+    // Sync textarea changes to hidden input
+    textarea.addEventListener("input", () => {
+      this.inputTarget.value = textarea.value
+    })
+
+    // Replace the content target with the textarea
+    this.contentTarget.innerHTML = ""
+    this.contentTarget.appendChild(textarea)
+
+    // Focus the textarea
+    textarea.focus()
   }
 
   async initializeEditor() {

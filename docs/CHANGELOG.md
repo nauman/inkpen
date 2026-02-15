@@ -13,6 +13,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - VISION.md documenting architecture philosophy and blocks vs sections distinction
 - Phase 7+ roadmap for Document Sections (true content grouping)
 - Phase 8-9 roadmap for Collaboration and AI Integration
+- Fallback textarea editor when TipTap fails to initialize
+
+### Fixed
+- Editor now catches initialization errors and shows a fallback textarea
+- Prevents silent failures when CDN imports fail or JavaScript errors occur
+- Users can now edit content even if the rich editor fails to load
+- Added proper error logging to console for debugging
+- Dispatches `inkpen:error` event when initialization fails
 
 ---
 
