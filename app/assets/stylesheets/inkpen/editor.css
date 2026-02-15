@@ -45,6 +45,24 @@
   outline: none;
   min-height: 200px;
   padding: 1rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Ensure editor container has proper boundaries */
+.inkpen-editor {
+  overflow: hidden;
+}
+
+/* Fixed toolbar layout needs content area with border */
+.inkpen-editor--fixed-toolbar {
+  display: flex;
+  flex-direction: column;
+}
+
+.inkpen-editor--fixed-toolbar .inkpen-editor__content {
+  flex: 1;
+  overflow-y: auto;
 }
 
 /* TipTap Placeholder Extension Styles */
