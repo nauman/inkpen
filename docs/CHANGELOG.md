@@ -14,8 +14,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Phase 7+ roadmap for Document Sections (true content grouping)
 - Phase 8-9 roadmap for Collaboration and AI Integration
 - Fallback textarea editor when TipTap fails to initialize
+- Architecture Decision Record: `docs/decisions/001-esm-sh-cdn.md`
+
+### Changed
+- **CDN Migration: jspm.io → esm.sh** (See ADR-001)
+  - All TipTap and ProseMirror packages now load from esm.sh instead of jspm.io
+  - esm.sh provides automatic browser polyfills for Node.js globals
+  - Fixes `ReferenceError: Can't find variable: process` in browsers
+  - No changes required in host applications - Inkpen remains drop-in
+  - Third-party extensions with TipTap peer deps use `?deps=` parameter
+  - Complex packages like lowlight use `?bundle` for cleaner imports
 
 ### Fixed
+- **Critical: Editor initialization in browsers** - jspm.io served Node.js builds that referenced `process.env` which doesn't exist in browsers. esm.sh automatically shims these globals.
 - Editor now catches initialization errors and shows a fallback textarea
 - Prevents silent failures when CDN imports fail or JavaScript errors occur
 - Users can now edit content even if the rich editor fails to load
