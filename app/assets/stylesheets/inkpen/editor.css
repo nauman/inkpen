@@ -541,3 +541,112 @@
 .inkpen-editor__fallback::placeholder {
   color: var(--inkpen-color-text-muted);
 }
+
+/* ============================================
+   Markdown Mode Styles
+   ============================================ */
+
+/* Mode Toggle Button */
+.inkpen-mode-toggle {
+  display: flex;
+  gap: 2px;
+  padding: 4px;
+  background: var(--inkpen-toggle-bg, #f5f5f5);
+  border-radius: 8px;
+  width: fit-content;
+  margin-bottom: 12px;
+}
+
+.inkpen-mode-toggle button {
+  padding: 6px 12px;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--inkpen-color-text-muted);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.inkpen-mode-toggle button:hover {
+  color: var(--inkpen-color-text);
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.inkpen-mode-toggle button.active {
+  background: var(--inkpen-color-background);
+  color: var(--inkpen-color-text);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Markdown Editor Textarea */
+.inkpen-markdown-editor {
+  width: 100%;
+  min-height: 300px;
+  padding: 16px;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--inkpen-color-text);
+  background: var(--inkpen-color-background);
+  border: 1px solid var(--inkpen-color-border);
+  border-radius: var(--inkpen-radius);
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.inkpen-markdown-editor:focus {
+  border-color: var(--inkpen-color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.inkpen-markdown-editor::placeholder {
+  color: var(--inkpen-color-text-muted);
+}
+
+.inkpen-markdown-editor.hidden {
+  display: none;
+}
+
+/* Split View Layout */
+.inkpen-editor--split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.inkpen-editor--split .inkpen-markdown-editor,
+.inkpen-editor--split .inkpen-editor__content {
+  min-height: 400px;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+/* Responsive: Stack on mobile */
+@media (max-width: 768px) {
+  .inkpen-editor--split {
+    grid-template-columns: 1fr;
+  }
+
+  .inkpen-editor--split .inkpen-markdown-editor,
+  .inkpen-editor--split .inkpen-editor__content {
+    min-height: 250px;
+    max-height: 400px;
+  }
+}
+
+/* Keyboard Shortcut Hints */
+.inkpen-mode-toggle [data-shortcut]::after {
+  content: attr(data-shortcut);
+  font-size: 10px;
+  color: var(--inkpen-color-text-muted);
+  margin-left: 6px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.inkpen-mode-toggle:hover [data-shortcut]::after {
+  opacity: 0.7;
+}

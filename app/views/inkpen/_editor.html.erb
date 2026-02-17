@@ -6,6 +6,33 @@
      <%= tag.attributes(editor.html_attributes) %>
      style="<%= editor.style_attributes %>">
 
+  <%# Markdown mode toggle %>
+  <% if editor.markdown_mode&.enabled? && editor.markdown_mode.show_toggle %>
+    <div class="inkpen-mode-toggle" data-inkpen--editor-target="modeToggle">
+      <button type="button"
+              data-mode="wysiwyg"
+              data-action="click->inkpen--editor#setMode"
+              data-shortcut="⌘⇧M"
+              class="<%= 'active' if editor.markdown_mode.wysiwyg_default? %>">
+        Visual
+      </button>
+      <button type="button"
+              data-mode="markdown"
+              data-action="click->inkpen--editor#setMode"
+              data-shortcut="⌘⇧M"
+              class="<%= 'active' if editor.markdown_mode.markdown_default? %>">
+        Markdown
+      </button>
+      <button type="button"
+              data-mode="split"
+              data-action="click->inkpen--editor#setMode"
+              data-shortcut="⌘⇧V"
+              class="<%= 'active' if editor.markdown_mode.split_default? %>">
+        Split
+      </button>
+    </div>
+  <% end %>
+
   <%# Hidden input for form submission %>
   <input type="hidden"
          name="<%= editor.input_name %>"
@@ -24,9 +51,18 @@
     </div>
   <% end %>
 
+  <%# Markdown editor textarea (hidden by default unless markdown mode) %>
+  <% if editor.markdown_mode&.enabled? %>
+    <textarea class="inkpen-markdown-editor <%= 'hidden' unless editor.markdown_mode.markdown_default? || editor.markdown_mode.split_default? %>"
+              data-inkpen--editor-target="markdownEditor"
+              data-label="Markdown"
+              placeholder="Write markdown here..."></textarea>
+  <% end %>
+
   <%# Editor content area - TipTap mounts here %>
-  <div class="inkpen-editor__content"
+  <div class="inkpen-editor__content <%= 'hidden' if editor.markdown_mode&.enabled? && editor.markdown_mode.markdown_default? %>"
        data-inkpen--editor-target="content"
+       data-label="Preview"
        data-placeholder="<%= editor.placeholder %>">
   </div>
 
