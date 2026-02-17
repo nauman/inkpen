@@ -2,6 +2,51 @@
 
 > **Goal**: Add a markdown edit mode with live preview, allowing users to toggle between WYSIWYG and raw markdown editing.
 
+**Status:** 🚧 Partially implemented, needs redesign
+
+---
+
+## Current Issues (v0.5.0-alpha)
+
+1. **Separate mode toggle bar** - Should be integrated into existing toolbar
+2. **Mode switching not working** - JS initialization timing issue
+3. **Source map 404s** - CDN doesn't provide source maps (cosmetic)
+
+---
+
+## Better Approach: Toolbar Integration
+
+Instead of a separate mode toggle bar, integrate into existing toolbar as a **dropdown** or **icon group**.
+
+### Composable Toolbar Configuration
+
+```ruby
+# Array of arrays = grouped buttons with dropdown
+toolbar_buttons: [
+  [:bold, :italic, :underline],           # Text formatting group
+  [:heading, :quote, :code],              # Block formatting group
+  [:link, :image],                        # Insert group
+  [:view_mode]                            # View mode dropdown: Visual | Markdown | Split
+]
+```
+
+### View Mode as Toolbar Dropdown
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│ B I U │ H1 " </> │ 🔗 🖼️ │ [Visual ▾]                        │
+├──────────────────────────────────────────────────────────────┤
+│                      ┌─────────────┐                         │
+│                      │ ✓ Visual    │                         │
+│                      │   Markdown  │                         │
+│                      │   Split     │                         │
+│                      └─────────────┘                         │
+│                                                              │
+│  Editor content...                                           │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+```
+
 ---
 
 ## Overview
@@ -11,31 +56,10 @@ Currently Inkpen supports:
 - ✅ Markdown **import** (`importMarkdown()`)
 - ✅ Markdown **shortcuts** (Typography extension)
 
-Missing:
-- ❌ Raw markdown edit mode (textarea)
-- ❌ Split view (markdown + preview)
-- ❌ Toggle between WYSIWYG and markdown source
-
----
-
-## Proposed Architecture
-
-```
-┌─────────────────────────────────────────────────────┐
-│  Inkpen Editor Container                            │
-├─────────────────────────────────────────────────────┤
-│  Mode Toggle: [WYSIWYG] [Markdown] [Split]          │
-├─────────────────────────────────────────────────────┤
-│                                                     │
-│  WYSIWYG Mode:        Markdown Mode:    Split:      │
-│  ┌───────────────┐   ┌─────────────┐   ┌────┬────┐ │
-│  │  TipTap       │   │  Textarea   │   │ MD │ WYS│ │
-│  │  Editor       │   │  (raw md)   │   │    │    │ │
-│  │               │   │             │   │    │    │ │
-│  └───────────────┘   └─────────────┘   └────┴────┘ │
-│                                                     │
-└─────────────────────────────────────────────────────┘
-```
+Partially implemented:
+- 🚧 Raw markdown edit mode (textarea exists, mode switching broken)
+- 🚧 Split view (layout exists, sync broken)
+- 🚧 Toggle between modes (separate bar, should be toolbar dropdown)
 
 ---
 
