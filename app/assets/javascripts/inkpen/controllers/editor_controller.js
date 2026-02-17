@@ -269,15 +269,19 @@ export default class extends Controller {
   }
 
   connect() {
-    this.initializeEditor().catch(error => {
-      console.error("Inkpen: Failed to initialize editor:", error)
-      this.dispatchEvent("error", { error })
-      // Show fallback UI
-      this.showFallbackEditor()
-    })
-    if (this.markdownEnabledValue) {
-      this.initializeMarkdownMode()
-    }
+    this.initializeEditor()
+      .then(() => {
+        // Initialize markdown mode AFTER editor is ready
+        if (this.markdownEnabledValue) {
+          this.initializeMarkdownMode()
+        }
+      })
+      .catch(error => {
+        console.error("Inkpen: Failed to initialize editor:", error)
+        this.dispatchEvent("error", { error })
+        // Show fallback UI
+        this.showFallbackEditor()
+      })
   }
 
   disconnect() {
@@ -1612,17 +1616,17 @@ export default class extends Controller {
   /**
    * Initialize markdown mode if enabled.
    * Sets up the initial mode and keyboard shortcuts.
+   * Called AFTER editor is fully initialized.
    */
   initializeMarkdownMode() {
-    // Set initial mode
-    if (this.markdownModeValue !== "wysiwyg") {
-      // Wait for editor to be ready before switching
-      setTimeout(() => this.setMode(this.markdownModeValue), 0)
-    }
-
-    // Set up keyboard shortcuts
+    // Set up keyboard shortcuts first
     if (this.markdownShortcutsValue) {
       this.setupMarkdownShortcuts()
+    }
+
+    // Set initial mode if not wysiwyg
+    if (this.markdownModeValue !== "wysiwyg") {
+      this.setMode(this.markdownModeValue)
     }
 
     // Update toggle button states
@@ -1666,13 +1670,25 @@ export default class extends Controller {
 
   /**
    * Set editing mode.
-   * @param {string} mode - "wysiwyg" | "markdown" | "split"
+   * Can be called programmatically with a string, or from a Stimulus action with an Event.
+   * @param {string|Event} modeOrEvent - "wysiwyg" | "markdown" | "split" OR click event
    */
-  setMode(mode) {
+  setMode(modeOrEvent) {
+    // Handle Stimulus action call (receives Event)
+    let mode
+    if (modeOrEvent instanceof Event) {
+      mode = modeOrEvent.currentTarget.dataset.mode
+      if (!mode) return
+    } else {
+      mode = modeOrEvent
+    }
+
     const validModes = ["wysiwyg", "markdown", "split"]
     if (!validModes.includes(mode)) return
 
     const previousMode = this.markdownModeValue
+    if (mode === previousMode) return // No change needed
+
     this.markdownModeValue = mode
 
     switch (mode) {
