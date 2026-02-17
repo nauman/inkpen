@@ -6,6 +6,7 @@ require_relative "inkpen/configuration"
 require_relative "inkpen/editor"
 require_relative "inkpen/toolbar"
 require_relative "inkpen/sticky_toolbar"
+require_relative "inkpen/markdown_mode"
 
 # Extensions
 require_relative "inkpen/extensions/base"

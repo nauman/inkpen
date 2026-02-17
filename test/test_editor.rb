@@ -171,4 +171,41 @@ class TestEditor < Minitest::Test
     attrs = editor.data_attributes
     assert_includes attrs[:data][:controller], "inkpen--sticky-toolbar"
   end
+
+  # Markdown Mode
+
+  def test_markdown_mode_nil_by_default
+    editor = Inkpen::Editor.new(name: "post[body]")
+    assert_nil editor.markdown_mode
+  end
+
+  def test_markdown_mode_can_be_set
+    mode = Inkpen::MarkdownMode.new(enabled: true)
+    editor = Inkpen::Editor.new(name: "post[body]", markdown_mode: mode)
+    assert_equal mode, editor.markdown_mode
+  end
+
+  def test_data_attributes_includes_markdown_mode_when_enabled
+    mode = Inkpen::MarkdownMode.new(enabled: true, default_mode: :split)
+    editor = Inkpen::Editor.new(name: "post[body]", markdown_mode: mode)
+    attrs = editor.data_attributes
+
+    assert_equal "true", attrs[:data]["inkpen--editor-markdown-enabled-value"]
+    assert_equal "split", attrs[:data]["inkpen--editor-markdown-mode-value"]
+  end
+
+  def test_data_attributes_excludes_markdown_mode_when_disabled
+    mode = Inkpen::MarkdownMode.new(enabled: false)
+    editor = Inkpen::Editor.new(name: "post[body]", markdown_mode: mode)
+    attrs = editor.data_attributes
+
+    refute attrs[:data].key?("inkpen--editor-markdown-enabled-value")
+  end
+
+  def test_data_attributes_excludes_markdown_mode_when_nil
+    editor = Inkpen::Editor.new(name: "post[body]")
+    attrs = editor.data_attributes
+
+    refute attrs[:data].key?("inkpen--editor-markdown-enabled-value")
+  end
 end

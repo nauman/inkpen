@@ -29,6 +29,7 @@ module Inkpen
   #
   # @see Inkpen::Toolbar Toolbar configuration
   # @see Inkpen::StickyToolbar Sticky toolbar configuration
+  # @see Inkpen::MarkdownMode Markdown mode configuration
   # @see Inkpen::Configuration Global defaults
   #
   # @author Nauman Tariq
@@ -47,6 +48,9 @@ module Inkpen
     #
     # @!attribute [r] sticky_toolbar
     #   @return [StickyToolbar, nil] sticky toolbar configuration
+    #
+    # @!attribute [r] markdown_mode
+    #   @return [MarkdownMode, nil] markdown mode configuration
     #
     # @!attribute [r] extensions
     #   @return [Array<Symbol>] list of enabled extensions
@@ -72,9 +76,9 @@ module Inkpen
     # @!attribute [r] html_attributes
     #   @return [Hash] additional HTML attributes for the container
     #
-    attr_reader :name, :value, :toolbar, :sticky_toolbar, :extensions, :extension_config,
-                :placeholder, :autosave, :autosave_interval, :min_height,
-                :max_height, :html_attributes
+    attr_reader :name, :value, :toolbar, :sticky_toolbar, :markdown_mode, :extensions,
+                :extension_config, :placeholder, :autosave, :autosave_interval,
+                :min_height, :max_height, :html_attributes
 
     ##
     # Initialize a new editor instance.
@@ -85,6 +89,7 @@ module Inkpen
     #
     # @option options [Symbol] :toolbar (:floating) toolbar style
     # @option options [StickyToolbar] :sticky_toolbar sticky toolbar config
+    # @option options [MarkdownMode] :markdown_mode markdown mode config
     # @option options [Array<Symbol>] :extensions list of extensions
     # @option options [Hash] :extension_config per-extension config
     # @option options [String] :placeholder placeholder text
@@ -99,6 +104,7 @@ module Inkpen
       @value = value
       @toolbar = options.fetch(:toolbar, Inkpen.configuration.toolbar)
       @sticky_toolbar = options.fetch(:sticky_toolbar, nil)
+      @markdown_mode = options.fetch(:markdown_mode, nil)
       @extensions = options.fetch(:extensions, Inkpen.configuration.extensions)
       @extension_config = options.fetch(:extension_config, {})
       @placeholder = options.fetch(:placeholder, Inkpen.configuration.placeholder)
@@ -136,6 +142,11 @@ module Inkpen
       # Merge sticky toolbar data attributes if enabled
       if sticky_toolbar&.enabled?
         attrs[:data].merge!(sticky_toolbar.data_attributes)
+      end
+
+      # Merge markdown mode data attributes if enabled
+      if markdown_mode&.enabled?
+        attrs[:data].merge!(markdown_mode.data_attributes)
       end
 
       attrs

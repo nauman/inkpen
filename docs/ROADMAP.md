@@ -11,7 +11,24 @@
 3. [Phase 1: Drag & Drop](#phase-1-drag--drop-v032)
 4. [Phase 2: Enhanced Blocks](#phase-2-enhanced-blocks-v033)
 5. [Phase 3: BlockNote-Style Polish](#phase-3-blocknote-style-polish-v040)
-6. [Technical References](#technical-references)
+6. [Phase 4: Markdown Mode](#phase-4-markdown-mode-v050)
+7. [Technical References](#technical-references)
+
+---
+
+## Upcoming: Markdown Mode (v0.5.0)
+
+Toggle between WYSIWYG, raw markdown, and split view editing.
+
+**See full plan:** [docs/plans/MARKDOWN_MODE.md](plans/MARKDOWN_MODE.md)
+
+**Key features:**
+- Mode toggle: WYSIWYG / Markdown / Split
+- Live sync between modes (debounced)
+- Ruby PORO configuration
+- Keyboard shortcuts (`Cmd+Shift+M`)
+
+**Status:** 📋 Planned
 
 ---
 
