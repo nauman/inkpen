@@ -251,7 +251,7 @@ async function loadExportCommands() {
  * - CharacterCount
  */
 export default class extends Controller {
-  static targets = ["input", "content", "toolbar"]
+  static targets = ["input", "content", "toolbar", "markdownEditor", "modeToggle"]
 
   static values = {
     extensions: { type: Array, default: [] },
@@ -259,7 +259,13 @@ export default class extends Controller {
     toolbar: { type: String, default: "floating" },
     placeholder: { type: String, default: "Start writing..." },
     autosave: { type: Boolean, default: false },
-    autosaveInterval: { type: Number, default: 5000 }
+    autosaveInterval: { type: Number, default: 5000 },
+    // Markdown mode values
+    markdownEnabled: { type: Boolean, default: false },
+    markdownMode: { type: String, default: "wysiwyg" },
+    markdownShowToggle: { type: Boolean, default: true },
+    markdownSyncDelay: { type: Number, default: 300 },
+    markdownShortcuts: { type: Boolean, default: true }
   }
 
   connect() {
@@ -269,6 +275,9 @@ export default class extends Controller {
       // Show fallback UI
       this.showFallbackEditor()
     })
+    if (this.markdownEnabledValue) {
+      this.initializeMarkdownMode()
+    }
   }
 
   disconnect() {
@@ -1594,5 +1603,270 @@ export default class extends Controller {
       wordCount: this.getWordCount(),
       characterCount: this.getCharacterCount()
     })
+  }
+
+  // ============================================
+  // MARKDOWN MODE
+  // ============================================
+
+  /**
+   * Initialize markdown mode if enabled.
+   * Sets up the initial mode and keyboard shortcuts.
+   */
+  initializeMarkdownMode() {
+    // Set initial mode
+    if (this.markdownModeValue !== "wysiwyg") {
+      // Wait for editor to be ready before switching
+      setTimeout(() => this.setMode(this.markdownModeValue), 0)
+    }
+
+    // Set up keyboard shortcuts
+    if (this.markdownShortcutsValue) {
+      this.setupMarkdownShortcuts()
+    }
+
+    // Update toggle button states
+    this.updateModeToggle()
+  }
+
+  /**
+   * Set up keyboard shortcuts for markdown mode.
+   */
+  setupMarkdownShortcuts() {
+    this.element.addEventListener("keydown", (e) => {
+      // Cmd/Ctrl + Shift + M = Toggle markdown mode
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === "m") {
+        e.preventDefault()
+        this.toggleMarkdownMode()
+      }
+      // Cmd/Ctrl + Shift + V = Toggle split view
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === "v") {
+        e.preventDefault()
+        if (this.markdownModeValue === "split") {
+          this.setMode("wysiwyg")
+        } else {
+          this.setMode("split")
+        }
+      }
+      // Escape in markdown mode = return to WYSIWYG
+      if (e.key === "Escape" && this.markdownModeValue === "markdown") {
+        e.preventDefault()
+        this.setMode("wysiwyg")
+      }
+    })
+  }
+
+  /**
+   * Get current editing mode.
+   * @returns {string} "wysiwyg" | "markdown" | "split"
+   */
+  getMode() {
+    return this.markdownModeValue
+  }
+
+  /**
+   * Set editing mode.
+   * @param {string} mode - "wysiwyg" | "markdown" | "split"
+   */
+  setMode(mode) {
+    const validModes = ["wysiwyg", "markdown", "split"]
+    if (!validModes.includes(mode)) return
+
+    const previousMode = this.markdownModeValue
+    this.markdownModeValue = mode
+
+    switch (mode) {
+      case "wysiwyg":
+        this.switchToWysiwyg(previousMode)
+        break
+      case "markdown":
+        this.switchToMarkdown()
+        break
+      case "split":
+        this.switchToSplit()
+        break
+    }
+
+    this.updateModeToggle()
+    this.dispatchEvent("mode-change", { mode, previousMode })
+  }
+
+  /**
+   * Toggle between WYSIWYG and markdown mode.
+   */
+  toggleMarkdownMode() {
+    if (this.markdownModeValue === "wysiwyg") {
+      this.setMode("markdown")
+    } else {
+      this.setMode("wysiwyg")
+    }
+  }
+
+  /**
+   * Switch to WYSIWYG mode.
+   * @param {string} previousMode - The mode we're switching from
+   */
+  switchToWysiwyg(previousMode) {
+    // Import markdown content if coming from markdown mode
+    if (previousMode === "markdown" && this.hasMarkdownEditorTarget) {
+      const markdown = this.markdownEditorTarget.value
+      this.importMarkdown(markdown)
+    }
+
+    // Hide markdown editor
+    if (this.hasMarkdownEditorTarget) {
+      this.markdownEditorTarget.classList.add("hidden")
+    }
+
+    // Show WYSIWYG editor
+    this.contentTarget.classList.remove("hidden")
+
+    // Remove split class
+    this.element.classList.remove("inkpen-editor--split")
+
+    // Clear split sync if active
+    this.clearSplitSync()
+
+    // Focus WYSIWYG editor
+    this.editor?.commands.focus()
+  }
+
+  /**
+   * Switch to markdown mode.
+   */
+  async switchToMarkdown() {
+    // Export current content to markdown
+    const markdown = await this.exportMarkdown()
+
+    // Show markdown editor
+    if (this.hasMarkdownEditorTarget) {
+      this.markdownEditorTarget.value = markdown
+      this.markdownEditorTarget.classList.remove("hidden")
+    }
+
+    // Hide WYSIWYG editor
+    this.contentTarget.classList.add("hidden")
+
+    // Remove split class
+    this.element.classList.remove("inkpen-editor--split")
+
+    // Clear split sync if active
+    this.clearSplitSync()
+
+    // Focus markdown editor
+    if (this.hasMarkdownEditorTarget) {
+      this.markdownEditorTarget.focus()
+    }
+  }
+
+  /**
+   * Switch to split view mode.
+   */
+  async switchToSplit() {
+    // Export current content to markdown
+    const markdown = await this.exportMarkdown()
+
+    // Show both editors
+    if (this.hasMarkdownEditorTarget) {
+      this.markdownEditorTarget.value = markdown
+      this.markdownEditorTarget.classList.remove("hidden")
+    }
+    this.contentTarget.classList.remove("hidden")
+
+    // Add split class for layout
+    this.element.classList.add("inkpen-editor--split")
+
+    // Set up sync between editors
+    this.setupSplitSync()
+  }
+
+  /**
+   * Set up sync between markdown and WYSIWYG in split mode.
+   */
+  setupSplitSync() {
+    // Clear any existing sync
+    this.clearSplitSync()
+
+    if (!this.hasMarkdownEditorTarget) return
+
+    // Debounce function
+    const debounce = (fn, delay) => {
+      let timeoutId
+      return (...args) => {
+        clearTimeout(timeoutId)
+        timeoutId = setTimeout(() => fn.apply(this, args), delay)
+      }
+    }
+
+    // Markdown → WYSIWYG (debounced)
+    this._markdownInputHandler = debounce(() => {
+      if (this.markdownModeValue !== "split") return
+      this._syncingFromMarkdown = true
+      this.importMarkdown(this.markdownEditorTarget.value)
+      this._syncingFromMarkdown = false
+    }, this.markdownSyncDelayValue)
+
+    this.markdownEditorTarget.addEventListener("input", this._markdownInputHandler)
+
+    // WYSIWYG → Markdown (on update, but not when syncing from markdown)
+    this._wysiwygUpdateHandler = async () => {
+      if (this.markdownModeValue !== "split") return
+      if (this._syncingFromMarkdown) return
+      const markdown = await this.exportMarkdown()
+      this.markdownEditorTarget.value = markdown
+    }
+
+    this.editor?.on("update", this._wysiwygUpdateHandler)
+  }
+
+  /**
+   * Clear split sync handlers.
+   */
+  clearSplitSync() {
+    if (this._markdownInputHandler && this.hasMarkdownEditorTarget) {
+      this.markdownEditorTarget.removeEventListener("input", this._markdownInputHandler)
+      this._markdownInputHandler = null
+    }
+
+    if (this._wysiwygUpdateHandler && this.editor) {
+      this.editor.off("update", this._wysiwygUpdateHandler)
+      this._wysiwygUpdateHandler = null
+    }
+  }
+
+  /**
+   * Update mode toggle button states.
+   */
+  updateModeToggle() {
+    if (!this.hasModeToggleTarget) return
+
+    const buttons = this.modeToggleTarget.querySelectorAll("[data-mode]")
+    buttons.forEach((button) => {
+      const mode = button.dataset.mode
+      button.classList.toggle("active", mode === this.markdownModeValue)
+    })
+  }
+
+  /**
+   * Get markdown content.
+   * Always available regardless of current mode.
+   * @returns {Promise<string>} Markdown content
+   */
+  async getMarkdown() {
+    if (this.markdownModeValue === "markdown" && this.hasMarkdownEditorTarget) {
+      return this.markdownEditorTarget.value
+    }
+    return this.exportMarkdown()
+  }
+
+  /**
+   * Set content from markdown.
+   * @param {string} markdown - Markdown content
+   */
+  async setMarkdown(markdown) {
+    if (this.hasMarkdownEditorTarget) {
+      this.markdownEditorTarget.value = markdown
+    }
+    await this.importMarkdown(markdown)
   }
 }

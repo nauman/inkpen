@@ -1,0 +1,221 @@
+/**
+ * Markdown Mode Styles
+ *
+ * Styles for the markdown edit/preview toggle feature.
+ * Includes mode toggle button, markdown editor textarea, and split view layout.
+ */
+
+/* ============================================
+   Mode Toggle Button
+   ============================================ */
+
+.inkpen-mode-toggle {
+  display: flex;
+  gap: 2px;
+  padding: 4px;
+  background: var(--inkpen-toggle-bg, #f5f5f5);
+  border-radius: 8px;
+  width: fit-content;
+}
+
+.inkpen-mode-toggle button {
+  padding: 6px 12px;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--inkpen-toggle-text, #666);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.inkpen-mode-toggle button:hover {
+  color: var(--inkpen-toggle-text-hover, #333);
+  background: var(--inkpen-toggle-hover-bg, rgba(0, 0, 0, 0.05));
+}
+
+.inkpen-mode-toggle button.active {
+  background: var(--inkpen-toggle-active-bg, white);
+  color: var(--inkpen-toggle-active-text, #111);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================
+   Markdown Editor Textarea
+   ============================================ */
+
+.inkpen-markdown-editor {
+  width: 100%;
+  min-height: 300px;
+  padding: 16px;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--inkpen-markdown-text, #24292f);
+  background: var(--inkpen-markdown-bg, #fff);
+  border: 1px solid var(--inkpen-border, #d0d7de);
+  border-radius: 8px;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.inkpen-markdown-editor:focus {
+  border-color: var(--inkpen-focus-border, #0969da);
+  box-shadow: 0 0 0 3px var(--inkpen-focus-ring, rgba(9, 105, 218, 0.15));
+}
+
+.inkpen-markdown-editor::placeholder {
+  color: var(--inkpen-placeholder, #6e7781);
+}
+
+/* Hidden state */
+.inkpen-markdown-editor.hidden {
+  display: none;
+}
+
+/* ============================================
+   Split View Layout
+   ============================================ */
+
+.inkpen-editor--split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.inkpen-editor--split .inkpen-markdown-editor,
+.inkpen-editor--split .inkpen-editor__content {
+  min-height: 400px;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+/* Split view labels */
+.inkpen-editor--split .inkpen-markdown-editor::before,
+.inkpen-editor--split .inkpen-editor__content::before {
+  content: attr(data-label);
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--inkpen-label-text, #666);
+  margin-bottom: 8px;
+}
+
+/* Responsive: Stack on mobile */
+@media (max-width: 768px) {
+  .inkpen-editor--split {
+    grid-template-columns: 1fr;
+  }
+
+  .inkpen-editor--split .inkpen-markdown-editor,
+  .inkpen-editor--split .inkpen-editor__content {
+    min-height: 250px;
+    max-height: 400px;
+  }
+}
+
+/* ============================================
+   Mode-specific Container States
+   ============================================ */
+
+/* Container when in markdown mode */
+[data-inkpen--editor-markdown-mode-value="markdown"] .inkpen-editor__content {
+  display: none;
+}
+
+[data-inkpen--editor-markdown-mode-value="markdown"] .inkpen-markdown-editor {
+  display: block;
+}
+
+/* Container when in WYSIWYG mode */
+[data-inkpen--editor-markdown-mode-value="wysiwyg"] .inkpen-markdown-editor {
+  display: none;
+}
+
+[data-inkpen--editor-markdown-mode-value="wysiwyg"] .inkpen-editor__content {
+  display: block;
+}
+
+/* ============================================
+   Keyboard Shortcut Hints
+   ============================================ */
+
+.inkpen-mode-toggle [data-shortcut]::after {
+  content: attr(data-shortcut);
+  font-size: 10px;
+  color: var(--inkpen-shortcut-text, #999);
+  margin-left: 6px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.inkpen-mode-toggle:hover [data-shortcut]::after {
+  opacity: 1;
+}
+
+/* ============================================
+   Dark Mode Support
+   ============================================ */
+
+@media (prefers-color-scheme: dark) {
+  .inkpen-mode-toggle {
+    --inkpen-toggle-bg: #21262d;
+    --inkpen-toggle-text: #8b949e;
+    --inkpen-toggle-text-hover: #c9d1d9;
+    --inkpen-toggle-hover-bg: rgba(255, 255, 255, 0.05);
+    --inkpen-toggle-active-bg: #30363d;
+    --inkpen-toggle-active-text: #f0f6fc;
+  }
+
+  .inkpen-markdown-editor {
+    --inkpen-markdown-text: #c9d1d9;
+    --inkpen-markdown-bg: #0d1117;
+    --inkpen-border: #30363d;
+    --inkpen-focus-border: #58a6ff;
+    --inkpen-focus-ring: rgba(88, 166, 255, 0.15);
+    --inkpen-placeholder: #6e7681;
+  }
+}
+
+/* ============================================
+   Sync Indicator (for split view)
+   ============================================ */
+
+.inkpen-sync-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--inkpen-sync-text, #666);
+  padding: 4px 8px;
+  background: var(--inkpen-sync-bg, #f6f8fa);
+  border-radius: 4px;
+}
+
+.inkpen-sync-indicator.syncing {
+  color: var(--inkpen-sync-active, #0969da);
+}
+
+.inkpen-sync-indicator .inkpen-sync-icon {
+  width: 12px;
+  height: 12px;
+  animation: inkpen-spin 1s linear infinite;
+  animation-play-state: paused;
+}
+
+.inkpen-sync-indicator.syncing .inkpen-sync-icon {
+  animation-play-state: running;
+}
+
+@keyframes inkpen-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
