@@ -47,6 +47,21 @@ class TestMarkdownMode < Minitest::Test
     assert mode.show_toggle
   end
 
+  def test_toggle_placement_defaults_to_top
+    mode = Inkpen::MarkdownMode.new
+    assert_equal :top, mode.toggle_placement
+  end
+
+  def test_can_set_toggle_placement_to_inline
+    mode = Inkpen::MarkdownMode.new(toggle_placement: :inline)
+    assert_equal :inline, mode.toggle_placement
+  end
+
+  def test_invalid_toggle_placement_defaults_to_top
+    mode = Inkpen::MarkdownMode.new(toggle_placement: :invalid)
+    assert_equal :top, mode.toggle_placement
+  end
+
   def test_can_hide_toggle
     mode = Inkpen::MarkdownMode.new(show_toggle: false)
     refute mode.show_toggle
@@ -124,6 +139,12 @@ class TestMarkdownMode < Minitest::Test
     assert_equal "false", attrs["inkpen--editor-markdown-show-toggle-value"]
   end
 
+  def test_data_attributes_includes_toggle_placement
+    mode = Inkpen::MarkdownMode.new(toggle_placement: :inline)
+    attrs = mode.data_attributes
+    assert_equal "inline", attrs["inkpen--editor-markdown-toggle-placement-value"]
+  end
+
   def test_data_attributes_includes_sync_delay
     mode = Inkpen::MarkdownMode.new(sync_delay: 500)
     attrs = mode.data_attributes
@@ -145,6 +166,7 @@ class TestMarkdownMode < Minitest::Test
       enabled: true,
       default_mode: :split,
       show_toggle: true,
+      toggle_placement: :inline,
       sync_delay: 400,
       keyboard_shortcuts: true
     )
@@ -153,6 +175,7 @@ class TestMarkdownMode < Minitest::Test
     assert_equal true, config[:enabled]
     assert_equal "split", config[:defaultMode]
     assert_equal true, config[:showToggle]
+    assert_equal "inline", config[:togglePlacement]
     assert_equal 400, config[:syncDelay]
     assert_equal true, config[:keyboardShortcuts]
   end

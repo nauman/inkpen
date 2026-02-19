@@ -6,31 +6,45 @@
      <%= tag.attributes(editor.html_attributes) %>
      style="<%= editor.style_attributes %>">
 
-  <%# Markdown mode toggle %>
-  <% if editor.markdown_mode&.enabled? && editor.markdown_mode.show_toggle %>
-    <div class="inkpen-mode-toggle" data-inkpen--editor-target="modeToggle">
-      <button type="button"
-              data-mode="wysiwyg"
-              data-action="click->inkpen--editor#setMode"
-              data-shortcut="⌘⇧M"
-              class="<%= 'active' if editor.markdown_mode.wysiwyg_default? %>">
-        Visual
-      </button>
-      <button type="button"
-              data-mode="markdown"
-              data-action="click->inkpen--editor#setMode"
-              data-shortcut="⌘⇧M"
-              class="<%= 'active' if editor.markdown_mode.markdown_default? %>">
-        Markdown
-      </button>
-      <button type="button"
-              data-mode="split"
-              data-action="click->inkpen--editor#setMode"
-              data-shortcut="⌘⇧V"
-              class="<%= 'active' if editor.markdown_mode.split_default? %>">
-        Split
-      </button>
-    </div>
+  <%
+    markdown_toggle_enabled = editor.markdown_mode&.enabled? && editor.markdown_mode.show_toggle
+    inline_mode_toggle = markdown_toggle_enabled && editor.toolbar == :fixed && editor.markdown_mode.inline_toggle?
+    mode_toggle_markup = nil
+
+    if markdown_toggle_enabled
+      mode_toggle_markup = capture do
+  %>
+        <div class="inkpen-mode-toggle <%= 'inkpen-mode-toggle--inline' if inline_mode_toggle %>" data-inkpen--editor-target="modeToggle">
+          <button type="button"
+                  data-mode="wysiwyg"
+                  data-action="click->inkpen--editor#setMode"
+                  data-shortcut="⌘⇧M"
+                  class="<%= 'active' if editor.markdown_mode.wysiwyg_default? %>">
+            Visual
+          </button>
+          <button type="button"
+                  data-mode="markdown"
+                  data-action="click->inkpen--editor#setMode"
+                  data-shortcut="⌘⇧M"
+                  class="<%= 'active' if editor.markdown_mode.markdown_default? %>">
+            Markdown
+          </button>
+          <button type="button"
+                  data-mode="split"
+                  data-action="click->inkpen--editor#setMode"
+                  data-shortcut="⌘⇧V"
+                  class="<%= 'active' if editor.markdown_mode.split_default? %>">
+            Split
+          </button>
+        </div>
+  <%
+      end
+    end
+  %>
+
+  <%# Markdown mode toggle (top placement) %>
+  <% if markdown_toggle_enabled && !inline_mode_toggle %>
+    <%= mode_toggle_markup %>
   <% end %>
 
   <%# Hidden input for form submission %>
@@ -42,13 +56,26 @@
 
   <%# Fixed toolbar - always visible above editor %>
   <% if editor.toolbar == :fixed %>
-    <div class="inkpen-toolbar inkpen-toolbar--fixed"
-         data-controller="inkpen--toolbar"
-         data-inkpen--editor-target="toolbar"
-         data-inkpen--toolbar-style-value="fixed"
-         role="toolbar"
-         aria-label="Text formatting">
-    </div>
+    <% if inline_mode_toggle %>
+      <div class="inkpen-toolbar-row">
+        <%= mode_toggle_markup %>
+        <div class="inkpen-toolbar inkpen-toolbar--fixed"
+             data-controller="inkpen--toolbar"
+             data-inkpen--editor-target="toolbar"
+             data-inkpen--toolbar-style-value="fixed"
+             role="toolbar"
+             aria-label="Text formatting">
+        </div>
+      </div>
+    <% else %>
+      <div class="inkpen-toolbar inkpen-toolbar--fixed"
+           data-controller="inkpen--toolbar"
+           data-inkpen--editor-target="toolbar"
+           data-inkpen--toolbar-style-value="fixed"
+           role="toolbar"
+           aria-label="Text formatting">
+      </div>
+    <% end %>
   <% end %>
 
   <%# Markdown editor textarea (hidden by default unless markdown mode) %>

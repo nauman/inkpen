@@ -36,6 +36,11 @@ module Inkpen
     MODES = %i[wysiwyg markdown split].freeze
 
     ##
+    # Valid placements for the mode toggle.
+    # @return [Array<Symbol>]
+    TOGGLE_PLACEMENTS = %i[top inline].freeze
+
+    ##
     # Default sync delay in milliseconds for split view.
     # @return [Integer]
     DEFAULT_SYNC_DELAY = 300
@@ -50,13 +55,16 @@ module Inkpen
     # @!attribute [r] show_toggle
     #   @return [Boolean] whether to show the mode toggle button
     #
+    # @!attribute [r] toggle_placement
+    #   @return [Symbol] where to place the mode toggle (:top, :inline)
+    #
     # @!attribute [r] sync_delay
     #   @return [Integer] debounce delay for split view sync (ms)
     #
     # @!attribute [r] keyboard_shortcuts
     #   @return [Boolean] whether keyboard shortcuts are enabled
     #
-    attr_reader :default_mode, :show_toggle, :sync_delay, :keyboard_shortcuts
+    attr_reader :default_mode, :show_toggle, :toggle_placement, :sync_delay, :keyboard_shortcuts
 
     ##
     # Initialize a new markdown mode configuration.
@@ -64,6 +72,7 @@ module Inkpen
     # @param enabled [Boolean] whether markdown mode is enabled
     # @param default_mode [Symbol] initial mode (:wysiwyg, :markdown, :split)
     # @param show_toggle [Boolean] show mode toggle button
+    # @param toggle_placement [Symbol] mode toggle placement (:top, :inline)
     # @param sync_delay [Integer] debounce delay for split sync (ms)
     # @param keyboard_shortcuts [Boolean] enable keyboard shortcuts
     #
@@ -71,12 +80,14 @@ module Inkpen
       enabled: false,
       default_mode: :wysiwyg,
       show_toggle: true,
+      toggle_placement: :top,
       sync_delay: DEFAULT_SYNC_DELAY,
       keyboard_shortcuts: true
     )
       @enabled = enabled
       @default_mode = validate_mode(default_mode)
       @show_toggle = show_toggle
+      @toggle_placement = validate_toggle_placement(toggle_placement)
       @sync_delay = sync_delay.to_i
       @keyboard_shortcuts = keyboard_shortcuts
     end
@@ -118,6 +129,15 @@ module Inkpen
     end
 
     ##
+    # Check if toggle should render inline with fixed toolbar.
+    #
+    # @return [Boolean] true if toggle placement is inline
+    #
+    def inline_toggle?
+      toggle_placement == :inline
+    end
+
+    ##
     # Generate data attributes for Stimulus controller.
     #
     # @return [Hash] data attributes hash
@@ -127,6 +147,7 @@ module Inkpen
         "inkpen--editor-markdown-enabled-value" => enabled?.to_s,
         "inkpen--editor-markdown-mode-value" => default_mode.to_s,
         "inkpen--editor-markdown-show-toggle-value" => show_toggle.to_s,
+        "inkpen--editor-markdown-toggle-placement-value" => toggle_placement.to_s,
         "inkpen--editor-markdown-sync-delay-value" => sync_delay.to_s,
         "inkpen--editor-markdown-shortcuts-value" => keyboard_shortcuts.to_s
       }
@@ -142,6 +163,7 @@ module Inkpen
         enabled: enabled?,
         defaultMode: default_mode.to_s,
         showToggle: show_toggle,
+        togglePlacement: toggle_placement.to_s,
         syncDelay: sync_delay,
         keyboardShortcuts: keyboard_shortcuts
       }
@@ -167,6 +189,17 @@ module Inkpen
     def validate_mode(mode)
       mode = mode.to_sym
       MODES.include?(mode) ? mode : :wysiwyg
+    end
+
+    ##
+    # Validate and normalize toggle placement.
+    #
+    # @param placement [Symbol, String] placement value
+    # @return [Symbol] validated placement
+    #
+    def validate_toggle_placement(placement)
+      placement = placement.to_sym
+      TOGGLE_PLACEMENTS.include?(placement) ? placement : :top
     end
   end
 end
