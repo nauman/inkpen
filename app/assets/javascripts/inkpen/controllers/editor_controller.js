@@ -272,6 +272,7 @@ export default class extends Controller {
   connect() {
     this.initializeEditor()
       .then(() => {
+        this.setupFormSubmitSync()
         // Initialize markdown mode AFTER editor is ready
         if (this.markdownEnabledValue) {
           this.initializeMarkdownMode()
@@ -372,6 +373,10 @@ export default class extends Controller {
     if (this.autosaveTimer) {
       clearInterval(this.autosaveTimer)
     }
+
+    this.clearMarkdownModeSync()
+    this.clearSplitSync()
+    this.teardownFormSubmitSync()
 
     if (this.editor) {
       this.editor.destroy()
@@ -1741,6 +1746,9 @@ export default class extends Controller {
     // Remove split class
     this.element.classList.remove("inkpen-editor--split")
 
+    // Clear markdown-only sync if active
+    this.clearMarkdownModeSync()
+
     // Clear split sync if active
     this.clearSplitSync()
 
@@ -1766,6 +1774,9 @@ export default class extends Controller {
 
     // Remove split class
     this.element.classList.remove("inkpen-editor--split")
+
+    // Keep hidden input synced while typing in markdown-only mode
+    this.setupMarkdownModeSync()
 
     // Clear split sync if active
     this.clearSplitSync()
@@ -1793,8 +1804,38 @@ export default class extends Controller {
     // Add split class for layout
     this.element.classList.add("inkpen-editor--split")
 
+    // Split mode has its own bidirectional sync handlers
+    this.clearMarkdownModeSync()
+
     // Set up sync between editors
     this.setupSplitSync()
+  }
+
+  setupMarkdownModeSync() {
+    this.clearMarkdownModeSync()
+    if (!this.hasMarkdownEditorTarget) return
+
+    const debounce = (fn, delay) => {
+      let timeoutId
+      return (...args) => {
+        clearTimeout(timeoutId)
+        timeoutId = setTimeout(() => fn.apply(this, args), delay)
+      }
+    }
+
+    this._markdownModeInputHandler = debounce(() => {
+      if (this.markdownModeValue !== "markdown") return
+      this.importMarkdown(this.markdownEditorTarget.value)
+    }, this.markdownSyncDelayValue)
+
+    this.markdownEditorTarget.addEventListener("input", this._markdownModeInputHandler)
+  }
+
+  clearMarkdownModeSync() {
+    if (this._markdownModeInputHandler && this.hasMarkdownEditorTarget) {
+      this.markdownEditorTarget.removeEventListener("input", this._markdownModeInputHandler)
+      this._markdownModeInputHandler = null
+    }
   }
 
   /**
@@ -1849,6 +1890,29 @@ export default class extends Controller {
       this.editor.off("update", this._wysiwygUpdateHandler)
       this._wysiwygUpdateHandler = null
     }
+  }
+
+  setupFormSubmitSync() {
+    this.formElement = this.element.closest("form")
+    if (!this.formElement) return
+
+    this._formSubmitHandler = () => {
+      if (!this.markdownEnabledValue || !this.hasMarkdownEditorTarget) return
+
+      if (this.markdownModeValue === "markdown" || this.markdownModeValue === "split") {
+        this.importMarkdown(this.markdownEditorTarget.value)
+      }
+    }
+
+    this.formElement.addEventListener("submit", this._formSubmitHandler)
+  }
+
+  teardownFormSubmitSync() {
+    if (!this.formElement || !this._formSubmitHandler) return
+
+    this.formElement.removeEventListener("submit", this._formSubmitHandler)
+    this._formSubmitHandler = null
+    this.formElement = null
   }
 
   /**
