@@ -58,13 +58,16 @@ module Inkpen
     # @!attribute [r] toggle_placement
     #   @return [Symbol] where to place the mode toggle (:top, :inline)
     #
+    # @!attribute [r] toolbar_button
+    #   @return [Boolean] whether to show markdown toggle button in main toolbar
+    #
     # @!attribute [r] sync_delay
     #   @return [Integer] debounce delay for split view sync (ms)
     #
     # @!attribute [r] keyboard_shortcuts
     #   @return [Boolean] whether keyboard shortcuts are enabled
     #
-    attr_reader :default_mode, :show_toggle, :toggle_placement, :sync_delay, :keyboard_shortcuts
+    attr_reader :default_mode, :show_toggle, :toggle_placement, :toolbar_button, :sync_delay, :keyboard_shortcuts
 
     ##
     # Initialize a new markdown mode configuration.
@@ -73,6 +76,7 @@ module Inkpen
     # @param default_mode [Symbol] initial mode (:wysiwyg, :markdown, :split)
     # @param show_toggle [Boolean] show mode toggle button
     # @param toggle_placement [Symbol] mode toggle placement (:top, :inline)
+    # @param toolbar_button [Boolean] show markdown toggle in formatting toolbar
     # @param sync_delay [Integer] debounce delay for split sync (ms)
     # @param keyboard_shortcuts [Boolean] enable keyboard shortcuts
     #
@@ -81,6 +85,7 @@ module Inkpen
       default_mode: :wysiwyg,
       show_toggle: true,
       toggle_placement: :top,
+      toolbar_button: false,
       sync_delay: DEFAULT_SYNC_DELAY,
       keyboard_shortcuts: true
     )
@@ -88,6 +93,7 @@ module Inkpen
       @default_mode = validate_mode(default_mode)
       @show_toggle = show_toggle
       @toggle_placement = validate_toggle_placement(toggle_placement)
+      @toolbar_button = toolbar_button
       @sync_delay = sync_delay.to_i
       @keyboard_shortcuts = keyboard_shortcuts
     end
@@ -148,6 +154,7 @@ module Inkpen
         "inkpen--editor-markdown-mode-value" => default_mode.to_s,
         "inkpen--editor-markdown-show-toggle-value" => show_toggle.to_s,
         "inkpen--editor-markdown-toggle-placement-value" => toggle_placement.to_s,
+        "inkpen--editor-markdown-toolbar-button-value" => toolbar_button.to_s,
         "inkpen--editor-markdown-sync-delay-value" => sync_delay.to_s,
         "inkpen--editor-markdown-shortcuts-value" => keyboard_shortcuts.to_s
       }
@@ -164,6 +171,7 @@ module Inkpen
         defaultMode: default_mode.to_s,
         showToggle: show_toggle,
         togglePlacement: toggle_placement.to_s,
+        toolbarButton: toolbar_button,
         syncDelay: sync_delay,
         keyboardShortcuts: keyboard_shortcuts
       }

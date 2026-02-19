@@ -202,6 +202,14 @@ class TestEditor < Minitest::Test
     assert_equal "inline", attrs[:data]["inkpen--editor-markdown-toggle-placement-value"]
   end
 
+  def test_data_attributes_includes_markdown_toolbar_button
+    mode = Inkpen::MarkdownMode.new(enabled: true, toolbar_button: true)
+    editor = Inkpen::Editor.new(name: "post[body]", markdown_mode: mode)
+    attrs = editor.data_attributes
+
+    assert_equal "true", attrs[:data]["inkpen--editor-markdown-toolbar-button-value"]
+  end
+
   def test_data_attributes_excludes_markdown_mode_when_disabled
     mode = Inkpen::MarkdownMode.new(enabled: false)
     editor = Inkpen::Editor.new(name: "post[body]", markdown_mode: mode)

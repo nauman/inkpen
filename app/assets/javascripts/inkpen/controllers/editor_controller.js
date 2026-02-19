@@ -264,6 +264,7 @@ export default class extends Controller {
     markdownEnabled: { type: Boolean, default: false },
     markdownMode: { type: String, default: "wysiwyg" },
     markdownShowToggle: { type: Boolean, default: true },
+    markdownToolbarButton: { type: Boolean, default: false },
     markdownSyncDelay: { type: Number, default: 300 },
     markdownShortcuts: { type: Boolean, default: true }
   }

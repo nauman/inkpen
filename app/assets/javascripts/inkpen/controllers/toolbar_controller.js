@@ -30,6 +30,7 @@ export default class extends Controller {
   connect() {
     this.editorController = null
     this.currentContext = "text"
+    this.modeChangeHandler = null
 
     // Store editor element ID on the DOM element before BubbleMenu moves us to body
     // Using a data attribute persists across Stimulus disconnect/reconnect cycles
@@ -53,6 +54,13 @@ export default class extends Controller {
     // Build initial toolbar buttons
     this.buildToolbar()
 
+    // Keep toolbar active states in sync when markdown mode changes via shortcuts.
+    const editorElement = this.getEditorElement()
+    if (editorElement) {
+      this.modeChangeHandler = () => this.updateActiveStates()
+      editorElement.addEventListener("inkpen:mode-change", this.modeChangeHandler)
+    }
+
     // Listen for selection changes to update context
     if (this.contextAwareValue) {
       this.setupContextDetection()
@@ -65,6 +73,11 @@ export default class extends Controller {
     }
     if (this.selectionObserver) {
       this.selectionObserver = null
+    }
+
+    const editorElement = this.getEditorElement()
+    if (editorElement && this.modeChangeHandler) {
+      editorElement.removeEventListener("inkpen:mode-change", this.modeChangeHandler)
     }
   }
 
@@ -223,24 +236,41 @@ export default class extends Controller {
   // --- Button Sets by Context ---
 
   defaultButtons() {
-    return ["bold", "italic", "underline", "strike", "divider", "code", "highlight", "link", "divider", "heading", "callout"]
+    return this.appendMarkdownToggle([
+      "bold", "italic", "underline", "strike",
+      "divider", "code", "highlight", "link",
+      "divider", "heading", "callout"
+    ])
   }
 
   tableButtons() {
-    return [
+    return this.appendMarkdownToggle([
       "bold", "italic", "divider",
       "addRowBefore", "addRowAfter", "deleteRow", "divider",
       "addColumnBefore", "addColumnAfter", "deleteColumn", "divider",
       "mergeCells", "splitCell", "deleteTable"
-    ]
+    ])
   }
 
   codeButtons() {
-    return ["languageSelector"]
+    return this.appendMarkdownToggle(["languageSelector"])
   }
 
   imageButtons() {
-    return ["alignLeft", "alignCenter", "alignRight", "divider", "deleteImage"]
+    return this.appendMarkdownToggle(["alignLeft", "alignCenter", "alignRight", "divider", "deleteImage"])
+  }
+
+  markdownToggleAvailable() {
+    return this.editorController?.toolbarValue === "fixed" &&
+      this.editorController?.markdownEnabledValue &&
+      this.editorController?.markdownToolbarButtonValue
+  }
+
+  appendMarkdownToggle(buttons) {
+    if (!this.markdownToggleAvailable()) return buttons
+    if (buttons.includes("markdownMode")) return buttons
+
+    return [...buttons, "divider", "markdownMode"]
   }
 
   buttonConfig(name) {
@@ -368,6 +398,10 @@ export default class extends Controller {
       languageSelector: {
         title: "Select Language",
         icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/><text x="9" y="17" font-size="8" fill="currentColor">JS</text></svg>'
+      },
+      markdownMode: {
+        title: "Toggle Markdown",
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5h2l4 6 4-6h2v14h-2V9l-4 6-4-6v10z"/><path d="M20 8v8"/><path d="M18 10l2-2 2 2"/><path d="m18 14 2 2 2-2"/></svg>'
       }
     }
 
@@ -480,6 +514,9 @@ export default class extends Controller {
       case "languageSelector":
         this.showLanguageSelector()
         break
+      case "markdownMode":
+        this.editorController.toggleMarkdownMode()
+        break
     }
 
     this.updateActiveStates()
@@ -504,9 +541,18 @@ export default class extends Controller {
 
     this.element.querySelectorAll(".inkpen-toolbar__button").forEach(btn => {
       const command = btn.dataset.command
-      const isActive = this.editorController.isActive(this.commandToNodeName(command))
+      const isActive = this.isCommandActive(command)
       btn.classList.toggle("is-active", isActive)
     })
+  }
+
+  isCommandActive(command) {
+    if (command === "markdownMode") {
+      return this.editorController?.markdownEnabledValue &&
+        this.editorController?.markdownModeValue !== "wysiwyg"
+    }
+
+    return this.editorController.isActive(this.commandToNodeName(command))
   }
 
   commandToNodeName(command) {

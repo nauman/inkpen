@@ -67,6 +67,16 @@ class TestMarkdownMode < Minitest::Test
     refute mode.show_toggle
   end
 
+  def test_toolbar_button_is_false_by_default
+    mode = Inkpen::MarkdownMode.new
+    refute mode.toolbar_button
+  end
+
+  def test_can_enable_toolbar_button
+    mode = Inkpen::MarkdownMode.new(toolbar_button: true)
+    assert mode.toolbar_button
+  end
+
   def test_default_sync_delay
     mode = Inkpen::MarkdownMode.new
     assert_equal 300, mode.sync_delay
@@ -145,6 +155,12 @@ class TestMarkdownMode < Minitest::Test
     assert_equal "inline", attrs["inkpen--editor-markdown-toggle-placement-value"]
   end
 
+  def test_data_attributes_includes_toolbar_button
+    mode = Inkpen::MarkdownMode.new(toolbar_button: true)
+    attrs = mode.data_attributes
+    assert_equal "true", attrs["inkpen--editor-markdown-toolbar-button-value"]
+  end
+
   def test_data_attributes_includes_sync_delay
     mode = Inkpen::MarkdownMode.new(sync_delay: 500)
     attrs = mode.data_attributes
@@ -167,6 +183,7 @@ class TestMarkdownMode < Minitest::Test
       default_mode: :split,
       show_toggle: true,
       toggle_placement: :inline,
+      toolbar_button: true,
       sync_delay: 400,
       keyboard_shortcuts: true
     )
@@ -176,6 +193,7 @@ class TestMarkdownMode < Minitest::Test
     assert_equal "split", config[:defaultMode]
     assert_equal true, config[:showToggle]
     assert_equal "inline", config[:togglePlacement]
+    assert_equal true, config[:toolbarButton]
     assert_equal 400, config[:syncDelay]
     assert_equal true, config[:keyboardShortcuts]
   end
