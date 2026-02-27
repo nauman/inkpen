@@ -59,6 +59,7 @@ export const ContentEmbed = Node.create({
     const typeName = (type || "embed").toUpperCase()
 
     const textChildren = [
+      ["span", { class: "inkpen-content-embed__badge" }, typeName],
       ["span", { class: "inkpen-content-embed__title" }, title || "Untitled"]
     ]
     if (subtitle) {
@@ -77,7 +78,6 @@ export const ContentEmbed = Node.create({
         class: "inkpen-content-embed"
       },
       ["a", { href: url || "#", class: "inkpen-content-embed__link", target: "_blank", rel: "noopener noreferrer" },
-        ["span", { class: "inkpen-content-embed__badge" }, typeName],
         ["span", { class: "inkpen-content-embed__body" },
           ["span", { class: "inkpen-content-embed__icon" }, ""],
           ["span", { class: "inkpen-content-embed__text" },
@@ -119,6 +119,8 @@ export const ContentEmbed = Node.create({
       const text = document.createElement("span")
       text.className = "inkpen-content-embed__text"
 
+      text.appendChild(badge)
+
       const titleEl = document.createElement("span")
       titleEl.className = "inkpen-content-embed__title"
       titleEl.textContent = title || "Untitled"
@@ -133,7 +135,6 @@ export const ContentEmbed = Node.create({
 
       body.appendChild(iconEl)
       body.appendChild(text)
-      link.appendChild(badge)
       link.appendChild(body)
       dom.appendChild(link)
 
