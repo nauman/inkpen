@@ -256,8 +256,16 @@ export const SlashCommands = Extension.create({
         case "exportPDF": editor.commands.downloadPDF?.(); break
         case "copyMarkdown": editor.commands.copyMarkdown?.(); break
         case "copyHTML": editor.commands.copyHTML?.(); break
-        default:
-          console.warn(`Unknown slash command: ${commandId}`)
+        default: {
+          // Dispatch custom event for app-level handling (e.g., embed commands)
+          const event = new CustomEvent("inkpen:slash-command", {
+            detail: { commandId },
+            bubbles: true,
+            cancelable: true
+          })
+          editor.view.dom.dispatchEvent(event)
+          break
+        }
       }
     }
 
