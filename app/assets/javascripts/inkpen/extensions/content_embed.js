@@ -40,15 +40,14 @@ export const ContentEmbed = Node.create({
 
   renderHTML({ node }) {
     const { type, embedId, title, url, subtitle } = node.attrs
+    const typeName = (type || "embed").toUpperCase()
 
-    const children = [
+    const textChildren = [
       ["span", { class: "inkpen-content-embed__title" }, title || "Untitled"]
     ]
     if (subtitle) {
-      children.push(["span", { class: "inkpen-content-embed__subtitle" }, subtitle])
+      textChildren.push(["span", { class: "inkpen-content-embed__subtitle" }, subtitle])
     }
-    const label = type ? `View ${type} →` : "View →"
-    children.push(["a", { href: url, class: "inkpen-content-embed__action", target: "_blank", rel: "noopener noreferrer" }, label])
 
     return [
       "div",
@@ -57,17 +56,26 @@ export const ContentEmbed = Node.create({
         "data-embed-type": type,
         "data-embed-id": embedId,
         "data-embed-title": title,
-        "data-embed-url": url,
+        "data-embed-url": url || "#",
         "data-embed-subtitle": subtitle || "",
         class: "inkpen-content-embed"
       },
-      ...children
+      ["a", { href: url || "#", class: "inkpen-content-embed__link", target: "_blank", rel: "noopener noreferrer" },
+        ["span", { class: "inkpen-content-embed__badge" }, typeName],
+        ["span", { class: "inkpen-content-embed__body" },
+          ["span", { class: "inkpen-content-embed__icon" }, ""],
+          ["span", { class: "inkpen-content-embed__text" },
+            ...textChildren
+          ]
+        ]
+      ]
     ]
   },
 
   addNodeView() {
     return ({ node }) => {
       const { type, title, url, subtitle } = node.attrs
+      const typeName = (type || "embed").toUpperCase()
 
       const dom = document.createElement("div")
       dom.className = "inkpen-content-embed"
@@ -75,26 +83,42 @@ export const ContentEmbed = Node.create({
       dom.setAttribute("data-embed-type", type || "")
       dom.contentEditable = "false"
 
+      const link = document.createElement("a")
+      link.className = "inkpen-content-embed__link"
+      link.href = url || "#"
+      link.target = "_blank"
+      link.rel = "noopener noreferrer"
+
+      const badge = document.createElement("span")
+      badge.className = "inkpen-content-embed__badge"
+      badge.textContent = typeName
+
+      const body = document.createElement("span")
+      body.className = "inkpen-content-embed__body"
+
+      const iconEl = document.createElement("span")
+      iconEl.className = "inkpen-content-embed__icon"
+
+      const text = document.createElement("span")
+      text.className = "inkpen-content-embed__text"
+
       const titleEl = document.createElement("span")
       titleEl.className = "inkpen-content-embed__title"
       titleEl.textContent = title || "Untitled"
-      dom.appendChild(titleEl)
+      text.appendChild(titleEl)
 
       if (subtitle) {
         const sub = document.createElement("span")
         sub.className = "inkpen-content-embed__subtitle"
         sub.textContent = subtitle
-        dom.appendChild(sub)
+        text.appendChild(sub)
       }
 
-      const action = document.createElement("a")
-      action.className = "inkpen-content-embed__action"
-      action.href = url || "#"
-      action.target = "_blank"
-      action.rel = "noopener noreferrer"
-      const label = type ? `View ${type} \u2192` : "View \u2192"
-      action.textContent = label
-      dom.appendChild(action)
+      body.appendChild(iconEl)
+      body.appendChild(text)
+      link.appendChild(badge)
+      link.appendChild(body)
+      dom.appendChild(link)
 
       return { dom }
     }
