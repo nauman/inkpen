@@ -152,6 +152,7 @@ pin "inkpen/extensions/database", to: "inkpen/extensions/database.js"
 pin "inkpen/extensions/document_section", to: "inkpen/extensions/document_section.js"
 pin "inkpen/extensions/section_title", to: "inkpen/extensions/section_title.js"
 pin "inkpen/extensions/export_commands", to: "inkpen/extensions/export_commands.js"
+pin "inkpen/extensions/content_embed", to: "inkpen/extensions/content_embed.js"
 
 # Export modules - explicit pins for relative import resolution
 pin "inkpen/export", to: "inkpen/export/index.js"
