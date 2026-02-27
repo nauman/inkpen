@@ -54,7 +54,8 @@ async function loadEditorModules() {
     advancedTableMod,
     tableOfContentsMod,
     databaseMod,
-    documentSectionMod
+    documentSectionMod,
+    contentEmbedMod
   ] = await Promise.all([
     import("@tiptap/core"),
     import("@tiptap/pm/model"),
@@ -96,7 +97,8 @@ async function loadEditorModules() {
     import("inkpen/extensions/advanced_table"),
     import("inkpen/extensions/table_of_contents"),
     import("inkpen/extensions/database"),
-    import("inkpen/extensions/document_section")
+    import("inkpen/extensions/document_section"),
+    import("inkpen/extensions/content_embed")
   ])
 
   cachedModules = {
@@ -146,7 +148,8 @@ async function loadEditorModules() {
     AdvancedTableHeader: advancedTableMod.AdvancedTableHeader,
     TableOfContents: tableOfContentsMod.TableOfContents,
     Database: databaseMod.Database,
-    DocumentSection: documentSectionMod.DocumentSection
+    DocumentSection: documentSectionMod.DocumentSection,
+    ContentEmbed: contentEmbedMod.ContentEmbed
   }
 
   return cachedModules
@@ -400,7 +403,7 @@ export default class extends Controller {
       ToggleBlock, ToggleSummary, Columns, Column, Callout, BlockCommands,
       EnhancedImage, FileAttachment, Embed,
       AdvancedTable, AdvancedTableRow, AdvancedTableCell, AdvancedTableHeader,
-      TableOfContents, Database, DocumentSection
+      TableOfContents, Database, DocumentSection, ContentEmbed
     } = this.modules
 
     // Base StarterKit - disable codeBlock if we're using CodeBlockLowlight
@@ -946,6 +949,11 @@ export default class extends Controller {
         // Pre-load export modules for methods
         await loadExportModules()
       }
+    }
+
+    // Content Embed extension (rich embed cards for app content)
+    if (enabledExtensions.includes("content_embed")) {
+      extensions.push(ContentEmbed)
     }
 
     return extensions
