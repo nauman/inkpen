@@ -1,160 +1,17 @@
 /* ==========================================================================
-   Content Embed Card Styles
+   Content Embed — Structural styles only
    ==========================================================================
-
-   Rich embed cards for internal content (stories, ships, series).
-   Renders as a non-editable, clickable card inside the editor.
-
-   @since 0.7.1
+   Visual design (colors, backgrounds, badges) is the host app's concern.
+   Inkpen only provides layout structure and selection state.
    ========================================================================== */
 
-/* —— Card container —— */
 .inkpen-content-embed {
   margin: 1rem 0;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
-  overflow: hidden;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-  background: #fff;
   user-select: none;
 }
 
-.inkpen-content-embed:hover {
-  border-color: #c4b5fd;
-  box-shadow: 0 1px 3px rgba(124, 58, 237, 0.1);
-}
-
 .inkpen-content-embed.ProseMirror-selectednode {
-  border-color: #8b5cf6;
-  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
-}
-
-/* —— Link wrapper —— */
-.inkpen-content-embed__link {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  padding: 0.875rem 1rem;
-  text-decoration: none !important;
-  color: inherit !important;
-  cursor: pointer;
-}
-
-.inkpen-content-embed__link:hover {
-  text-decoration: none !important;
-}
-
-/* —— Type badge —— */
-.inkpen-content-embed__badge {
-  display: inline-flex;
-  align-items: center;
-  width: fit-content;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  padding: 0.125rem 0.5rem;
-  border-radius: 9999px;
-  background-color: #ede9fe;
-  color: #6d28d9;
-}
-
-/* Type-specific badge colors */
-.inkpen-content-embed[data-embed-type="story"] .inkpen-content-embed__badge {
-  background-color: #fef3c7;
-  color: #92400e;
-}
-
-.inkpen-content-embed[data-embed-type="ship"] .inkpen-content-embed__badge {
-  background-color: #d1fae5;
-  color: #065f46;
-}
-
-.inkpen-content-embed[data-embed-type="series"] .inkpen-content-embed__badge {
-  background-color: #ede9fe;
-  color: #6d28d9;
-}
-
-.inkpen-content-embed[data-embed-type="roundup"] .inkpen-content-embed__badge {
-  background-color: #e0f2fe;
-  color: #075985;
-}
-
-.inkpen-content-embed[data-embed-type="showcase"] .inkpen-content-embed__badge {
-  background-color: #f3e8ff;
-  color: #7e22ce;
-}
-
-/* —— Title —— */
-.inkpen-content-embed__title {
-  font-size: 0.9375rem;
-  font-weight: 600;
-  color: #111827;
-  line-height: 1.3;
-}
-
-.inkpen-content-embed__link:hover .inkpen-content-embed__title {
-  color: #7c3aed;
-}
-
-/* —— Subtitle —— */
-.inkpen-content-embed__subtitle {
-  font-size: 0.8125rem;
-  color: #6b7280;
-  line-height: 1.4;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-/* —— Dark mode —— */
-@media (prefers-color-scheme: dark) {
-  .inkpen-content-embed {
-    background: #1f2937;
-    border-color: #374151;
-  }
-
-  .inkpen-content-embed:hover {
-    border-color: #7c3aed;
-  }
-
-  .inkpen-content-embed__title {
-    color: #f3f4f6;
-  }
-
-  .inkpen-content-embed__subtitle {
-    color: #9ca3af;
-  }
-
-  .inkpen-content-embed__link:hover .inkpen-content-embed__title {
-    color: #a78bfa;
-  }
-
-  .inkpen-content-embed[data-embed-type="story"] .inkpen-content-embed__badge {
-    background-color: #78350f;
-    color: #fde68a;
-  }
-
-  .inkpen-content-embed[data-embed-type="ship"] .inkpen-content-embed__badge {
-    background-color: #064e3b;
-    color: #6ee7b7;
-  }
-
-  .inkpen-content-embed[data-embed-type="series"] .inkpen-content-embed__badge {
-    background-color: #4c1d95;
-    color: #c4b5fd;
-  }
-}
-
-/* —— Override prose container styles —— */
-.prose .inkpen-content-embed {
-  margin: 1.25rem 0;
-}
-
-.prose .inkpen-content-embed a,
-.prose .inkpen-content-embed__link {
-  color: inherit !important;
-  text-decoration: none !important;
-  font-weight: inherit;
+  outline: 2px solid #8b5cf6;
+  outline-offset: 2px;
+  border-radius: 0.75rem;
 }

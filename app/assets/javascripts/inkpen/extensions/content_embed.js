@@ -3,11 +3,9 @@ import { Node, mergeAttributes } from "@tiptap/core"
 /**
  * Content Embed Extension for TipTap
  *
- * Renders rich, clickable embed cards for internal content
- * (stories, ships, series, or any app-defined content type).
- *
- * The node is atomic (non-editable) and stores content metadata
- * as attributes. Apps can style the card via `.inkpen-content-embed`.
+ * Renders a non-editable embed card for app content. The node stores
+ * metadata as attributes. Visual styling is left to the host app —
+ * inkpen only provides the DOM structure and data attributes.
  *
  * @since 0.7.1
  */
@@ -23,8 +21,7 @@ export const ContentEmbed = Node.create({
       embedId: { default: null },
       title: { default: "" },
       url: { default: "#" },
-      subtitle: { default: null },
-      icon: { default: null }
+      subtitle: { default: null }
     }
   },
 
@@ -36,19 +33,21 @@ export const ContentEmbed = Node.create({
         embedId: dom.getAttribute("data-embed-id"),
         title: dom.getAttribute("data-embed-title"),
         url: dom.getAttribute("data-embed-url"),
-        subtitle: dom.getAttribute("data-embed-subtitle"),
-        icon: dom.getAttribute("data-embed-icon")
+        subtitle: dom.getAttribute("data-embed-subtitle")
       })
     }]
   },
 
   renderHTML({ node }) {
-    const { type, embedId, title, url, subtitle, icon } = node.attrs
+    const { type, embedId, title, url, subtitle } = node.attrs
 
-    const typeLabels = { story: "Story", ship: "Ship", series: "Series", roundup: "Roundup", showcase: "Showcase" }
-    const typeIcons = { story: "\uD83D\uDD16", ship: "\uD83D\uDE80", series: "\uD83D\uDCD6", roundup: "\uD83D\uDCE6", showcase: "\u25B6" }
-    const typeLabel = typeLabels[type] || type || "Embed"
-    const typeIcon = icon || typeIcons[type] || "\uD83D\uDD17"
+    const children = [
+      ["span", { class: "inkpen-content-embed__title" }, title || "Untitled"]
+    ]
+    if (subtitle) {
+      children.push(["span", { class: "inkpen-content-embed__subtitle" }, subtitle])
+    }
+    children.push(["a", { href: url, class: "inkpen-content-embed__action", target: "_blank", rel: "noopener noreferrer" }, `View →`])
 
     return [
       "div",
@@ -59,31 +58,15 @@ export const ContentEmbed = Node.create({
         "data-embed-title": title,
         "data-embed-url": url,
         "data-embed-subtitle": subtitle || "",
-        "data-embed-icon": typeIcon,
         class: "inkpen-content-embed"
       },
-      [
-        "a",
-        { href: url, target: "_blank", rel: "noopener noreferrer", class: "inkpen-content-embed__link" },
-        [
-          "span",
-          { class: "inkpen-content-embed__badge" },
-          `${typeIcon} ${typeLabel}`
-        ],
-        ["span", { class: "inkpen-content-embed__title" }, title || "Untitled"],
-        ...(subtitle ? [["span", { class: "inkpen-content-embed__subtitle" }, subtitle]] : [])
-      ]
+      ...children
     ]
   },
 
   addNodeView() {
     return ({ node }) => {
-      const { type, embedId, title, url, subtitle, icon } = node.attrs
-
-      const typeLabels = { story: "Story", ship: "Ship", series: "Series" }
-      const typeIcons = { story: "\uD83D\uDCD6", ship: "\uD83D\uDE80", series: "\uD83D\uDCDA" }
-      const typeLabel = typeLabels[type] || type || "Embed"
-      const typeIcon = icon || typeIcons[type] || "\uD83D\uDD17"
+      const { type, title, url, subtitle } = node.attrs
 
       const dom = document.createElement("div")
       dom.className = "inkpen-content-embed"
@@ -91,31 +74,25 @@ export const ContentEmbed = Node.create({
       dom.setAttribute("data-embed-type", type || "")
       dom.contentEditable = "false"
 
-      const link = document.createElement("a")
-      link.href = url || "#"
-      link.target = "_blank"
-      link.rel = "noopener noreferrer"
-      link.className = "inkpen-content-embed__link"
-
-      const badge = document.createElement("span")
-      badge.className = "inkpen-content-embed__badge"
-      badge.textContent = `${typeIcon} ${typeLabel}`
-
       const titleEl = document.createElement("span")
       titleEl.className = "inkpen-content-embed__title"
       titleEl.textContent = title || "Untitled"
-
-      link.appendChild(badge)
-      link.appendChild(titleEl)
+      dom.appendChild(titleEl)
 
       if (subtitle) {
         const sub = document.createElement("span")
         sub.className = "inkpen-content-embed__subtitle"
         sub.textContent = subtitle
-        link.appendChild(sub)
+        dom.appendChild(sub)
       }
 
-      dom.appendChild(link)
+      const action = document.createElement("a")
+      action.className = "inkpen-content-embed__action"
+      action.href = url || "#"
+      action.target = "_blank"
+      action.rel = "noopener noreferrer"
+      action.textContent = "View \u2192"
+      dom.appendChild(action)
 
       return { dom }
     }
