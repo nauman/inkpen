@@ -1,0 +1,355 @@
+/* ==========================================================================
+   Mention Popup Styles
+   ==========================================================================
+
+   @mention suggestion popup for user mentions.
+   Triggered by typing "@" in the editor.
+
+   @since 0.8.0
+   ========================================================================== */
+
+/* ==========================================================================
+   Popup Container
+   ========================================================================== */
+
+.inkpen-mention-suggestions {
+  position: fixed;
+  z-index: 10000;
+  min-width: 240px;
+  max-width: 300px;
+  max-height: 320px;
+  overflow-y: auto;
+  background: var(--inkpen-color-background, #ffffff);
+  border: 1px solid var(--inkpen-color-border, #e5e7eb);
+  border-radius: var(--inkpen-radius, 0.5rem);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06),
+    0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  padding: 0.375rem;
+
+  /* Smooth scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: var(--inkpen-color-border, #e5e7eb) transparent;
+}
+
+.inkpen-mention-suggestions::-webkit-scrollbar {
+  width: 6px;
+}
+
+.inkpen-mention-suggestions::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.inkpen-mention-suggestions::-webkit-scrollbar-thumb {
+  background-color: var(--inkpen-color-border, #e5e7eb);
+  border-radius: 3px;
+}
+
+/* ==========================================================================
+   Empty State
+   ========================================================================== */
+
+.inkpen-mention-empty {
+  padding: 1rem;
+  text-align: center;
+  color: var(--inkpen-color-text-muted, #9ca3af);
+  font-size: 0.8125rem;
+}
+
+/* ==========================================================================
+   Mention Items
+   ========================================================================== */
+
+.inkpen-mention-item {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  width: 100%;
+  padding: 0.5rem 0.625rem;
+  background: none;
+  border: none;
+  border-radius: calc(var(--inkpen-radius, 0.5rem) - 2px);
+  cursor: pointer;
+  text-align: left;
+  color: var(--inkpen-color-text, #1a1a1a);
+  transition: background-color 100ms ease;
+  outline: none;
+}
+
+.inkpen-mention-item:hover,
+.inkpen-mention-item.is-selected {
+  background: var(--inkpen-color-selection, rgba(59, 130, 246, 0.1));
+}
+
+.inkpen-mention-item:focus-visible {
+  background: var(--inkpen-color-selection, rgba(59, 130, 246, 0.1));
+  outline: 2px solid var(--inkpen-color-primary, #3b82f6);
+  outline-offset: -2px;
+}
+
+/* ==========================================================================
+   Avatar
+   ========================================================================== */
+
+.inkpen-mention-item__avatar {
+  flex-shrink: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 9999px;
+  object-fit: cover;
+  background: var(--inkpen-color-border, #f3f4f6);
+}
+
+/* Placeholder when no avatar image */
+.inkpen-mention-item__avatar-placeholder {
+  flex-shrink: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 9999px;
+  background: var(--inkpen-color-primary, #3b82f6);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* ==========================================================================
+   Info (Handle + Name)
+   ========================================================================== */
+
+.inkpen-mention-item__info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.0625rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.inkpen-mention-item__handle {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--inkpen-color-text, #1a1a1a);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.inkpen-mention-item__name {
+  font-size: 0.6875rem;
+  color: var(--inkpen-color-text-muted, #9ca3af);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ==========================================================================
+   Rendered @Mention Tag (in content)
+   ========================================================================== */
+
+.inkpen-mention {
+  display: inline;
+  padding: 0.0625rem 0.375rem;
+  background: rgba(124, 58, 237, 0.1);
+  color: #7c3aed;
+  font-weight: 500;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.inkpen-mention:hover {
+  background: rgba(124, 58, 237, 0.18);
+  text-decoration: underline;
+}
+
+/* ==========================================================================
+   Dark Mode
+   ========================================================================== */
+
+@media (prefers-color-scheme: dark) {
+  .inkpen-mention-suggestions {
+    background: var(--inkpen-color-background, #1f2937);
+    border-color: var(--inkpen-color-border, #374151);
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.3),
+      0 2px 4px -1px rgba(0, 0, 0, 0.2),
+      0 10px 15px -3px rgba(0, 0, 0, 0.3);
+  }
+
+  .inkpen-mention-item__handle {
+    color: var(--inkpen-color-text, #f3f4f6);
+  }
+
+  .inkpen-mention-item:hover,
+  .inkpen-mention-item.is-selected {
+    background: var(--inkpen-color-selection, rgba(59, 130, 246, 0.2));
+  }
+
+  .inkpen-mention-item__avatar {
+    background: var(--inkpen-color-border, #374151);
+  }
+
+  .inkpen-mention {
+    background: rgba(167, 139, 250, 0.15);
+    color: #a78bfa;
+  }
+
+  .inkpen-mention:hover {
+    background: rgba(167, 139, 250, 0.25);
+  }
+}
+
+/* ==========================================================================
+   Animations
+   ========================================================================== */
+
+@keyframes inkpen-mention-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.inkpen-mention-suggestions {
+  animation: inkpen-mention-enter 120ms ease-out;
+}
+
+/* ==========================================================================
+   Mobile Responsive
+   ========================================================================== */
+
+@media (max-width: 480px) {
+  .inkpen-mention-suggestions {
+    min-width: 0;
+    max-width: calc(100vw - 2rem);
+    left: 1rem !important;
+    right: 1rem;
+  }
+
+  .inkpen-mention-item {
+    padding: 0.625rem 0.75rem;
+  }
+
+  .inkpen-mention-item__name {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   Editor Hints Toggle
+   ========================================================================== */
+
+.inkpen-hints-toggle {
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.5rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--inkpen-color-background, #ffffff);
+  border: 1px solid var(--inkpen-color-border, #e5e7eb);
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--inkpen-color-text-muted, #9ca3af);
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity 150ms ease, background-color 150ms ease;
+  z-index: 5;
+}
+
+.inkpen-hints-toggle:hover {
+  opacity: 1;
+  background: var(--inkpen-color-selection, rgba(59, 130, 246, 0.1));
+  color: var(--inkpen-color-primary, #3b82f6);
+}
+
+/* Hints Panel */
+.inkpen-hints-panel {
+  position: absolute;
+  bottom: 2.25rem;
+  right: 0.5rem;
+  min-width: 160px;
+  background: var(--inkpen-color-background, #ffffff);
+  border: 1px solid var(--inkpen-color-border, #e5e7eb);
+  border-radius: var(--inkpen-radius, 0.5rem);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  padding: 0.5rem;
+  z-index: 10;
+  animation: inkpen-mention-enter 120ms ease-out;
+}
+
+.inkpen-hints-panel[hidden] {
+  display: none;
+}
+
+.inkpen-hints-panel__title {
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--inkpen-color-text-muted, #9ca3af);
+  padding: 0.125rem 0.375rem 0.375rem;
+}
+
+.inkpen-hints-panel__item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.375rem;
+  font-size: 0.75rem;
+  color: var(--inkpen-color-text, #1a1a1a);
+}
+
+.inkpen-hints-panel__item kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  padding: 0.0625rem 0.3125rem;
+  background: var(--inkpen-color-border, #f3f4f6);
+  border-radius: 0.25rem;
+  font-size: 0.6875rem;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-weight: 500;
+  color: var(--inkpen-color-text-muted, #6b7280);
+  white-space: nowrap;
+}
+
+.inkpen-hints-panel__item span {
+  color: var(--inkpen-color-text-muted, #6b7280);
+}
+
+/* Dark mode for hints */
+@media (prefers-color-scheme: dark) {
+  .inkpen-hints-toggle {
+    background: var(--inkpen-color-background, #1f2937);
+    border-color: var(--inkpen-color-border, #374151);
+  }
+
+  .inkpen-hints-panel {
+    background: var(--inkpen-color-background, #1f2937);
+    border-color: var(--inkpen-color-border, #374151);
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.3),
+      0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  }
+
+  .inkpen-hints-panel__item kbd {
+    background: var(--inkpen-color-border, #374151);
+    color: var(--inkpen-color-text-muted, #9ca3af);
+  }
+}

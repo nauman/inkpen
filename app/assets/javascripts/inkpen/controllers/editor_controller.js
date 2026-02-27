@@ -251,7 +251,7 @@ async function loadExportCommands() {
  * - CharacterCount
  */
 export default class extends Controller {
-  static targets = ["input", "content", "toolbar", "markdownEditor", "modeToggle"]
+  static targets = ["input", "content", "toolbar", "markdownEditor", "modeToggle", "hintsPanel"]
 
   static values = {
     extensions: { type: Array, default: [] },
@@ -1060,7 +1060,56 @@ export default class extends Controller {
       const button = document.createElement("button")
       button.className = `inkpen-mention-item ${index === 0 ? "is-selected" : ""}`
       button.setAttribute("role", "option")
-      button.textContent = item.label
+
+      // Rich rendering: avatar + handle + name (backwards compatible)
+      if (item.avatar_url || item.handle || item.name) {
+        // Avatar or placeholder
+        if (item.avatar_url) {
+          const avatar = document.createElement("img")
+          avatar.className = "inkpen-mention-item__avatar"
+          avatar.src = item.avatar_url
+          avatar.alt = item.label || item.handle || ""
+          avatar.loading = "lazy"
+          button.appendChild(avatar)
+        } else {
+          const placeholder = document.createElement("span")
+          placeholder.className = "inkpen-mention-item__avatar-placeholder"
+          placeholder.textContent = (item.handle || item.label || "?").charAt(0)
+          button.appendChild(placeholder)
+        }
+
+        // Info column: handle + name
+        const info = document.createElement("span")
+        info.className = "inkpen-mention-item__info"
+
+        if (item.handle) {
+          const handle = document.createElement("span")
+          handle.className = "inkpen-mention-item__handle"
+          handle.textContent = `@${item.handle}`
+          info.appendChild(handle)
+        }
+
+        if (item.name) {
+          const name = document.createElement("span")
+          name.className = "inkpen-mention-item__name"
+          name.textContent = item.name
+          info.appendChild(name)
+        }
+
+        // Fallback: if only handle, show label as name
+        if (item.handle && !item.name && item.label && item.label !== item.handle) {
+          const name = document.createElement("span")
+          name.className = "inkpen-mention-item__name"
+          name.textContent = item.label
+          info.appendChild(name)
+        }
+
+        button.appendChild(info)
+      } else {
+        // Plain text fallback for backwards compatibility
+        button.textContent = item.label
+      }
+
       button.addEventListener("click", () => command(item))
       popup.appendChild(button)
     })
@@ -1105,6 +1154,12 @@ export default class extends Controller {
       from: editor.state.selection.from,
       to: editor.state.selection.to
     })
+  }
+
+  toggleHints() {
+    if (!this.hasHintsPanelTarget) return
+    const panel = this.hintsPanelTarget
+    panel.hidden = !panel.hidden
   }
 
   setupAutosave() {

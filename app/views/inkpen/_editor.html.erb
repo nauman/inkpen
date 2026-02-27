@@ -103,4 +103,37 @@
          aria-label="Text formatting">
     </div>
   <% end %>
+
+  <%# Editor hints toggle — shows available shortcuts %>
+  <% if editor.extensions.include?(:mention) || editor.extensions.include?(:slash_commands) %>
+    <button type="button"
+            class="inkpen-hints-toggle"
+            data-action="click->inkpen--editor#toggleHints"
+            aria-label="Editor shortcuts"
+            title="Editor shortcuts">?</button>
+    <div class="inkpen-hints-panel"
+         data-inkpen--editor-target="hintsPanel"
+         hidden>
+      <div class="inkpen-hints-panel__title">Shortcuts</div>
+      <% if editor.extensions.include?(:slash_commands) %>
+        <div class="inkpen-hints-panel__item">
+          <kbd>/</kbd><span>Insert block</span>
+        </div>
+      <% end %>
+      <% if editor.extensions.include?(:mention) %>
+        <div class="inkpen-hints-panel__item">
+          <kbd>@</kbd><span>Mention user</span>
+        </div>
+      <% end %>
+      <div class="inkpen-hints-panel__item">
+        <kbd>⌘B</kbd><span>Bold</span>
+      </div>
+      <div class="inkpen-hints-panel__item">
+        <kbd>⌘I</kbd><span>Italic</span>
+      </div>
+      <div class="inkpen-hints-panel__item">
+        <kbd>⌘K</kbd><span>Link</span>
+      </div>
+    </div>
+  <% end %>
 </div>
