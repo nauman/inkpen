@@ -609,6 +609,11 @@ export default class extends Controller {
           HTMLAttributes: {
             class: mentionConfig.HTMLAttributes?.class || "inkpen-mention"
           },
+          renderLabel({ node }) {
+            // Use label as-is if it starts with @, otherwise prepend @
+            const label = node.attrs.label || node.attrs.id || ""
+            return label.startsWith("@") ? label : `@${label}`
+          },
           suggestion: this.buildMentionSuggestion(mentionConfig)
         })
       )

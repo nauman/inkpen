@@ -105,30 +105,179 @@ export const SlashCommands = Extension.create({
   },
 
   addProseMirrorPlugins() {
-    const extension = this
+    const options = this.options
+    const editor = this.editor
+
+    // Normalize commands: support both {id, title} and {name, label} formats
+    const normalizeCommand = (cmd) => ({
+      ...cmd,
+      id: cmd.id || cmd.name,
+      title: cmd.title || cmd.label
+    })
+
+    // Filter commands based on query and availability
+    const filterCommands = (query) => {
+      const commands = options.commands.map(normalizeCommand)
+      const maxSuggestions = options.maxSuggestions
+
+      const availableCommands = commands.filter(cmd => {
+        if (cmd.requiresCommand) {
+          return editor.commands[cmd.requiresCommand] !== undefined
+        }
+        return true
+      })
+
+      if (!query) {
+        return availableCommands.slice(0, maxSuggestions)
+      }
+
+      const q = query.toLowerCase()
+
+      return availableCommands
+        .filter(cmd => {
+          const titleMatch = cmd.title?.toLowerCase().includes(q)
+          const keywordMatch = cmd.keywords?.some(k => k.toLowerCase().includes(q))
+          const descMatch = cmd.description?.toLowerCase().includes(q)
+          return titleMatch || keywordMatch || descMatch
+        })
+        .slice(0, maxSuggestions)
+    }
+
+    // Group items by their group property
+    const groupItems = (items) => {
+      const groups = options.groups
+      const grouped = {}
+
+      groups.forEach(group => { grouped[group] = [] })
+
+      items.forEach(item => {
+        const group = item.group || "Other"
+        if (!grouped[group]) grouped[group] = []
+        grouped[group].push(item)
+      })
+
+      Object.keys(grouped).forEach(key => {
+        if (grouped[key].length === 0) delete grouped[key]
+      })
+
+      return grouped
+    }
+
+    // Execute a command by ID
+    const executeCommand = (commandId) => {
+      const chain = editor.chain().focus()
+
+      switch (commandId) {
+        case "paragraph": chain.setParagraph().run(); break
+        case "heading1": chain.toggleHeading({ level: 1 }).run(); break
+        case "heading2": chain.toggleHeading({ level: 2 }).run(); break
+        case "heading3": chain.toggleHeading({ level: 3 }).run(); break
+        case "bulletList": chain.toggleBulletList().run(); break
+        case "orderedList": chain.toggleOrderedList().run(); break
+        case "taskList": chain.toggleTaskList().run(); break
+        case "blockquote": chain.toggleBlockquote().run(); break
+        case "codeBlock": chain.toggleCodeBlock().run(); break
+        case "preformatted":
+          if (editor.commands.togglePreformatted) chain.togglePreformatted().run()
+          break
+        case "divider": case "horizontalRule":
+          chain.setHorizontalRule().run(); break
+        case "image": {
+          const url = prompt("Enter image URL:")
+          if (url) {
+            if (editor.commands.setEnhancedImage) chain.setEnhancedImage({ src: url }).run()
+            else chain.setImage({ src: url }).run()
+          }
+          break
+        }
+        case "file":
+          if (editor.commands.uploadFile) {
+            const input = document.createElement("input")
+            input.type = "file"; input.accept = "*/*"
+            input.onchange = (e) => { if (e.target.files?.[0]) editor.commands.uploadFile(e.target.files[0]) }
+            input.click()
+          }
+          break
+        case "youtube": {
+          const url = prompt("Enter YouTube URL:")
+          if (url) chain.setYoutubeVideo({ src: url }).run()
+          break
+        }
+        case "table": chain.insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run(); break
+        case "section":
+          if (editor.commands.insertSection) chain.insertSection().run()
+          break
+        case "documentSection":
+          if (editor.commands.insertDocumentSection) chain.insertDocumentSection().run()
+          break
+        case "toggle":
+          if (editor.commands.insertToggle) chain.insertToggle().run()
+          break
+        case "columns2":
+          if (editor.commands.insertColumns) chain.insertColumns({ count: 2 }).run()
+          break
+        case "columns3":
+          if (editor.commands.insertColumns) chain.insertColumns({ count: 3 }).run()
+          break
+        case "calloutInfo":
+          if (editor.commands.insertCallout) chain.insertCallout({ type: "info" }).run()
+          break
+        case "calloutWarning":
+          if (editor.commands.insertCallout) chain.insertCallout({ type: "warning" }).run()
+          break
+        case "calloutTip":
+          if (editor.commands.insertCallout) chain.insertCallout({ type: "tip" }).run()
+          break
+        case "embed": case "embedTwitter": case "embedInstagram":
+        case "embedFigma": case "embedLoom": case "embedCodePen": case "embedSpotify": {
+          if (editor.commands.insertEmbed) {
+            const url = prompt("Enter URL to embed:")
+            if (url) editor.commands.insertEmbed(url)
+          }
+          break
+        }
+        case "footnote":
+          if (editor.commands.insertFootnoteReference) chain.insertFootnoteReference().run()
+          break
+        case "toc":
+          if (editor.commands.insertTableOfContents) chain.insertTableOfContents().run()
+          break
+        case "database":
+          if (editor.commands.insertDatabase) chain.insertDatabase({ view: "table" }).run()
+          break
+        case "databaseBoard":
+          if (editor.commands.insertDatabase) chain.insertDatabase({ view: "board" }).run()
+          break
+        case "databaseGallery":
+          if (editor.commands.insertDatabase) chain.insertDatabase({ view: "gallery" }).run()
+          break
+        case "exportMarkdown": editor.commands.downloadMarkdown?.(); break
+        case "exportHTML": editor.commands.downloadHTML?.(); break
+        case "exportPDF": editor.commands.downloadPDF?.(); break
+        case "copyMarkdown": editor.commands.copyMarkdown?.(); break
+        case "copyHTML": editor.commands.copyHTML?.(); break
+        default:
+          console.warn(`Unknown slash command: ${commandId}`)
+      }
+    }
 
     return [
       Suggestion({
         editor: this.editor,
-        char: this.options.char,
-        startOfLine: this.options.startOfLine,
-        allowSpaces: this.options.allowSpaces,
-        decorationTag: this.options.decorationTag,
-        decorationClass: this.options.decorationClass,
+        char: options.char,
+        startOfLine: options.startOfLine,
+        allowSpaces: options.allowSpaces,
+        decorationTag: options.decorationTag,
+        decorationClass: options.decorationClass,
 
         command: ({ editor, range, props }) => {
-          // Delete the "/" and query text
           editor.chain().focus().deleteRange(range).run()
-
-          // Execute the command
-          extension.executeCommand(editor, props.id)
-
-          // Callback
-          extension.options.onSelect?.(props)
+          executeCommand(props.id)
+          options.onSelect?.(props)
         },
 
         items: ({ query }) => {
-          return extension.filterCommands(query)
+          return filterCommands(query)
         },
 
         render: () => {
@@ -138,7 +287,7 @@ export const SlashCommands = Extension.create({
 
           const createPopup = () => {
             const el = document.createElement("div")
-            el.className = extension.options.suggestionClass
+            el.className = options.suggestionClass
             el.setAttribute("role", "listbox")
             el.setAttribute("aria-label", "Slash commands")
             document.body.appendChild(el)
@@ -151,28 +300,27 @@ export const SlashCommands = Extension.create({
 
             if (!popup) return
             if (items.length === 0) {
-              popup.innerHTML = `<div class="${extension.options.suggestionClass}__empty">No results</div>`
+              popup.innerHTML = `<div class="${options.suggestionClass}__empty">No results</div>`
               return
             }
 
-            // Group items
-            const grouped = extension.groupItems(items)
+            const grouped = groupItems(items)
 
             popup.innerHTML = Object.entries(grouped).map(([group, groupItems]) => `
-              <div class="${extension.options.groupClass}">
-                <div class="${extension.options.groupClass}-title">${group}</div>
+              <div class="${options.groupClass}">
+                <div class="${options.groupClass}-title">${group}</div>
                 ${groupItems.map((item, i) => {
                   const globalIndex = items.indexOf(item)
                   return `
                     <button type="button"
-                            class="${extension.options.itemClass} ${globalIndex === selectedIndex ? extension.options.activeClass : ""}"
+                            class="${options.itemClass} ${globalIndex === selectedIndex ? options.activeClass : ""}"
                             role="option"
                             aria-selected="${globalIndex === selectedIndex}"
                             data-index="${globalIndex}">
-                      <span class="${extension.options.itemClass}-icon">${item.icon}</span>
-                      <span class="${extension.options.itemClass}-content">
-                        <span class="${extension.options.itemClass}-title">${item.title}</span>
-                        <span class="${extension.options.itemClass}-description">${item.description || ""}</span>
+                      <span class="${options.itemClass}-icon">${item.icon || ""}</span>
+                      <span class="${options.itemClass}-content">
+                        <span class="${options.itemClass}-title">${item.title || ""}</span>
+                        <span class="${options.itemClass}-description">${item.description || ""}</span>
                       </span>
                     </button>
                   `
@@ -180,8 +328,7 @@ export const SlashCommands = Extension.create({
               </div>
             `).join("")
 
-            // Add click handlers
-            popup.querySelectorAll(`.${extension.options.itemClass}`).forEach(button => {
+            popup.querySelectorAll(`.${options.itemClass}`).forEach(button => {
               button.addEventListener("click", () => {
                 const index = parseInt(button.dataset.index)
                 command(items[index])
@@ -195,23 +342,19 @@ export const SlashCommands = Extension.create({
             const rect = clientRect()
             if (!rect) return
 
-            // Position below the cursor
             popup.style.position = "fixed"
             popup.style.left = `${rect.left}px`
             popup.style.top = `${rect.bottom + 8}px`
             popup.style.zIndex = "10000"
 
-            // Ensure popup stays within viewport
             const popupRect = popup.getBoundingClientRect()
             const viewportHeight = window.innerHeight
             const viewportWidth = window.innerWidth
 
-            // Flip to top if not enough space below
             if (popupRect.bottom > viewportHeight) {
               popup.style.top = `${rect.top - popupRect.height - 8}px`
             }
 
-            // Keep within right edge
             if (popupRect.right > viewportWidth) {
               popup.style.left = `${viewportWidth - popupRect.width - 16}px`
             }
@@ -220,9 +363,9 @@ export const SlashCommands = Extension.create({
           const updateSelection = (newIndex) => {
             selectedIndex = newIndex
 
-            popup?.querySelectorAll(`.${extension.options.itemClass}`).forEach((button, i) => {
+            popup?.querySelectorAll(`.${options.itemClass}`).forEach((button, i) => {
               const isSelected = i === selectedIndex
-              button.classList.toggle(extension.options.activeClass, isSelected)
+              button.classList.toggle(options.activeClass, isSelected)
               button.setAttribute("aria-selected", isSelected.toString())
             })
           }
@@ -232,7 +375,7 @@ export const SlashCommands = Extension.create({
               popup = createPopup()
               updatePopup(props.items, props.command)
               positionPopup(props.clientRect)
-              extension.options.onOpen?.()
+              options.onOpen?.()
             },
 
             onUpdate: (props) => {
@@ -274,315 +417,12 @@ export const SlashCommands = Extension.create({
             onExit: () => {
               popup?.remove()
               popup = null
-              extension.options.onClose?.()
+              options.onClose?.()
             }
           }
         }
       })
     ]
-  },
-
-  // Filter commands based on query and availability
-  filterCommands(query) {
-    const commands = this.options.commands
-    const maxSuggestions = this.options.maxSuggestions
-    const editor = this.editor
-
-    // Filter out commands that require unavailable editor commands
-    const availableCommands = commands.filter(cmd => {
-      if (cmd.requiresCommand) {
-        return editor.commands[cmd.requiresCommand] !== undefined
-      }
-      return true
-    })
-
-    if (!query) {
-      return availableCommands.slice(0, maxSuggestions)
-    }
-
-    const q = query.toLowerCase()
-
-    return availableCommands
-      .filter(cmd => {
-        const titleMatch = cmd.title.toLowerCase().includes(q)
-        const keywordMatch = cmd.keywords?.some(k => k.toLowerCase().includes(q))
-        const descMatch = cmd.description?.toLowerCase().includes(q)
-        return titleMatch || keywordMatch || descMatch
-      })
-      .slice(0, maxSuggestions)
-  },
-
-  // Group items by their group property
-  groupItems(items) {
-    const groups = this.options.groups
-    const grouped = {}
-
-    // Initialize groups in order
-    groups.forEach(group => {
-      grouped[group] = []
-    })
-
-    // Add items to their groups
-    items.forEach(item => {
-      const group = item.group || "Other"
-      if (!grouped[group]) {
-        grouped[group] = []
-      }
-      grouped[group].push(item)
-    })
-
-    // Remove empty groups
-    Object.keys(grouped).forEach(key => {
-      if (grouped[key].length === 0) {
-        delete grouped[key]
-      }
-    })
-
-    return grouped
-  },
-
-  // Execute a command by ID
-  executeCommand(editor, commandId) {
-    const chain = editor.chain().focus()
-
-    switch (commandId) {
-      // Basic
-      case "paragraph":
-        chain.setParagraph().run()
-        break
-      case "heading1":
-        chain.toggleHeading({ level: 1 }).run()
-        break
-      case "heading2":
-        chain.toggleHeading({ level: 2 }).run()
-        break
-      case "heading3":
-        chain.toggleHeading({ level: 3 }).run()
-        break
-
-      // Lists
-      case "bulletList":
-        chain.toggleBulletList().run()
-        break
-      case "orderedList":
-        chain.toggleOrderedList().run()
-        break
-      case "taskList":
-        chain.toggleTaskList().run()
-        break
-
-      // Blocks
-      case "blockquote":
-        chain.toggleBlockquote().run()
-        break
-      case "codeBlock":
-        chain.toggleCodeBlock().run()
-        break
-      case "preformatted":
-        if (editor.commands.togglePreformatted) {
-          chain.togglePreformatted().run()
-        }
-        break
-      case "divider":
-        chain.setHorizontalRule().run()
-        break
-
-      // Media
-      case "image":
-        // Prompt for URL
-        const imageUrl = prompt("Enter image URL:")
-        if (imageUrl) {
-          // Use enhanced image if available, otherwise fallback to basic
-          if (editor.commands.setEnhancedImage) {
-            chain.setEnhancedImage({ src: imageUrl }).run()
-          } else {
-            chain.setImage({ src: imageUrl }).run()
-          }
-        }
-        break
-      case "file":
-        // Create file input and trigger click
-        if (editor.commands.uploadFile) {
-          const fileInput = document.createElement("input")
-          fileInput.type = "file"
-          fileInput.accept = "*/*"
-          fileInput.onchange = (e) => {
-            const file = e.target.files?.[0]
-            if (file) {
-              editor.commands.uploadFile(file)
-            }
-          }
-          fileInput.click()
-        }
-        break
-      case "youtube":
-        // Prompt for URL
-        const videoUrl = prompt("Enter YouTube URL:")
-        if (videoUrl) {
-          chain.setYoutubeVideo({ src: videoUrl }).run()
-        }
-        break
-      case "table":
-        chain.insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
-        break
-
-      // Advanced
-      case "section":
-        if (editor.commands.insertSection) {
-          chain.insertSection().run()
-        }
-        break
-      case "documentSection":
-        if (editor.commands.insertDocumentSection) {
-          chain.insertDocumentSection().run()
-        }
-        break
-      case "toggle":
-        if (editor.commands.insertToggle) {
-          chain.insertToggle().run()
-        }
-        break
-      case "columns2":
-        if (editor.commands.insertColumns) {
-          chain.insertColumns({ count: 2 }).run()
-        }
-        break
-      case "columns3":
-        if (editor.commands.insertColumns) {
-          chain.insertColumns({ count: 3 }).run()
-        }
-        break
-      case "calloutInfo":
-        if (editor.commands.insertCallout) {
-          chain.insertCallout({ type: "info" }).run()
-        }
-        break
-      case "calloutWarning":
-        if (editor.commands.insertCallout) {
-          chain.insertCallout({ type: "warning" }).run()
-        }
-        break
-      case "calloutTip":
-        if (editor.commands.insertCallout) {
-          chain.insertCallout({ type: "tip" }).run()
-        }
-        break
-
-      // Embeds
-      case "embed":
-        if (editor.commands.insertEmbed) {
-          const embedUrl = prompt("Enter URL to embed:")
-          if (embedUrl) {
-            editor.commands.insertEmbed(embedUrl)
-          }
-        }
-        break
-      case "embedTwitter":
-        if (editor.commands.insertEmbed) {
-          const twitterUrl = prompt("Enter Twitter/X URL:")
-          if (twitterUrl) {
-            editor.commands.insertEmbed(twitterUrl)
-          }
-        }
-        break
-      case "embedInstagram":
-        if (editor.commands.insertEmbed) {
-          const igUrl = prompt("Enter Instagram URL:")
-          if (igUrl) {
-            editor.commands.insertEmbed(igUrl)
-          }
-        }
-        break
-      case "embedFigma":
-        if (editor.commands.insertEmbed) {
-          const figmaUrl = prompt("Enter Figma URL:")
-          if (figmaUrl) {
-            editor.commands.insertEmbed(figmaUrl)
-          }
-        }
-        break
-      case "embedLoom":
-        if (editor.commands.insertEmbed) {
-          const loomUrl = prompt("Enter Loom URL:")
-          if (loomUrl) {
-            editor.commands.insertEmbed(loomUrl)
-          }
-        }
-        break
-      case "embedCodePen":
-        if (editor.commands.insertEmbed) {
-          const codepenUrl = prompt("Enter CodePen URL:")
-          if (codepenUrl) {
-            editor.commands.insertEmbed(codepenUrl)
-          }
-        }
-        break
-      case "embedSpotify":
-        if (editor.commands.insertEmbed) {
-          const spotifyUrl = prompt("Enter Spotify URL:")
-          if (spotifyUrl) {
-            editor.commands.insertEmbed(spotifyUrl)
-          }
-        }
-        break
-
-      // Data (v0.6.0)
-      case "footnote":
-        if (editor.commands.insertFootnoteReference) {
-          chain.insertFootnoteReference().run()
-        }
-        break
-      case "toc":
-        if (editor.commands.insertTableOfContents) {
-          chain.insertTableOfContents().run()
-        }
-        break
-      case "database":
-        if (editor.commands.insertDatabase) {
-          chain.insertDatabase({ view: "table" }).run()
-        }
-        break
-      case "databaseBoard":
-        if (editor.commands.insertDatabase) {
-          chain.insertDatabase({ view: "board" }).run()
-        }
-        break
-      case "databaseGallery":
-        if (editor.commands.insertDatabase) {
-          chain.insertDatabase({ view: "gallery" }).run()
-        }
-        break
-
-      // Export (v0.7.0)
-      case "exportMarkdown":
-        if (editor.commands.downloadMarkdown) {
-          editor.commands.downloadMarkdown()
-        }
-        break
-      case "exportHTML":
-        if (editor.commands.downloadHTML) {
-          editor.commands.downloadHTML()
-        }
-        break
-      case "exportPDF":
-        if (editor.commands.downloadPDF) {
-          editor.commands.downloadPDF()
-        }
-        break
-      case "copyMarkdown":
-        if (editor.commands.copyMarkdown) {
-          editor.commands.copyMarkdown()
-        }
-        break
-      case "copyHTML":
-        if (editor.commands.copyHTML) {
-          editor.commands.copyHTML()
-        }
-        break
-
-      default:
-        console.warn(`Unknown slash command: ${commandId}`)
-    }
   }
 })
 
