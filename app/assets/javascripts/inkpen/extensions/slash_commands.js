@@ -292,6 +292,7 @@ export const SlashCommands = Extension.create({
           let popup = null
           let selectedIndex = 0
           let items = []
+          let command = null
 
           const createPopup = () => {
             const el = document.createElement("div")
@@ -302,7 +303,8 @@ export const SlashCommands = Extension.create({
             return el
           }
 
-          const updatePopup = (filteredItems, command) => {
+          const updatePopup = (filteredItems, newCommand) => {
+            command = newCommand
             items = filteredItems
             selectedIndex = 0
 
@@ -408,8 +410,8 @@ export const SlashCommands = Extension.create({
 
               if (event.key === "Enter") {
                 event.preventDefault()
-                if (items[selectedIndex]) {
-                  props.command(items[selectedIndex])
+                if (items[selectedIndex] && command) {
+                  command(items[selectedIndex])
                 }
                 return true
               }
