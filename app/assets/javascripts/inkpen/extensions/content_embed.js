@@ -47,7 +47,8 @@ export const ContentEmbed = Node.create({
     if (subtitle) {
       children.push(["span", { class: "inkpen-content-embed__subtitle" }, subtitle])
     }
-    children.push(["a", { href: url, class: "inkpen-content-embed__action", target: "_blank", rel: "noopener noreferrer" }, `View →`])
+    const label = type ? `View ${type} →` : "View →"
+    children.push(["a", { href: url, class: "inkpen-content-embed__action", target: "_blank", rel: "noopener noreferrer" }, label])
 
     return [
       "div",
@@ -91,7 +92,8 @@ export const ContentEmbed = Node.create({
       action.href = url || "#"
       action.target = "_blank"
       action.rel = "noopener noreferrer"
-      action.textContent = "View \u2192"
+      const label = type ? `View ${type} \u2192` : "View \u2192"
+      action.textContent = label
       dom.appendChild(action)
 
       return { dom }
