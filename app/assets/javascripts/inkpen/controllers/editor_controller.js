@@ -961,19 +961,20 @@ export default class extends Controller {
     const minChars = config.minChars || 1
     let debounceTimer = null
     let abortController = null
+    const cache = new Map() // query → results cache
 
     return {
       char: config.trigger || "@",
       items: ({ query }) => {
-        // Enforce minChars — don't search until enough characters typed
-        if (query.length < minChars) {
-          return []
-        }
+        if (query.length < minChars) return []
 
-        // If search URL provided, debounce + fetch from server
+        // If search URL provided, fetch with cache + short debounce
         if (searchUrl) {
+          // Return cached results instantly if available
+          const cached = cache.get(query)
+          if (cached) return cached
+
           return new Promise((resolve) => {
-            // Cancel previous debounce and in-flight request
             clearTimeout(debounceTimer)
             if (abortController) abortController.abort()
 
@@ -985,7 +986,11 @@ export default class extends Controller {
                   { signal: abortController.signal }
                 )
                 if (response.ok) {
-                  resolve(await response.json())
+                  const results = await response.json()
+                  cache.set(query, results)
+                  // Keep cache small (last 20 queries)
+                  if (cache.size > 20) cache.delete(cache.keys().next().value)
+                  resolve(results)
                 } else {
                   resolve([])
                 }
@@ -995,7 +1000,7 @@ export default class extends Controller {
                 }
                 resolve([])
               }
-            }, 250)
+            }, 120)
           })
         }
 
