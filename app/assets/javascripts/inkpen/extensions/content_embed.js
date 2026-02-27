@@ -45,8 +45,8 @@ export const ContentEmbed = Node.create({
   renderHTML({ node }) {
     const { type, embedId, title, url, subtitle, icon } = node.attrs
 
-    const typeLabels = { story: "Story", ship: "Ship", series: "Series" }
-    const typeIcons = { story: "\uD83D\uDCD6", ship: "\uD83D\uDE80", series: "\uD83D\uDCDA" }
+    const typeLabels = { story: "Story", ship: "Ship", series: "Series", roundup: "Roundup", showcase: "Showcase" }
+    const typeIcons = { story: "\uD83D\uDD16", ship: "\uD83D\uDE80", series: "\uD83D\uDCD6", roundup: "\uD83D\uDCE6", showcase: "\u25B6" }
     const typeLabel = typeLabels[type] || type || "Embed"
     const typeIcon = icon || typeIcons[type] || "\uD83D\uDD17"
 
