@@ -953,21 +953,45 @@ export default class extends Controller {
   buildMentionSuggestion(config) {
     const items = config.items || []
     const searchUrl = config.searchUrl
+    const minChars = config.minChars || 1
+    let debounceTimer = null
+    let abortController = null
 
     return {
       char: config.trigger || "@",
-      items: async ({ query }) => {
-        // If search URL provided, fetch from server
-        if (searchUrl) {
-          try {
-            const response = await fetch(`${searchUrl}?query=${encodeURIComponent(query)}`)
-            if (response.ok) {
-              return await response.json()
-            }
-          } catch (error) {
-            console.error("Mention search failed:", error)
-          }
+      items: ({ query }) => {
+        // Enforce minChars — don't search until enough characters typed
+        if (query.length < minChars) {
           return []
+        }
+
+        // If search URL provided, debounce + fetch from server
+        if (searchUrl) {
+          return new Promise((resolve) => {
+            // Cancel previous debounce and in-flight request
+            clearTimeout(debounceTimer)
+            if (abortController) abortController.abort()
+
+            debounceTimer = setTimeout(async () => {
+              abortController = new AbortController()
+              try {
+                const response = await fetch(
+                  `${searchUrl}?query=${encodeURIComponent(query)}`,
+                  { signal: abortController.signal }
+                )
+                if (response.ok) {
+                  resolve(await response.json())
+                } else {
+                  resolve([])
+                }
+              } catch (error) {
+                if (error.name !== "AbortError") {
+                  console.error("Mention search failed:", error)
+                }
+                resolve([])
+              }
+            }, 250)
+          })
         }
 
         // Otherwise filter static items
