@@ -400,6 +400,10 @@ bundle exec rake test  # Run tests
 bin/console            # Interactive console
 ```
 
+## Used by
+
+Powering the series editor at [inventlist.com/stream?type=series](https://inventlist.com/stream?type=series) — where indie builders write build-in-public stories.
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub.
