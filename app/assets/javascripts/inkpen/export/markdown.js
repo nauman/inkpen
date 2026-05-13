@@ -5,6 +5,8 @@
  * Supports frontmatter, tables, task lists, callouts, and custom blocks.
  */
 
+import { parseMarkdownToHTMLReal } from "./markdown_parser.js"
+
 // Mark serializers for inline formatting
 const MARK_SERIALIZERS = {
   bold: (text) => `**${text}**`,
@@ -74,13 +76,20 @@ export function importFromMarkdown(markdown, schema, options = {}) {
   // Parse frontmatter if present
   const { content, frontmatter } = parseFrontmatter(markdown)
 
-  // Parse markdown to HTML first (using browser or a simple parser)
-  const html = parseMarkdownToHTML(content)
+  // Parser selection. Default is the legacy regex parser to preserve
+  // behavior for existing callers. Pass `options.parser: "real"` to opt
+  // into the GFM-correct marked-based parser. Step 6 of spec 01 will flip
+  // the default once round-trip fixtures pass.
+  const parser = options.parser === "real" ? "real" : "legacy"
+  const html = parser === "real"
+    ? parseMarkdownToHTMLReal(content)
+    : parseMarkdownToHTML(content)
 
   // Return structured result
   return {
     html,
-    frontmatter
+    frontmatter,
+    parser
   }
 }
 
