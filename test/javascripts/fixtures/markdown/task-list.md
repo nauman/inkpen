@@ -1,0 +1,3 @@
+- [ ] pending task
+- [x] completed task
+- [ ] another pending
