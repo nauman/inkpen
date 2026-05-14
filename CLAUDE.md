@@ -132,10 +132,70 @@ app/
 
 ## Development
 
-```bash
-# Run tests
-bundle exec rake test
+### Ruby side
 
-# Console
-bin/console
+```bash
+bundle install
+bundle exec rake test    # Minitest unit tests
+bin/console              # IRB with Inkpen loaded
 ```
+
+### JavaScript side (since 0.8.0)
+
+```bash
+npm install              # installs production deps + esbuild + vitest
+npm test                 # runs the spec 01 markdown round-trip tests (vitest)
+npm run build            # rebuilds app/assets/javascripts/inkpen.bundle.js
+npm run build:check      # validates the bundle: parses, has expected
+                         # exports, contains zero third-party CDN refs
+```
+
+**The bundle is committed to the repo.** Run `npm run build` after every
+JS change so consumers don't need to install npm.
+
+### Releasing a new version
+
+See `02-addons/107-inkpen-docs/docs/release-process.md` for the full
+release runbook. TL;DR:
+
+1. Bump `lib/inkpen/version.rb` + `inkpen.gemspec` (stub line +
+   `s.version`).
+2. `npm run build && npm run build:check && npm test &&
+   bundle exec rake test`.
+3. `bundle exec rake build` → `pkg/inkpen-X.Y.Z.gem`.
+4. Smoke test in InventList (open Nodepad, confirm zero `esm.sh`
+   requests in DevTools).
+5. Publish (path-pinned / private gemserver / rubygems — see release
+   doc).
+
+## Bundle / vendoring (since 0.8.0)
+
+`config/importmap.rb` no longer pins to `esm.sh`. All upstream
+dependencies (TipTap@2.10.3, ProseMirror@1.x, lowlight, highlight.js,
+tippy, popperjs, linkifyjs, and three third-party TipTap extensions)
+are vendored into a single ESM bundle at
+`app/assets/javascripts/inkpen.bundle.js` (1.9 MB minified, source map
+beside it).
+
+The build entrypoint is `app/assets/javascripts/inkpen/index.js`. The
+bundle preserves `import "inkpen"` as a side-effecting import that
+registers `inkpen--editor`, `inkpen--toolbar`,
+`inkpen--sticky-toolbar` Stimulus controllers on `window.Stimulus`
+(or starts its own Application if the host hasn't already).
+
+**Host externals kept out of the bundle** (host provides them):
+
+- `@hotwired/stimulus`
+- `@hotwired/turbo-rails`
+
+**Why this exists:** three production CDN incidents on 2026-05-14
+caused by importmap pinning to esm.sh. Plan and audit live at
+`02-addons/107-inkpen-docs/plans/05-vendor-bundle-cdn-decoupling.md`.
+
+## Internal planning docs
+
+Inkpen has a dedicated planning surface at
+`02-addons/107-inkpen-docs/`. Roadmap, plans, sessions, handoffs,
+audits all live there. Don't recreate that structure here; this gem
+ships its own consumer-facing docs in `docs/` (README, CHANGELOG,
+FEATURES, ROADMAP, MARKDOWN_MODE planning doc, audits).
