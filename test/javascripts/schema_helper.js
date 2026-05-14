@@ -10,10 +10,13 @@
 // columns, etc.), add it to the extensions list here.
 
 import { getSchema } from "@tiptap/core"
-import { StarterKit } from "@tiptap/starter-kit"
-import { TaskList } from "@tiptap/extension-task-list"
-import { TaskItem } from "@tiptap/extension-task-item"
-import { Table, TableRow, TableCell, TableHeader } from "@tiptap/extension-table"
+import StarterKit from "@tiptap/starter-kit"
+import TaskList from "@tiptap/extension-task-list"
+import TaskItem from "@tiptap/extension-task-item"
+import Table from "@tiptap/extension-table"
+import TableRow from "@tiptap/extension-table-row"
+import TableCell from "@tiptap/extension-table-cell"
+import TableHeader from "@tiptap/extension-table-header"
 
 import { DOMParser as PMDOMParser } from "@tiptap/pm/model"
 import { JSDOM } from "jsdom"

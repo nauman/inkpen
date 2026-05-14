@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    inkpen (0.7.2)
+    inkpen (0.8.0)
       importmap-rails (>= 1.0)
       rails (>= 7.0)
 
