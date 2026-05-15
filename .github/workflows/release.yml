@@ -32,6 +32,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Guard against a stale Gemfile.lock when the gemspec was bumped
+      # without running `bundle install` locally first (Lesson 9,
+      # 2026-05-16: tagged v0.8.1 with version.rb + gemspec bumped to
+      # 0.8.1 but Gemfile.lock still said inkpen (0.8.0), so bundler's
+      # frozen install in setup-ruby failed with exit 16).
+      - name: Verify Gemfile.lock matches gemspec version
+        run: |
+          gemspec_version=$(ruby -e 'require_relative "lib/inkpen/version"; puts Inkpen::VERSION')
+          lockfile_version=$(grep -E '^    inkpen \([0-9]+\.[0-9]+\.[0-9]+\)' Gemfile.lock | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+          if [ "$gemspec_version" != "$lockfile_version" ]; then
+            cat <<EOF >&2
+          ::error file=Gemfile.lock::Gemfile.lock version ($lockfile_version) differs from gemspec ($gemspec_version)
+
+          When you bump lib/inkpen/version.rb / inkpen.gemspec, you MUST run
+          \`bundle install\` locally before committing — otherwise Gemfile.lock
+          still references the old version and CI's frozen install fails.
+          See 01-inventlist/docs/agents/inkpen.agent.md Lesson 9.
+          EOF
+            exit 1
+          fi
+          echo "Gemfile.lock and gemspec agree at $gemspec_version ✓"
+
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
