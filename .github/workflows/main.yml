@@ -16,6 +16,31 @@ jobs:
           - "3.4.3"
     steps:
       - uses: actions/checkout@v4
+
+      # Guard against Mac-only lockfile platforms (lesson learned
+      # 2026-05-16: every previous CI run failed because Gemfile.lock
+      # only listed arm64-darwin while CI runs x86_64-linux).
+      # See 01-inventlist/docs/agents/inkpen.agent.md Lesson 3.
+      - name: Verify lockfile supports Linux CI runner
+        run: |
+          if ! grep -qE "^  x86_64-linux$" Gemfile.lock; then
+            cat <<'EOF' >&2
+          ::error file=Gemfile.lock::Gemfile.lock is missing x86_64-linux
+
+          The CI runner is x86_64-linux. If Gemfile.lock lists only
+          arm64-darwin (or other Mac platforms), `bundle install` will
+          fail at runtime. To fix locally:
+
+              bundle lock --add-platform x86_64-linux
+              git add Gemfile.lock && git commit -m "ci: add x86_64-linux to lockfile"
+
+          This guard exists because every CI run on inkpen failed for
+          months due to this exact issue. See the agent doc Lesson 3.
+          EOF
+            exit 1
+          fi
+          echo "Gemfile.lock platforms include x86_64-linux ✓"
+
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
