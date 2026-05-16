@@ -81,6 +81,40 @@ if (found.length > 0) {
   console.log("cdn check: no third-party CDN references")
 }
 
+// 5. No duplicate prosemirror-state in node_modules.
+//
+// Lesson 10 (2026-05-16): when two different versions of
+// prosemirror-state coexist in node_modules (top-level + nested under
+// @tiptap/pm), esbuild bundles both, and TipTap's plugin registration
+// fails with "Adding different instances of a keyed plugin (plugin$)"
+// in production. PluginKey identity is class-based — two prosemirror-
+// state classes = collision on every plugin. The editor silently
+// refuses to initialize.
+//
+// This guard counts prosemirror-state copies in node_modules and fails
+// the build if there's more than one.
+const { execSync } = await import("node:child_process")
+const nodeModules = resolve(root, "node_modules")
+try {
+  const out = execSync(
+    `find "${nodeModules}" -path "*/prosemirror-state/package.json" -not -path "*/.*" 2>/dev/null`,
+    { encoding: "utf8" }
+  )
+  const copies = out.trim().split("\n").filter(Boolean)
+  if (copies.length > 1) {
+    failures.push(
+      `prosemirror-state has ${copies.length} copies in node_modules ` +
+      `(must be 1; will cause "Adding different instances of a keyed plugin" ` +
+      `runtime error). Run \`rm -rf node_modules package-lock.json && npm install\` ` +
+      `to dedupe. Copies found:\n  ` + copies.join("\n  ")
+    )
+  } else {
+    console.log(`dedup check: prosemirror-state has 1 copy (no duplication)`)
+  }
+} catch (e) {
+  console.log(`dedup check: skipped (${e.message})`)
+}
+
 if (failures.length > 0) {
   console.error("\n✗ build:check failed")
   failures.forEach((f) => console.error(`  - ${f}`))
