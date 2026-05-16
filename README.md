@@ -27,6 +27,26 @@ Then run:
 bundle install
 ```
 
+### Stylesheets (important — must be included by the host)
+
+The gem ships a separate stylesheet at `inkpen/editor.css`. **It is not auto-loaded** by your host app's layout. You must include it yourself, typically in `app/views/layouts/application.html.erb`:
+
+```erb
+<%= stylesheet_link_tag "inkpen/editor", "data-turbo-track": "reload" %>
+```
+
+If you have other layouts (fullscreen tool layouts, custom marketing layouts, etc.) and Inkpen mounts on any view they render, **each layout must include the stylesheet**. Forgetting this is the most common "the editor renders but looks broken" failure mode — TipTap mounts fine in JS, but no Inkpen styles apply.
+
+If you also use any of the visual extensions below, include their stylesheets too (Sprockets `*= require inkpen/<name>` or Propshaft `<%= stylesheet_link_tag "inkpen/<name>" %>`):
+
+- `inkpen/advanced_table`, `inkpen/inkpen_table` — table styles
+- `inkpen/callout`, `inkpen/columns`, `inkpen/database`, `inkpen/document_section` — block extensions
+- `inkpen/drag_drop`, `inkpen/block_gutter`, `inkpen/sticky_toolbar` — chrome
+- `inkpen/embed`, `inkpen/enhanced_image`, `inkpen/file_attachment`, `inkpen/footnotes`, `inkpen/toc` — content blocks
+- `inkpen/mention`, `inkpen/slash_menu`, `inkpen/preformatted`, `inkpen/search_replace`, `inkpen/section`, `inkpen/toggle`, `inkpen/markdown_mode`, `inkpen/export`, `inkpen/animations` — UX
+
+Only `inkpen/editor` is added to the asset precompile list automatically; everything else opts in.
+
 ## Configuration
 
 Configure Inkpen globally in an initializer:
@@ -302,6 +322,34 @@ The editor is controlled by `inkpen--editor` Stimulus controller. Connect it to 
   <!-- Editor content here -->
 </div>
 ```
+
+The `extensions-value` array gates which TipTap extensions the editor instantiates. The full bundle ships every extension, but unconfigured ones don't run — they just sit in the bundle. (A future spec — `02-lazy-load-and-extension-gating` in the planning surface — will gate the bundle download too, so a lite editor downloads only what it asks for. As of `0.8.x` the gate is runtime-only, not bundle-time.)
+
+Supported extension names: `bold`, `italic`, `link`, `heading`, `bullet_list`, `ordered_list`, `task_list`, `code_block`, `code`, `strike`, `underline`, `subscript`, `superscript`, `highlight`, `typography`, `placeholder`, `blockquote`, `horizontal_rule`, `hard_break`, `history`, `dropcursor`, `gapcursor`, `image`, `youtube`, `character_count`, `bubble_menu`, `floating_menu`, `mention`, `table`, `inkpen_table`, `task_item`, `callout`, `columns`, `database`, `document_section`, `embed`, `enhanced_image`, `file_attachment`, `slash_commands`, `block_commands`, `block_gutter`, `drag_handle`, `toggle_block`, `preformatted`, `section`, `section_title`, `table_of_contents`, `export_commands`, `content_embed`.
+
+### Public events
+
+The editor controller dispatches `CustomEvent`s that bubble up the DOM, so any ancestor element (including the host's `application.js`) can listen with `element.addEventListener("inkpen:<name>", handler)`. All events include `detail.controller` pointing at the dispatching `EditorController` instance.
+
+| Event | When it fires | Payload (`detail`) |
+| --- | --- | --- |
+| `inkpen:ready` | Editor is mounted and ready to use | `{ editor }` |
+| `inkpen:change` | Content changed | `{ content, title, subtitle, body, wordCount, characterCount }` |
+| `inkpen:focus` | Editor gained focus | `{}` |
+| `inkpen:blur` | Editor lost focus | `{}` |
+| `inkpen:selection-change` | Selection or marks changed | `{ selection, marks }` |
+| `inkpen:autosave` | Autosave fired | `{ content, timestamp }` |
+| `inkpen:mode-change` | WYSIWYG/split/markdown view toggled | `{ mode, previousMode }` |
+| `inkpen:error` | Recoverable error | `{ kind, error?, message? }` |
+| `inkpen:slash-command` | User picked an item from the `/` slash menu | `{ commandId, range, editor }` |
+| `inkpen:export-success` | Export action succeeded | `{ message }` |
+| `inkpen:export-error` | Export action failed | `{ message }` |
+| `inkpen:widget-inserted` | Sticky-toolbar widget inserted | `{ type, data }` |
+| `inkpen:insert-widget`, `inkpen:request-file`, `inkpen:request-image`, `inkpen:request-embed` | Sticky-toolbar requests host to handle an action | varies; see `sticky_toolbar_controller.js` |
+
+`inkpen:error` is the most useful one to wire to a host-side error tracker — log it globally so any future failure mode is visible. Today's `kind` values include `module-load` (a TipTap module failed to import) and `markdown-import` (reserved for the future markdown-import path).
+
+`inkpen:slash-command` is how host code adds custom slash-menu actions. The `commandId` is whatever you registered in the slash-commands extension config; intercept the event, prevent default if your code handles it, otherwise let the editor's default action run.
 
 ## Architecture
 
