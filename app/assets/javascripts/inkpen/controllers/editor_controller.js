@@ -1,158 +1,224 @@
 import { Controller } from "@hotwired/stimulus"
 
 // ============================================
-// LAZY LOADING
+// LAZY LOADING — gated by enabled extensions (spec 02 slice B, 0.9.1)
 // ============================================
-// All TipTap/ProseMirror modules are lazy-loaded when the editor connects.
-// This prevents 50+ CDN requests on pages that don't use the editor.
-// The modules are cached after first load for subsequent editor instances.
+// TipTap/ProseMirror modules are dynamically imported when the editor
+// connects. Slice A (0.9.0) dropped static-imports from index.js; this
+// slice (B, 0.9.1) gates the dynamic-import set on the editor's
+// `extensions-value` configuration.
+//
+// Module objects returned by this loader still expose every extension
+// class name as a key — buildExtensions destructures all of them and
+// each conditional (`if (enabledExtensions.includes("X"))`) reads the
+// destructured local. If a gated extension is disabled, its key is
+// simply absent (undefined), the conditional is false, and the local
+// is never used.
+//
+// Real byte savings need esbuild `splitting: true` — slice C. This
+// slice trims runtime extension-construction cost only; the bundle
+// still inlines every module the dynamic imports can reach.
 
-let cachedModules = null
+const cachedModules = new Map()
 
-async function loadEditorModules() {
-  if (cachedModules) return cachedModules
-
-  // Load all core modules in parallel
-  const [
-    tiptapCore,
-    tiptapPmModel,
-    documentExt,
-    starterKit,
-    linkExt,
-    placeholderExt,
-    imageExt,
-    tableExt,
-    tableRowExt,
-    tableCellExt,
-    tableHeaderExt,
-    taskListExt,
-    taskItemExt,
-    mentionExt,
-    codeBlockLowlightExt,
-    lowlightMod,
-    typographyExt,
-    highlightExt,
-    underlineExt,
-    subscriptExt,
-    superscriptExt,
-    youtubeExt,
-    characterCountExt,
-    bubbleMenuExt,
-    // Inkpen custom extensions
-    sectionMod,
-    preformattedMod,
-    slashCommandsMod,
-    blockGutterMod,
-    dragHandleMod,
-    toggleBlockMod,
-    columnsMod,
-    calloutMod,
-    blockCommandsMod,
-    enhancedImageMod,
-    fileAttachmentMod,
-    embedMod,
-    advancedTableMod,
-    tableOfContentsMod,
-    databaseMod,
-    documentSectionMod,
-    contentEmbedMod
-  ] = await Promise.all([
-    import("@tiptap/core"),
-    import("@tiptap/pm/model"),
-    import("@tiptap/extension-document"),
-    import("@tiptap/starter-kit"),
-    import("@tiptap/extension-link"),
-    import("@tiptap/extension-placeholder"),
-    import("@tiptap/extension-image"),
-    import("@tiptap/extension-table"),
-    import("@tiptap/extension-table-row"),
-    import("@tiptap/extension-table-cell"),
-    import("@tiptap/extension-table-header"),
-    import("@tiptap/extension-task-list"),
-    import("@tiptap/extension-task-item"),
-    import("@tiptap/extension-mention"),
-    import("@tiptap/extension-code-block-lowlight"),
-    import("lowlight"),
-    import("@tiptap/extension-typography"),
-    import("@tiptap/extension-highlight"),
-    import("@tiptap/extension-underline"),
-    import("@tiptap/extension-subscript"),
-    import("@tiptap/extension-superscript"),
-    import("@tiptap/extension-youtube"),
-    import("@tiptap/extension-character-count"),
-    import("@tiptap/extension-bubble-menu"),
-    // Inkpen custom extensions
-    import("inkpen/extensions/section"),
-    import("inkpen/extensions/preformatted"),
-    import("inkpen/extensions/slash_commands"),
-    import("inkpen/extensions/block_gutter"),
-    import("inkpen/extensions/drag_handle"),
-    import("inkpen/extensions/toggle_block"),
-    import("inkpen/extensions/columns"),
-    import("inkpen/extensions/callout"),
-    import("inkpen/extensions/block_commands"),
-    import("inkpen/extensions/enhanced_image"),
-    import("inkpen/extensions/file_attachment"),
-    import("inkpen/extensions/embed"),
-    import("inkpen/extensions/advanced_table"),
-    import("inkpen/extensions/table_of_contents"),
-    import("inkpen/extensions/database"),
-    import("inkpen/extensions/document_section"),
-    import("inkpen/extensions/content_embed")
-  ])
-
-  cachedModules = {
+// Always loaded — required by every editor regardless of enabled set.
+async function loadCoreModules() {
+  const [tiptapCore, tiptapPmModel, starterKit, placeholderExt, bubbleMenuExt] =
+    await Promise.all([
+      import("@tiptap/core"),
+      import("@tiptap/pm/model"),
+      import("@tiptap/starter-kit"),
+      import("@tiptap/extension-placeholder"),
+      import("@tiptap/extension-bubble-menu")
+    ])
+  return {
     Editor: tiptapCore.Editor,
     DOMSerializer: tiptapPmModel.DOMSerializer,
-    Document: documentExt.default,
     StarterKit: starterKit.default,
-    Link: linkExt.default,
     Placeholder: placeholderExt.default,
-    Image: imageExt.default,
-    Table: tableExt.default,
-    TableRow: tableRowExt.default,
-    TableCell: tableCellExt.default,
-    TableHeader: tableHeaderExt.default,
-    TaskList: taskListExt.default,
-    TaskItem: taskItemExt.default,
-    Mention: mentionExt.default,
-    CodeBlockLowlight: codeBlockLowlightExt.default,
-    common: lowlightMod.common,
-    createLowlight: lowlightMod.createLowlight,
-    Typography: typographyExt.default,
-    Highlight: highlightExt.default,
-    Underline: underlineExt.default,
-    Subscript: subscriptExt.default,
-    Superscript: superscriptExt.default,
-    Youtube: youtubeExt.default,
-    CharacterCount: characterCountExt.default,
-    BubbleMenu: bubbleMenuExt.default,
-    // Inkpen custom extensions
-    Section: sectionMod.Section,
-    Preformatted: preformattedMod.Preformatted,
-    SlashCommands: slashCommandsMod.SlashCommands,
-    BlockGutter: blockGutterMod.BlockGutter,
-    DragHandle: dragHandleMod.DragHandle,
-    ToggleBlock: toggleBlockMod.ToggleBlock,
-    ToggleSummary: toggleBlockMod.ToggleSummary,
-    Columns: columnsMod.Columns,
-    Column: columnsMod.Column,
-    Callout: calloutMod.Callout,
-    BlockCommands: blockCommandsMod.BlockCommands,
-    EnhancedImage: enhancedImageMod.EnhancedImage,
-    FileAttachment: fileAttachmentMod.FileAttachment,
-    Embed: embedMod.Embed,
-    AdvancedTable: advancedTableMod.AdvancedTable,
-    AdvancedTableRow: advancedTableMod.AdvancedTableRow,
-    AdvancedTableCell: advancedTableMod.AdvancedTableCell,
-    AdvancedTableHeader: advancedTableMod.AdvancedTableHeader,
-    TableOfContents: tableOfContentsMod.TableOfContents,
-    Database: databaseMod.Database,
-    DocumentSection: documentSectionMod.DocumentSection,
-    ContentEmbed: contentEmbedMod.ContentEmbed
+    BubbleMenu: bubbleMenuExt.default
   }
+}
 
-  return cachedModules
+// One loader per gated extension name. Each returns the subset of
+// keys it contributes to the merged modules object. Adding a new
+// extension means: (1) add its name + loader here, (2) destructure
+// the new key in buildExtensions, (3) gate its usage there.
+const EXTENSION_LOADERS = {
+  forced_document: async () => {
+    const m = await import("@tiptap/extension-document")
+    return { Document: m.default }
+  },
+  link: async () => {
+    const m = await import("@tiptap/extension-link")
+    return { Link: m.default }
+  },
+  image: async () => {
+    const m = await import("@tiptap/extension-image")
+    return { Image: m.default }
+  },
+  table: async () => {
+    const [t, tr, tc, th] = await Promise.all([
+      import("@tiptap/extension-table"),
+      import("@tiptap/extension-table-row"),
+      import("@tiptap/extension-table-cell"),
+      import("@tiptap/extension-table-header")
+    ])
+    return {
+      Table: t.default,
+      TableRow: tr.default,
+      TableCell: tc.default,
+      TableHeader: th.default
+    }
+  },
+  task_list: async () => {
+    const [tl, ti] = await Promise.all([
+      import("@tiptap/extension-task-list"),
+      import("@tiptap/extension-task-item")
+    ])
+    return { TaskList: tl.default, TaskItem: ti.default }
+  },
+  mention: async () => {
+    const m = await import("@tiptap/extension-mention")
+    return { Mention: m.default }
+  },
+  code_block_syntax: async () => {
+    const [cb, low] = await Promise.all([
+      import("@tiptap/extension-code-block-lowlight"),
+      import("lowlight")
+    ])
+    return {
+      CodeBlockLowlight: cb.default,
+      common: low.common,
+      createLowlight: low.createLowlight
+    }
+  },
+  typography: async () => {
+    const m = await import("@tiptap/extension-typography")
+    return { Typography: m.default }
+  },
+  highlight: async () => {
+    const m = await import("@tiptap/extension-highlight")
+    return { Highlight: m.default }
+  },
+  underline: async () => {
+    const m = await import("@tiptap/extension-underline")
+    return { Underline: m.default }
+  },
+  subscript: async () => {
+    const m = await import("@tiptap/extension-subscript")
+    return { Subscript: m.default }
+  },
+  superscript: async () => {
+    const m = await import("@tiptap/extension-superscript")
+    return { Superscript: m.default }
+  },
+  youtube: async () => {
+    const m = await import("@tiptap/extension-youtube")
+    return { Youtube: m.default }
+  },
+  character_count: async () => {
+    const m = await import("@tiptap/extension-character-count")
+    return { CharacterCount: m.default }
+  },
+  section: async () => {
+    const m = await import("inkpen/extensions/section")
+    return { Section: m.Section }
+  },
+  preformatted: async () => {
+    const m = await import("inkpen/extensions/preformatted")
+    return { Preformatted: m.Preformatted }
+  },
+  slash_commands: async () => {
+    const m = await import("inkpen/extensions/slash_commands")
+    return { SlashCommands: m.SlashCommands }
+  },
+  block_gutter: async () => {
+    const m = await import("inkpen/extensions/block_gutter")
+    return { BlockGutter: m.BlockGutter }
+  },
+  drag_handle: async () => {
+    const m = await import("inkpen/extensions/drag_handle")
+    return { DragHandle: m.DragHandle }
+  },
+  toggle_block: async () => {
+    const m = await import("inkpen/extensions/toggle_block")
+    return { ToggleBlock: m.ToggleBlock, ToggleSummary: m.ToggleSummary }
+  },
+  columns: async () => {
+    const m = await import("inkpen/extensions/columns")
+    return { Columns: m.Columns, Column: m.Column }
+  },
+  callout: async () => {
+    const m = await import("inkpen/extensions/callout")
+    return { Callout: m.Callout }
+  },
+  block_commands: async () => {
+    const m = await import("inkpen/extensions/block_commands")
+    return { BlockCommands: m.BlockCommands }
+  },
+  enhanced_image: async () => {
+    const m = await import("inkpen/extensions/enhanced_image")
+    return { EnhancedImage: m.EnhancedImage }
+  },
+  file_attachment: async () => {
+    const m = await import("inkpen/extensions/file_attachment")
+    return { FileAttachment: m.FileAttachment }
+  },
+  embed: async () => {
+    const m = await import("inkpen/extensions/embed")
+    return { Embed: m.Embed }
+  },
+  advanced_table: async () => {
+    const m = await import("inkpen/extensions/advanced_table")
+    return {
+      AdvancedTable: m.AdvancedTable,
+      AdvancedTableRow: m.AdvancedTableRow,
+      AdvancedTableCell: m.AdvancedTableCell,
+      AdvancedTableHeader: m.AdvancedTableHeader
+    }
+  },
+  table_of_contents: async () => {
+    const m = await import("inkpen/extensions/table_of_contents")
+    return { TableOfContents: m.TableOfContents }
+  },
+  database: async () => {
+    const m = await import("inkpen/extensions/database")
+    return { Database: m.Database }
+  },
+  document_section: async () => {
+    const m = await import("inkpen/extensions/document_section")
+    return { DocumentSection: m.DocumentSection }
+  },
+  content_embed: async () => {
+    const m = await import("inkpen/extensions/content_embed")
+    return { ContentEmbed: m.ContentEmbed }
+  }
+}
+
+// Exported for tests so they can mock loaders or assert the registry's
+// surface. Not part of the public gem API; the controller is the only
+// production consumer.
+export const __EXTENSION_LOADER_NAMES__ = Object.keys(EXTENSION_LOADERS)
+
+async function loadEditorModules(enabledExtensions = []) {
+  const enabledSet = new Set(enabledExtensions)
+  const cacheKey = [...enabledSet].sort().join(",") || "(empty)"
+  if (cachedModules.has(cacheKey)) return cachedModules.get(cacheKey)
+
+  const core = await loadCoreModules()
+
+  const gatedPromises = []
+  for (const [name, loader] of Object.entries(EXTENSION_LOADERS)) {
+    if (enabledSet.has(name)) {
+      gatedPromises.push(loader())
+    }
+  }
+  const gatedResults = await Promise.all(gatedPromises)
+
+  const modules = Object.assign({}, core, ...gatedResults)
+  cachedModules.set(cacheKey, modules)
+  return modules
 }
 
 // Extensions loaded lazily to prevent import failures from breaking the editor
@@ -332,7 +398,7 @@ export default class extends Controller {
 
   async initializeEditor() {
     // Lazy-load all TipTap modules
-    this.modules = await loadEditorModules()
+    this.modules = await loadEditorModules(this.extensionsValue)
     const { Editor } = this.modules
 
     const extensions = await this.buildExtensions()
