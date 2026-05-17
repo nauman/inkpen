@@ -45,24 +45,15 @@ if (!exportBlockMatch) {
     .replace(/^export\{|\}\s*;?\s*$/g, "")
     .split(",")
     .map((s) => s.trim().split(/\s+as\s+/)[1] || s.trim())
+  // As of 0.9.0 (spec 02 slice A) the public surface of the bundle is
+  // just the three Stimulus controllers. Extensions are loaded lazily
+  // by editor_controller.js#loadEditorModules and are no longer named
+  // exports. Hosts that need direct access to an extension class
+  // configure it via data-inkpen--editor-extensions-value instead.
   const required = [
     "EditorController",
     "ToolbarController",
-    "StickyToolbarController",
-    "AdvancedTable",
-    "Callout",
-    "Columns",
-    "Database",
-    "DocumentSection",
-    "DragHandle",
-    "Embed",
-    "EnhancedImage",
-    "FileAttachment",
-    "InkpenTable",
-    "Section",
-    "SlashCommands",
-    "TableOfContents",
-    "ToggleBlock"
+    "StickyToolbarController"
   ]
   const missing = required.filter((r) => !symbols.includes(r))
   if (missing.length > 0) {
