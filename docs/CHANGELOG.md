@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [0.9.2] - 2026-07-11
+
+### Fixed
+- Hardened JavaScript regression coverage so extension gating and markdown round-trip regressions fail CI/release.
+- Fixed markdown round-trip data loss for GFM tables, task lists, links, blockquotes, fenced code blocks, and bold+italic text.
+
 ### Added
 - VISION.md documenting architecture philosophy and blocks vs sections distinction
 - Phase 7+ roadmap for Document Sections (true content grouping)
