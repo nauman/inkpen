@@ -17,6 +17,7 @@ import Table from "@tiptap/extension-table"
 import TableRow from "@tiptap/extension-table-row"
 import TableCell from "@tiptap/extension-table-cell"
 import TableHeader from "@tiptap/extension-table-header"
+import Link from "@tiptap/extension-link"
 
 import { DOMParser as PMDOMParser } from "@tiptap/pm/model"
 import { JSDOM } from "jsdom"
@@ -26,6 +27,7 @@ const jsdom = new JSDOM("")
 export function buildTestSchema() {
   return getSchema([
     StarterKit,
+    Link,
     TaskList,
     TaskItem.configure({ nested: true }),
     Table.configure({ resizable: false }),

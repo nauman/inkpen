@@ -87,9 +87,6 @@ jobs:
 
       - name: Run JS tests (spec 01 baseline)
         run: npm test
-        # Non-fatal: spec 01 has known catalogued failures today (7/12).
-        # Release blocks only if the baseline drops below 5 passing.
-        continue-on-error: true
 
       - name: Build gem
         run: bundle exec rake build

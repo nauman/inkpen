@@ -200,6 +200,7 @@ const EXTENSION_LOADERS = {
 // surface. Not part of the public gem API; the controller is the only
 // production consumer.
 export const __EXTENSION_LOADER_NAMES__ = Object.keys(EXTENSION_LOADERS)
+export const __loadEditorModulesForTest = loadEditorModules
 
 async function loadEditorModules(enabledExtensions = []) {
   const enabledSet = new Set(enabledExtensions)

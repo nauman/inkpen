@@ -66,6 +66,3 @@ jobs:
         run: npm run build:check
       - name: Run round-trip tests
         run: npm test
-        # Spec 01 has known catalogued failures today (7/12 fail).
-        # CI doesn't block on these until spec 01 closes them out.
-        continue-on-error: true

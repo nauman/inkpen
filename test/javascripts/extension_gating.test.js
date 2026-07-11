@@ -2,14 +2,17 @@
 // extensions named in the enabled set.
 //
 // We can't directly assert what dynamic-import() calls were made
-// without monkey-patching the module system, so this test runs at a
-// higher level: it imports the registry's name list (exported as
-// __EXTENSION_LOADER_NAMES__) and asserts the names match expectations.
+// without monkey-patching the module system, so these tests run at a
+// higher level: they snapshot the loader registry and assert a small
+// enabled set exposes core + requested modules without disabled ones.
 // A future bundle-time guard (slice C) can do the byte-level check.
 
 import { describe, it, expect } from "vitest"
 
-import { __EXTENSION_LOADER_NAMES__ } from "inkpen/controllers/editor_controller"
+import {
+  __EXTENSION_LOADER_NAMES__,
+  __loadEditorModulesForTest
+} from "inkpen/controllers/editor_controller"
 
 describe("loadEditorModules — extension gating registry", () => {
   it("exposes a stable, sorted-by-insertion list of gated extension names", () => {
@@ -87,5 +90,21 @@ describe("loadEditorModules — extension gating registry", () => {
     for (const name of __EXTENSION_LOADER_NAMES__) {
       expect(separatelyLoaded.has(name)).toBe(false)
     }
+  })
+
+  it("loads only core modules plus requested gated modules for a small extension set", async () => {
+    const modules = await __loadEditorModulesForTest(["link"])
+
+    expect(modules.Editor).toBeTruthy()
+    expect(modules.StarterKit).toBeTruthy()
+    expect(modules.Placeholder).toBeTruthy()
+    expect(modules.BubbleMenu).toBeTruthy()
+    expect(modules.Link).toBeTruthy()
+
+    expect(modules.Table).toBeUndefined()
+    expect(modules.Database).toBeUndefined()
+    expect(modules.Embed).toBeUndefined()
+    expect(modules.EnhancedImage).toBeUndefined()
+    expect(modules.ContentEmbed).toBeUndefined()
   })
 })

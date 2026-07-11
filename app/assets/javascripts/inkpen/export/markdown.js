@@ -291,17 +291,27 @@ function serializeInlineContent(node) {
   const iterate = (items) => {
     if (Array.isArray(items)) {
       for (const item of items) {
-        result += serializeTextWithMarks(item)
+        result += serializeInlineNode(item)
       }
     } else if (typeof items.forEach === "function") {
       items.forEach(item => {
-        result += serializeTextWithMarks(item)
+        result += serializeInlineNode(item)
       })
     }
   }
 
   iterate(children)
   return result
+}
+
+function serializeInlineNode(node) {
+  if (!node) return ""
+
+  const type = node.type?.name || node.type
+  if (type === "text") return serializeTextWithMarks(node)
+  if (type === "hardBreak") return "\n"
+
+  return serializeNode(node).trim()
 }
 
 /**
@@ -316,8 +326,24 @@ function serializeTextWithMarks(node) {
     return text
   }
 
-  // Apply marks in order (innermost first)
-  for (const mark of node.marks) {
+  const markName = mark => mark.type?.name || mark.type
+  const hasBold = node.marks.some(mark => ["bold", "strong"].includes(markName(mark)))
+  const hasItalic = node.marks.some(mark => ["italic", "em"].includes(markName(mark)))
+
+  if (hasBold && hasItalic) {
+    text = `***${text}***`
+  } else if (hasBold) {
+    text = MARK_SERIALIZERS.bold(text)
+  } else if (hasItalic) {
+    text = MARK_SERIALIZERS.italic(text)
+  }
+
+  const remainingMarks = node.marks.filter(mark => {
+    const name = markName(mark)
+    return !["bold", "strong", "italic", "em"].includes(name)
+  })
+
+  for (const mark of remainingMarks) {
     const serializer = MARK_SERIALIZERS[mark.type?.name || mark.type]
     if (serializer) {
       text = serializer(text, mark)
@@ -425,7 +451,8 @@ function serializeBlockquote(node, options) {
  */
 function serializeCodeBlock(node) {
   const language = node.attrs?.language || ""
-  return "```" + language + "\n" + node.textContent + "\n```"
+  const content = (node.textContent || "").replace(/\n$/, "")
+  return "```" + language + "\n" + content + "\n```"
 }
 
 /**
@@ -470,7 +497,7 @@ function serializeTable(node, options) {
     const rowChildren = row.content?.content || row.content || []
 
     iterate(rowChildren, (cell, cellIndex) => {
-      const content = serializeInlineContent(cell).trim() || " "
+      const content = serializeTableCell(cell, options)
       cells.push(content)
 
       // Track alignment from first row cells
@@ -498,6 +525,15 @@ function serializeTable(node, options) {
   })
 
   return rows.join("\n") + "\n"
+}
+
+function serializeTableCell(cell, options) {
+  const content = serializeChildren(cell, options)
+    .trim()
+    .replace(/\n+/g, "<br>")
+    .replace(/\s*\|\s*/g, "\\|")
+
+  return content || " "
 }
 
 /**

@@ -26,10 +26,18 @@ const fixtureNames = readdirSync(FIXTURE_DIR)
   .sort()
 
 const schema = buildTestSchema()
+const expectedFailures = new Set([
+  // Setext heading marker style is not represented in HTML/ProseMirror.
+  // The importer/exporter can preserve heading semantics, but not whether
+  // the source used underlines (`===` / `---`) instead of ATX (`#` / `##`).
+  "setext-heading.md"
+])
 
 describe("markdown round-trip fidelity", () => {
   for (const name of fixtureNames) {
-    it(name, () => {
+    const testCase = expectedFailures.has(name) ? it.fails : it
+
+    testCase(name, () => {
       const md = readFileSync(join(FIXTURE_DIR, name), "utf8")
 
       const { html } = importFromMarkdown(md, schema, { parser: "real" })
