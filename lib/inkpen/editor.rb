@@ -102,17 +102,9 @@ module Inkpen
     def initialize(name:, value: nil, **options)
       @name = name
       @value = value
-      @toolbar = options.fetch(:toolbar, Inkpen.configuration.toolbar)
-      @sticky_toolbar = options.fetch(:sticky_toolbar, nil)
-      @markdown_mode = options.fetch(:markdown_mode, nil)
-      @extensions = options.fetch(:extensions, Inkpen.configuration.extensions)
-      @extension_config = options.fetch(:extension_config, {})
-      @placeholder = options.fetch(:placeholder, Inkpen.configuration.placeholder)
-      @autosave = options.fetch(:autosave, Inkpen.configuration.autosave)
-      @autosave_interval = options.fetch(:autosave_interval, Inkpen.configuration.autosave_interval)
-      @min_height = options.fetch(:min_height, Inkpen.configuration.min_height)
-      @max_height = options.fetch(:max_height, Inkpen.configuration.max_height)
-      @html_attributes = options.fetch(:html, {})
+      assign_interface_options(options)
+      assign_behavior_options(options)
+      assign_dimension_options(options)
     end
 
     ##
@@ -124,32 +116,7 @@ module Inkpen
     # @return [Hash] data attributes hash
     #
     def data_attributes
-      controllers = ["inkpen--editor"]
-      controllers << "inkpen--sticky-toolbar" if sticky_toolbar&.enabled?
-
-      attrs = {
-        data: {
-          controller: controllers.join(" "),
-          "inkpen--editor-extensions-value" => extensions.to_json,
-          "inkpen--editor-extension-config-value" => extension_config.to_json,
-          "inkpen--editor-toolbar-value" => toolbar.to_s,
-          "inkpen--editor-placeholder-value" => placeholder,
-          "inkpen--editor-autosave-value" => autosave.to_s,
-          "inkpen--editor-autosave-interval-value" => autosave_interval.to_s
-        }
-      }
-
-      # Merge sticky toolbar data attributes if enabled
-      if sticky_toolbar&.enabled?
-        attrs[:data].merge!(sticky_toolbar.data_attributes)
-      end
-
-      # Merge markdown mode data attributes if enabled
-      if markdown_mode&.enabled?
-        attrs[:data].merge!(markdown_mode.data_attributes)
-      end
-
-      attrs
+      { data: editor_data_attributes.merge(optional_data_attributes) }
     end
 
     ##
@@ -199,6 +166,54 @@ module Inkpen
     #
     def input_id
       name.to_s.gsub(/[\[\]]/, "_").gsub(/_+/, "_").chomp("_")
+    end
+
+    private
+
+    def assign_interface_options(options)
+      @toolbar = options.fetch(:toolbar, Inkpen.configuration.toolbar)
+      @sticky_toolbar = options.fetch(:sticky_toolbar, nil)
+      @markdown_mode = options.fetch(:markdown_mode, nil)
+      @extensions = options.fetch(:extensions, Inkpen.configuration.extensions)
+      @extension_config = options.fetch(:extension_config, {})
+      @placeholder = options.fetch(:placeholder, Inkpen.configuration.placeholder)
+    end
+
+    def assign_behavior_options(options)
+      @autosave = options.fetch(:autosave, Inkpen.configuration.autosave)
+      @autosave_interval = options.fetch(:autosave_interval, Inkpen.configuration.autosave_interval)
+    end
+
+    def assign_dimension_options(options)
+      @min_height = options.fetch(:min_height, Inkpen.configuration.min_height)
+      @max_height = options.fetch(:max_height, Inkpen.configuration.max_height)
+      @html_attributes = options.fetch(:html, {})
+    end
+
+    def editor_data_attributes
+      {
+        controller: editor_controllers.join(" "),
+        "inkpen--editor-extensions-value" => extensions.to_json,
+        "inkpen--editor-extension-config-value" => extension_config.to_json,
+        "inkpen--editor-toolbar-value" => toolbar.to_s,
+        "inkpen--editor-placeholder-value" => placeholder,
+        "inkpen--editor-autosave-value" => autosave.to_s,
+        "inkpen--editor-autosave-interval-value" => autosave_interval.to_s
+      }
+    end
+
+    def editor_controllers
+      controllers = ["inkpen--editor"]
+      controllers << "inkpen--sticky-toolbar" if sticky_toolbar&.enabled?
+      controllers
+    end
+
+    def optional_data_attributes
+      attributes = {}
+      attributes.merge!(sticky_toolbar.data_attributes) if sticky_toolbar&.enabled?
+      attributes.merge!(markdown_mode.data_attributes) if markdown_mode&.enabled?
+
+      attributes
     end
   end
 end

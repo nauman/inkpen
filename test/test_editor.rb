@@ -28,6 +28,56 @@ class TestEditor < Minitest::Test
     assert_nil editor.value
   end
 
+  def test_initializer_defaults_match_configuration
+    editor = Inkpen::Editor.new(name: "post[body]")
+
+    assert_equal Inkpen.configuration.toolbar, editor.toolbar
+    assert_nil editor.sticky_toolbar
+    assert_nil editor.markdown_mode
+    assert_equal Inkpen.configuration.extensions, editor.extensions
+    assert_equal({}, editor.extension_config)
+    assert_equal Inkpen.configuration.placeholder, editor.placeholder
+    assert_equal Inkpen.configuration.autosave, editor.autosave
+    assert_equal Inkpen.configuration.autosave_interval, editor.autosave_interval
+    assert_equal Inkpen.configuration.min_height, editor.min_height
+    assert_nil editor.max_height
+    assert_equal({}, editor.html_attributes)
+  end
+
+  def test_initializer_accepts_all_overrides
+    sticky_toolbar = Inkpen::StickyToolbar.new(position: :left)
+    markdown_mode = Inkpen::MarkdownMode.new(enabled: true)
+    editor = Inkpen::Editor.new(
+      name: "article[content]",
+      value: "<p>Draft</p>",
+      toolbar: :fixed,
+      sticky_toolbar: sticky_toolbar,
+      markdown_mode: markdown_mode,
+      extensions: %i[bold italic],
+      extension_config: { bold: { enabled: false } },
+      placeholder: "Compose",
+      autosave: true,
+      autosave_interval: 1_000,
+      min_height: "10rem",
+      max_height: "40rem",
+      html: { class: "editor" }
+    )
+
+    assert_equal "article[content]", editor.name
+    assert_equal "<p>Draft</p>", editor.value
+    assert_equal :fixed, editor.toolbar
+    assert_same sticky_toolbar, editor.sticky_toolbar
+    assert_same markdown_mode, editor.markdown_mode
+    assert_equal %i[bold italic], editor.extensions
+    assert_equal({ bold: { enabled: false } }, editor.extension_config)
+    assert_equal "Compose", editor.placeholder
+    assert editor.autosave
+    assert_equal 1_000, editor.autosave_interval
+    assert_equal "10rem", editor.min_height
+    assert_equal "40rem", editor.max_height
+    assert_equal({ class: "editor" }, editor.html_attributes)
+  end
+
   # Toolbar Configuration
 
   def test_default_toolbar_from_config
@@ -104,6 +154,67 @@ class TestEditor < Minitest::Test
   end
 
   # Data Attributes
+
+  def test_data_attributes_exactly_match_core_contract
+    editor = Inkpen::Editor.new(
+      name: "post[body]",
+      extensions: %i[bold italic],
+      extension_config: { bold: { enabled: true } },
+      toolbar: :fixed,
+      placeholder: "Write",
+      autosave: true,
+      autosave_interval: 750
+    )
+
+    assert_equal(
+      {
+        data: {
+          controller: "inkpen--editor",
+          "inkpen--editor-extensions-value" => '["bold","italic"]',
+          "inkpen--editor-extension-config-value" => '{"bold":{"enabled":true}}',
+          "inkpen--editor-toolbar-value" => "fixed",
+          "inkpen--editor-placeholder-value" => "Write",
+          "inkpen--editor-autosave-value" => "true",
+          "inkpen--editor-autosave-interval-value" => "750"
+        }
+      },
+      editor.data_attributes
+    )
+  end
+
+  def test_data_attributes_exactly_merge_enabled_optional_modes
+    sticky_toolbar = Inkpen::StickyToolbar.new(
+      position: :left,
+      buttons: %i[table image],
+      widget_types: ["chart"]
+    )
+    markdown_mode = Inkpen::MarkdownMode.new(
+      enabled: true,
+      default_mode: :split,
+      show_toggle: false,
+      toggle_placement: :inline,
+      toolbar_button: true,
+      sync_delay: 450,
+      keyboard_shortcuts: false
+    )
+    editor = Inkpen::Editor.new(
+      name: "post[body]",
+      sticky_toolbar: sticky_toolbar,
+      markdown_mode: markdown_mode
+    )
+
+    expected = {
+      controller: "inkpen--editor inkpen--sticky-toolbar",
+      "inkpen--editor-extensions-value" => editor.extensions.to_json,
+      "inkpen--editor-extension-config-value" => "{}",
+      "inkpen--editor-toolbar-value" => editor.toolbar.to_s,
+      "inkpen--editor-placeholder-value" => editor.placeholder,
+      "inkpen--editor-autosave-value" => editor.autosave.to_s,
+      "inkpen--editor-autosave-interval-value" => editor.autosave_interval.to_s
+    }.merge(sticky_toolbar.data_attributes, markdown_mode.data_attributes)
+
+    assert_equal({ data: expected }, editor.data_attributes)
+  end
 
   def test_data_attributes_includes_controller
     editor = Inkpen::Editor.new(name: "post[body]")

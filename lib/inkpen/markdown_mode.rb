@@ -80,6 +80,8 @@ module Inkpen
     # @param sync_delay [Integer] debounce delay for split sync (ms)
     # @param keyboard_shortcuts [Boolean] enable keyboard shortcuts
     #
+    # Seven keywords form the stable public configuration API.
+    # rubocop:disable Metrics/ParameterLists
     def initialize(
       enabled: false,
       default_mode: :wysiwyg,
@@ -97,6 +99,7 @@ module Inkpen
       @sync_delay = sync_delay.to_i
       @keyboard_shortcuts = keyboard_shortcuts
     end
+    # rubocop:enable Metrics/ParameterLists
 
     ##
     # Check if markdown mode is enabled.

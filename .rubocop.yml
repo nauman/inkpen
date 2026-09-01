@@ -1,5 +1,19 @@
 AllCops:
   TargetRubyVersion: 3.1
+  NewCops: enable
+  SuggestExtensions: false
+
+Metrics/ClassLength:
+  Exclude:
+    - "test/**/*"
+
+Metrics/AbcSize:
+  Exclude:
+    - "test/**/*"
+
+Metrics/MethodLength:
+  Exclude:
+    - "test/**/*"
 
 Style/StringLiterals:
   EnforcedStyle: double_quotes

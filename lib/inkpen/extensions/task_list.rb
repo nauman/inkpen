@@ -117,6 +117,8 @@ module Inkpen
       #
       # @return [Hash] configuration for the TipTap extension
       #
+      # Declarative JavaScript extension configuration is clearest as one hash.
+      # rubocop:disable Metrics/MethodLength
       def to_config
         {
           nested: nested?,
@@ -130,6 +132,7 @@ module Inkpen
           keyboardShortcut: keyboard_shortcut
         }
       end
+      # rubocop:enable Metrics/MethodLength
 
       private
 

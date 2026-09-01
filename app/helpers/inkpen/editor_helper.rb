@@ -47,18 +47,9 @@ module Inkpen
     #   <%= inkpen_field :post, :body, extensions: [:mentions, :hashtags] %>
     #
     def inkpen_field(object_name, method, options = {})
-      value = options.delete(:value)
-
-      # Try to get value from object if not provided
-      if value.nil? && (object = instance_variable_get("@#{object_name}"))
-        value = object.public_send(method) if object.respond_to?(method)
-      end
-
-      name = "#{object_name}[#{method}]"
-
       editor = Inkpen::Editor.new(
-        name: name,
-        value: value,
+        name: "#{object_name}[#{method}]",
+        value: inkpen_field_value(object_name, method, options.delete(:value)),
         **options
       )
 
@@ -109,6 +100,13 @@ module Inkpen
     #
     def render_inkpen_editor(editor)
       render partial: "inkpen/editor", locals: { editor: editor }
+    end
+
+    def inkpen_field_value(object_name, method, explicit_value)
+      return explicit_value unless explicit_value.nil?
+
+      object = instance_variable_get("@#{object_name}")
+      object.public_send(method) if object.respond_to?(method)
     end
   end
 end

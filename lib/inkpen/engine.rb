@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module Inkpen
+  # Rails integration for Inkpen assets, import maps, and view helpers.
   class Engine < ::Rails::Engine
     isolate_namespace Inkpen
 

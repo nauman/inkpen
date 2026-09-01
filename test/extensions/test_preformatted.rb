@@ -32,7 +32,7 @@ class TestPreformatted < Minitest::Test
     refute @extension.wrap_lines?
   end
 
-  def test_default_tab_size_is_4
+  def test_default_tab_size_is_four
     assert_equal 4, @extension.tab_size
   end
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Inkpen importmap — single vendored bundle, no third-party CDN.
 #
 # Before 0.8.0 this file pinned ~70 modules to a third-party module CDN.

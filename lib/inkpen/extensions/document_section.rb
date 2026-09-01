@@ -70,7 +70,7 @@ module Inkpen
       #
       def max_depth
         depth = options.fetch(:max_depth, DEFAULT_MAX_DEPTH)
-        [[depth, 1].max, 3].min # Clamp between 1 and 3
+        depth.clamp(1, 3)
       end
 
       ##

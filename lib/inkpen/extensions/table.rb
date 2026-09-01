@@ -145,6 +145,8 @@ module Inkpen
       #
       # @return [Hash] configuration for the TipTap extension
       #
+      # Declarative JavaScript extension configuration is clearest as one hash.
+      # rubocop:disable Metrics/MethodLength
       def to_config
         {
           resizable: resizable?,
@@ -160,9 +162,12 @@ module Inkpen
           withHeaderRow: with_header_row?
         }.compact
       end
+      # rubocop:enable Metrics/MethodLength
 
       private
 
+      # Option defaults mirror the JavaScript extension's public configuration.
+      # rubocop:disable Metrics/MethodLength
       def default_options
         super.merge(
           resizable: true,
@@ -177,6 +182,7 @@ module Inkpen
           with_header_row: true
         )
       end
+      # rubocop:enable Metrics/MethodLength
     end
   end
 end
