@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-# stub: inkpen 0.9.2 ruby lib
+# stub: inkpen 0.9.3 ruby lib
 
 Gem::Specification.new do |s|
   s.name = "inkpen"
-  s.version = "0.9.2"
+  s.version = "0.9.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   if s.respond_to? :metadata=

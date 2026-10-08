@@ -11,6 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.9.3] - 2026-10-09
+
+### Fixed
+- Restored a green Ruby CI baseline by explicitly enabling new RuboCop cops and resolving the existing offenses without changing the editor's public behavior.
+- Added characterization coverage for editor initialization, data attributes, and model-bound field values so future refactors cannot silently change the Rails integration contract.
+
+---
+
 ## [0.9.2] - 2026-07-11
 
 ### Fixed
