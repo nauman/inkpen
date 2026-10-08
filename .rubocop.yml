@@ -3,6 +3,10 @@ AllCops:
   NewCops: enable
   SuggestExtensions: false
 
+# Releases use the repository-scoped RUBYGEMS_API_KEY managed by GitHub Actions.
+Gemspec/RequireMFA:
+  Enabled: false
+
 Metrics/ClassLength:
   Exclude:
     - "test/**/*"

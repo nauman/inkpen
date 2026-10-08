@@ -1,18 +1,17 @@
 # frozen_string_literal: true
 
-# stub: inkpen 0.9.3 ruby lib
+# stub: inkpen 0.9.4 ruby lib
 
 Gem::Specification.new do |s|
   s.name = "inkpen"
-  s.version = "0.9.3"
+  s.version = "0.9.4"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   if s.respond_to? :metadata=
     s.metadata = {
       "changelog_uri" => "https://github.com/nauman/inkpen/blob/main/CHANGELOG.md",
       "homepage_uri" => "https://github.com/nauman/inkpen",
-      "source_code_uri" => "https://github.com/nauman/inkpen",
-      "rubygems_mfa_required" => "true"
+      "source_code_uri" => "https://github.com/nauman/inkpen"
     }
   end
   s.require_paths = ["lib"]

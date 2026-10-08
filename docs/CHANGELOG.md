@@ -11,6 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.9.4] - 2026-10-09
+
+### Changed
+- Removed the gem-level MFA publishing requirement so the existing repository-scoped RubyGems API key can publish releases from CI.
+- Restored the established API-key release workflow used by the other maintained gems; runtime editor behavior is unchanged.
+
+---
+
 ## [0.9.3] - 2026-10-09
 
 ### Fixed
