@@ -4,10 +4,11 @@ name: Release to RubyGems
 # vendored JS bundle, runs the Ruby + JS tests, builds the .gem, and
 # pushes to rubygems.org.
 #
-# Required repo secret: RUBYGEMS_API_KEY
-#   Get a token at https://rubygems.org/profile/api_keys with the
-#   "push rubygem" scope, then:
-#     gh secret set RUBYGEMS_API_KEY --body "rubygems_xxx" -R nauman/inkpen
+# RubyGems trusted publisher configuration:
+#   Repository owner: nauman
+#   Repository name: inkpen
+#   Workflow filename: release.yml
+#   Environment: release
 #
 # To trigger a release:
 #   1. Bump lib/inkpen/version.rb + inkpen.gemspec (stub + s.version)
@@ -21,6 +22,12 @@ on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Existing version tag to publish (for example, 0.9.3)
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -29,8 +36,15 @@ jobs:
   release:
     runs-on: ubuntu-latest
     name: Build + publish ${{ github.ref_name }}
+    environment: release
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.event_name == 'workflow_dispatch' && format('refs/tags/v{0}', inputs.version) || github.ref }}
 
       # Guard against a stale Gemfile.lock when the gemspec was bumped
       # without running `bundle install` locally first (Lesson 9,
@@ -70,8 +84,18 @@ jobs:
         run: npm ci
 
       - name: Verify tag matches gemspec version
+        env:
+          DISPATCH_VERSION: ${{ inputs.version }}
         run: |
-          tag="${GITHUB_REF_NAME#v}"
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+            if ! printf '%s' "$DISPATCH_VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+              echo "::error::Invalid release version: $DISPATCH_VERSION"
+              exit 1
+            fi
+            tag="$DISPATCH_VERSION"
+          else
+            tag="${GITHUB_REF_NAME#v}"
+          fi
           gemspec_version=$(ruby -e 'require_relative "lib/inkpen/version"; puts Inkpen::VERSION')
           if [ "$tag" != "$gemspec_version" ]; then
             echo "::error::Tag ($tag) does not match Inkpen::VERSION ($gemspec_version)"
@@ -91,12 +115,8 @@ jobs:
       - name: Build gem
         run: bundle exec rake build
 
+      - name: Configure RubyGems trusted publishing credentials
+        uses: rubygems/configure-rubygems-credentials@8674aee7f9f9055a8b771794d6f1e66b5fad36a9
+
       - name: Push gem to rubygems.org
-        env:
-          GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
-        run: |
-          if [ -z "$GEM_HOST_API_KEY" ]; then
-            echo "::error::RUBYGEMS_API_KEY secret is not set"
-            exit 1
-          fi
-          gem push pkg/inkpen-*.gem
+        run: gem push pkg/inkpen-*.gem
